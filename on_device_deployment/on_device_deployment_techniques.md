@@ -404,44 +404,190 @@
 
 📖 代码实践：[5.1_npu_adaptation.ipynb](hardware_deployment/5.1_npu_adaptation.ipynb)
 
-- **高通 Hexagon NPU / QNN**
-  - 原理：高通骁龙平台的Hexagon DSP/NPU，通过QNN（Qualcomm Neural Network）SDK进行模型部署。支持INT8/INT4量化推理，最新骁龙8 Gen 3/4的NPU算力达45+ TOPS。
-- **苹果 Neural Engine (ANE) / Core ML**
-  - 原理：Apple A系列/M系列芯片内置的Neural Engine，通过Core ML框架部署。ANE针对16位浮点和8位整数量化优化，M4芯片ANE算力达38 TOPS。
-- **联发科 APU / NeuroPilot**
-  - 原理：联发科天玑平台的AI处理单元，通过NeuroPilot SDK部署。支持INT8/INT16推理。
-- **华为 NPU / CANN**
-  - 原理：华为麒麟/昇腾芯片的NPU，通过CANN（Compute Architecture for Neural Networks）进行部署优化。
-- **三星 NPU / Samsung Neural SDK**
-  - 原理：Exynos芯片内置NPU，通过Samsung Neural SDK部署。
+#### 5.1.1 NPU架构深潜
+
+- **NPU核心组件**
+  - MAC阵列：矩阵乘加速单元，NPU的核心计算引擎（256-4096个MAC单元，支持INT8/INT4）
+  - 片上SRAM：高速片上缓存，存储激活值和部分权重（256KB-8MB，带宽>1TB/s）
+  - DMA引擎：在DRAM和SRAM之间搬运数据（多通道并行，支持2D/3D传输）
+  - 标量/向量处理器：执行softmax、LayerNorm、激活函数等（FP16/INT32）
+- **主流NPU架构对比**
+  - 高通Hexagon：V68 ISA，4x128 INT8 MAC，4MB SRAM，75 TOPS (8 Elite)，原生INT4支持
+  - 苹果Neural Engine：数据流架构，16x128 INT8 MAC，~8MB SRAM (M4)，38 TOPS，FP16优化最佳
+  - 华为昇腾：达芬奇架构3D Cube，16x16x16 Cube，2-8MB SRAM，128 TOPS (310P)
+  - 联发科APU：Cadence DSP+自研加速，可配置MAC阵列，2-4MB SRAM，45 TOPS (9400)
+- **NPU内存层次与数据流**
+  - DRAM（4-16GB，30-120 GB/s）→ DMA异步传输 → SRAM（256KB-8MB，>1 TB/s）→ MAC寄存器（4-32KB，>10 TB/s）
+  - 关键洞察：NPU性能瓶颈通常不在MAC阵列计算能力，而在DRAM→SRAM的数据搬运
+
+#### 5.1.2 NPU算子兼容性与分解策略
+
+- **LLM关键算子的NPU分解**
+  - Multi-Head Attention → 拆分为QKV投影+注意力计算+输出投影（MatMul+Softmax+MatMul+Concat）
+  - RoPE → 预计算cos/sin表，分解为逐元素乘加（Elementwise Mul+Add）
+  - SwiGLU → 拆分为两个线性层+SiLU+逐元素乘（MatMul+SiLU+Elementwise Mul）
+  - RMSNorm → 分解为平方+求和+开方+归一化（Pow+Reduce+Div+Mul）
+  - Top-K Sampling → 回退CPU（NPU不支持动态排序）
+- **CPU回退代价模型**：$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{CPU}\to\text{NPU}}$，即使1-2个算子回退也可能成为整体推理瓶颈
+
+#### 5.1.3 NPU量化适配
+
+- **各NPU精度支持**
+  - 高通Hexagon：权重INT8/INT4，激活INT8/FP16，MAC吞吐75 TOPS (INT8)
+  - 苹果ANE：权重FP16/INT8，激活FP16，FP16推理效率最高
+  - 华为昇腾：权重INT8/INT4，激活INT8/INT16，128 TOPS (INT8)
+  - 联发科APU：权重INT8/INT16，激活INT8/FP16，无INT4支持
+- **混合精度量化配置优化**：$\min_{(W_b, A_b)} \text{Size}(W_b) \quad \text{s.t.} \quad \text{Accuracy}(W_b, A_b) \geq \text{threshold} \quad \text{and} \quad (W_b, A_b) \in \text{NPU\_Supported}$
+
+#### 5.1.4 NPU部署管线
+
+- **通用部署管线**：模型导出 → 算子兼容性检查 → 计算图优化 → 量化 → NPU编译 → 精度验证 → 性能Profile → 部署打包
+- **各厂商SDK对比**
+  - 高通QNN：ONNX→QNN IR→QNN量化→QNN编译→Context Binary→QNN Runtime
+  - 苹果Core ML：coremltools转换→ANE优化→Xcode编译→Core ML Framework
+  - 华为CANN：ONNX→AMCT量化→ATC编译→OM模型→ACL推理引擎
+
+#### 5.1.5 动态Shape处理与内存管理
+
+- **动态Shape解决方案**
+  - Padding+Mask：编译一次运行时零开销，短序列浪费算力
+  - 多shape编译：为常用shape分别编译，运行时选择最接近的
+  - Dynamic Batch Dispatch：prefill和decode分别编译，decode固定batch=1+seq_len=1
+- **KV Cache内存管理**：NPU不支持动态内存分配，需编译期预分配最大KV Cache空间；PagedAttention在NPU上难以直接映射（不支持非连续内存访问）
+
+#### 5.1.6 NPU性能Profile与调试
+
+- **Profile方法论**：算子级耗时（QNN Profiler/msprof）、内存占用（SRAM使用率、DRAM访问量）、功耗（硬件功耗计）、精度验证（逐层余弦相似度>0.999）
+- **常见瓶颈与优化**：CPU回退（算子分解）、SRAM溢出（Tiling优化）、MAC利用率低（增大batch/算子融合）、DMA瓶颈（双缓冲/权重预取）、量化精度损失（混合精度）
+
+#### 5.1.7 异构调度与CPU+NPU协同
+
+- **典型分工**：Token Embedding(CPU) + QKV/Attention/FFN(NPU) + TopK/Sampling(CPU) + KV Cache管理(CPU)
+- **异构调度策略**：子图级调度（共享内存传递数据）、流水线并行（NPU计算第i层时CPU准备第i+1层）、双缓冲（NPU处理当前batch时DMA预取下一batch权重）
+- **CPU↔NPU数据搬运优化**：共享内存零拷贝、异步DMA计算与搬运重叠、算子融合减少子图数量
+
+#### 5.1.8 实际部署性能基准（2025年数据）
+
+| 模型 | 量化 | 平台 | Prefill | Decode (tok/s) | 内存占用 |
+|------|------|------|---------|---------------|----------|
+| Qwen2.5-1.5B | W4A16 | 骁龙8 Elite NPU | ~15ms/512tok | 25-35 | ~1.2GB |
+| Qwen2.5-3B | W4A16 | 骁龙8 Elite NPU | ~30ms/512tok | 15-20 | ~2.2GB |
+| Llama-3.1-8B | W4A16 | 骁龙8 Elite NPU | ~80ms/512tok | 8-12 | ~5GB |
+| Phi-3-mini-3.8B | W4A16 | M4 MacBook ANE | ~25ms/512tok | 20-30 | ~2.8GB |
+| Qwen2.5-7B | W8A8 | 昇腾310P | ~40ms/512tok | 12-18 | ~8GB |
 
 ### 5.2 端侧部署框架
 
 📖 代码实践：[5.2_deployment_frameworks.ipynb](hardware_deployment/5.2_deployment_frameworks.ipynb)
 
-| 框架 | 核心原理 | 特点 |
-|------|---------|------|
-| **llama.cpp / ggml** | 纯C/C++实现，基于ggml张量库，支持多种量化格式（Q4_0, Q4_K_M, Q8_0等），CPU优先设计 | 跨平台、零依赖、社区活跃、GGUF格式 |
-| **MLC-LLM** | 基于Apache TVM的通用LLM部署框架，将模型编译为目标硬件的原生代码 | 支持iOS/Android/Windows/Linux，编译期优化 |
-| **ExecuTorch (PyTorch)** | PyTorch官方端侧推理框架，提供模型导出（export）、编译（compile）、运行（runtime）全流程 | 与PyTorch生态无缝集成，支持iOS/Android |
-| **ONNX Runtime** | 微软开源的跨平台推理引擎，通过ONNX格式模型在各种硬件上高效执行 | 支持CPU/GPU/NPU，成熟稳定 |
-| **TensorFlow Lite** | Google的移动端推理框架，支持Android/iOS，提供模型转换和硬件委托（delegate）机制 | Android生态集成度高 |
-| **Core ML** | Apple的端侧ML框架，深度集成iOS/macOS生态，自动利用ANE/GPU/CPU | Apple平台最优选择 |
-| **NCNN** | 腾讯开源的高性能神经网络前向计算框架，针对ARM CPU优化 | 无依赖，ARM优化极致 |
-| **MNN** | 阿里开源的轻量级推理引擎，支持CPU/GPU/NPU，针对移动端深度优化 | 端侧推理性能优异 |
-| **TFLite Micro** | TensorFlow Lite的微控制器版本，针对MCU等极低资源设备 | 支持Cortex-M等MCU |
-| **TinyEngine** | MIT提出的MCU端推理引擎，支持内存感知的模型编译和推理 | 面向极低功耗MCU |
+#### 5.2.1 llama.cpp / GGUF生态
+
+- **GGUF格式核心设计**
+  - mmap零拷贝加载：操作系统将文件直接映射到进程地址空间，加载时间O(1)
+  - K-Quant混合量化：两级量化设计（super-block 256权重 + sub-block 32权重），在相同比特数下比均匀量化精度更高
+  - 元数据嵌入：词表、超参数等元数据嵌入文件，无需额外配置文件
+- **K-Quant原理**：super-block存储全局scale（FP16精度），sub-block存储局部scale和offset（FP16精度），权重数据为4/5/6-bit整数。Q4_K_M是7B模型部署的最常用格式
+- **llama.cpp关键优化**：mmap加载、量化GEMV kernel（手写AVX2/NEON汇编）、KV Cache环形缓冲区、连续批处理、多后端支持（CPU/CUDA/Metal/Vulkan/SYCL）
+
+#### 5.2.2 ExecuTorch (PyTorch端侧部署)
+
+- **架构**：torch.export → ExportedProgram → to_edge + partition → Partitioned Graph (Per-Backend) → compile + bundle → .pte File → On-Device Inference
+- **Delegate机制**：XNNPACK Delegate（CPU）、QNN HTA Delegate（高通Hexagon NPU）、Core ML Delegate（苹果ANE）、Vulkan Delegate（GPU）
+- **异构分区原理**：将计算图G划分为子图，每个子图分配到最优后端：$b_i = \arg\min_{b \in B} \text{Latency}(G_i, b)$
+- **轻量运行时**：端侧运行时仅约100KB，适合资源受限设备
+
+#### 5.2.3 MLC-LLM (编译期优化部署)
+
+- **核心思想**：基于Apache TVM，将模型编译为目标硬件的原生代码（AOT编译），而非解释执行
+- **编译流程**：HuggingFace Model → TVM Relay IR → 算子融合+常量折叠+内存规划 → Target Codegen (Metal/CUDA/Vulkan) → .so/.dylib
+- **量化格式**：q4f16_1（权重INT4+激活FP16）是最常用配置
+- **vs llama.cpp vs ExecuTorch**：MLC-LLM AOT编译性能更优但NPU支持有限；llama.cpp JIT解释执行更灵活且CPU推理最成熟；ExecuTorch Delegate机制NPU支持最好
+
+#### 5.2.4 ONNX导出与推理
+
+- **ONNX在LLM部署中的角色**：模型转换的通用中间站，PyTorch→ONNX→QNN/CANN/TensorRT/ONNX Runtime/OpenVINO
+- **关键问题**：自定义算子（RoPE/SwiGLU需分解或注册）、动态shape（dynamic_axes参数）、精度损失（验证$\|f(x) - f_{ONNX}(x)\|_\infty < 10^{-5}$）、KV Cache（作为输入/输出传递）
+
+#### 5.2.5 Core ML (Apple端侧部署)
+
+- **Core ML LLM部署流程**：PyTorch → coremltools转换 → .mlpackage → Core ML优化（权重量化/ANE调度）→ .mlmodelc → Core ML Runtime（ANE优先→GPU→CPU）
+- **特殊考量**：ANE对FP16效率最高（INT8反而可能更慢）、State API支持KV Cache跨步传递、iOS App模型文件建议<4GB、iPhone总内存限制约4-6GB
+
+#### 5.2.6 其他重要框架
+
+| 框架 | 目标 | LLM支持 | NPU支持 | 量化 | 最佳场景 |
+|------|------|---------|---------|------|----------|
+| **llama.cpp/GGUF** | CPU通用 | ★★★★★ | ★ | Q2-Q8 K-Quant | CPU推理, 快速原型 |
+| **MLC-LLM** | CPU/GPU | ★★★★ | ★★ | q4f16_1 | GPU推理优化 |
+| **ExecuTorch** | CPU/NPU/GPU | ★★★ | ★★★★ | INT8/INT4 | PyTorch生态, 移动端多后端 |
+| **ONNX Runtime** | CPU/GPU/NPU | ★★★ | ★★★ | INT8 (QDQ) | 通用推理, NPU delegate |
+| **Core ML** | ANE/GPU/CPU | ★★★ | ★★★★★ | FP16/INT8 | iOS/macOS, ANE加速 |
+| **NCNN** | ARM CPU | ★★ | ★ | INT8 | CV模型, ARM极致优化 |
+| **MNN** | CPU/GPU/NPU | ★★★ | ★★★ | INT8/INT4 | 移动端多模态 |
+
+#### 5.2.7 产业级部署工程实践
+
+- **精度保障**：逐层对比余弦相似度>0.999、端到端PPL增加<0.5、回归测试
+- **常见陷阱**：动态shape（NPU编译失败）、算子不兼容（分解/替换/自定义算子）、量化格式不兼容（使用目标框架自带量化工具）、内存泄漏（KV Cache释放）、热节流（功耗管理）、并发安全（运行时线程安全）
+- **CI/CD集成**：自动导出→自动量化→精度验证→性能基准→打包发布
+- **版本管理**：模型版本、框架版本、配置版本、A/B测试
 
 ### 5.3 硬件感知优化
 
 📖 代码实践：[5.3_hardware_aware.ipynb](hardware_deployment/5.3_hardware_aware.ipynb)
 
-- **内存带宽优化**
-  - 原理：LLM推理的decode阶段是内存带宽受限（memory-bound）的——每次生成一个token需要读取全部模型权重，但仅执行少量计算。优化方向：量化（减少数据搬运量）、算子融合（减少访存次数）、权重预取（overlap计算与访存）。
-- **计算单元利用率优化**
-  - 原理：prefill阶段是计算受限（compute-bound），需要充分利用并行计算单元。优化方向：批量矩阵乘（GEMM）、张量并行、Flash Attention。
-- **功耗预算优化**
-  - 原理：端侧设备有严格的TDP（热设计功耗）限制。通过动态电压频率调整（DVFS）、计算精度自适应、推理调度等手段在性能和功耗间取得平衡。
+#### 5.3.1 Roofline模型深度分析
+
+- **数学基础**：性能上界 $P_{\max} = \min(I \cdot \text{BW}, \text{Peak FLOPS})$，拐点 $I_{\text{threshold}} = \frac{\text{Peak FLOPS}}{\text{BW}}$
+- **不同硬件的Roofline特征**
+  - 高通Hexagon NPU：75 TOPS, 60 GB/s, 拐点=1250 FLOP/B → 大多数LLM算子memory-bound
+  - Apple M4 ANE：38 TOPS, 120 GB/s, 拐点=317 FLOP/B → ANE带宽优势
+  - ARM Cortex-A715：0.5 TFLOPS, 40 GB/s, 拐点=12.5 FLOP/B → 几乎全部memory-bound
+  - NVIDIA RTX 4090：165 TFLOPS, 1008 GB/s, 拐点=164 FLOP/B → 大多数LLM算子compute-bound
+- **关键洞察**：端侧NPU/CPU的拐点远高于云端GPU，量化（减少数据搬运）在端侧效果更显著
+
+#### 5.3.2 内存层次优化
+
+- **Tiling策略**：将大算子按SRAM容量切分为小tile，最大化数据在SRAM中的复用次数，最小化DRAM访问次数
+- **Flash Attention Tiling**：通过分块计算+running max/sum统计，避免O(L²)的SRAM需求，将SRAM需求从O(L²)降至O(Bq×Bk)
+- **GEMM Tiling**：将矩阵乘C=AB按tile大小切分，每个tile的A块在SRAM中被复用N/Tn次，DRAM访问量从O(MNK)降至O(MNK/T)
+
+#### 5.3.3 双缓冲与流水线优化
+
+- **双缓冲原理**：将SRAM分为两个buffer，NPU计算Buffer A时DMA预取下一层到Buffer B，交换指针后立即开始下一层计算
+- **延迟隐藏条件**：$T_{\text{DMA}} \leq T_{\text{compute}}$，compute-bound场景效果最好，memory-bound场景效果有限
+- **优化叠加效果**：INT4量化(4x) + 双缓冲(1.5-2x) + 算子融合(1.2x) ≈ 8-10x decode加速
+
+#### 5.3.4 量化对硬件性能的影响
+
+- **量化改变算术强度**：INT4量化将权重搬运量减少4x，算术强度提升约4x，使算子向compute-bound区域移动
+- **量化加速效果**：Decode(batch=1)带宽受限→INT4加速~3-4x；Prefill(batch=4)计算受限→INT4加速~1.0-1.5x；KV Cache带宽受限→KV量化加速~2-4x
+- **混合精度MAC利用率**：W4A8是NPU最优配置（INT4权重+INT8激活，MAC利用率400%，带宽需求25%）
+
+#### 5.3.5 功耗预算优化
+
+- **功耗模型**：$P = \alpha C V^2 f + V I_{\text{leak}}$，端侧需在TDP内最大化性能
+- **热节流机制**：手机NPU TDP 3-5W，降频阈值~45°C，降频后性能降至50-70%
+- **功耗优化策略**
+  - DVFS：降低f和V，功耗按V²f降低，20-40%功耗降低
+  - 精度自适应：温度低→W4A16，温度高→W4A8，30-50%功耗降低
+  - 推理调度：交互式请求NPU立即执行，后台请求CPU低频延迟执行
+  - 模型切换：温度低→7B模型，温度高→1.5B模型，40-60%功耗降低
+
+#### 5.3.6 硬件感知模型设计
+
+- **量化友好架构**：GQA/MQA（减少KV头数）、ReLU/GELU（替代SiGLU/SwiGLU）、共享嵌入（量化一次）
+- **NPU友好架构**：hidden_dim对齐2的幂（MAC阵列效率更高）、GQA（减少KV数量）、固定长度/padding（NPU编译期需固定shape）
+- **硬件感知NAS**：$\min_{\theta} \mathcal{L}(\theta) \quad \text{s.t.} \quad \text{Latency}(\theta, H) \leq T_{\text{budget}} \quad \text{and} \quad \text{Memory}(\theta) \leq M_{\text{budget}}$
+
+#### 5.3.7 优化策略选择矩阵
+
+| 瓶颈类型 | Prefill (compute-bound) | Decode (memory-bound) |
+|---------|----------------------|---------------------|
+| **首选优化** | 算子融合 / Flash Attention | 量化 (W4A16) |
+| **次选优化** | 增大batch / 张量并行 | KV量化 / 权重预取 |
+| **进阶优化** | 硬件感知NAS | 双缓冲 / 算子融合 |
+| **量化效果** | 有限 (~1.2x) | 显著 (~3-4x) |
 
 ---
 
