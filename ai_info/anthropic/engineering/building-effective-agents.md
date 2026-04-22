@@ -18,7 +18,7 @@
 
 1. **提示链 (Prompt Chaining)**: 将任务分解为顺序步骤，每步 LLM 处理上一步输出，步骤间有程序化"门"进行验证。适用于可清晰分解为固定子任务的场景。
 2. **路由 (Routing)**: 对输入分类并导向专门的后续任务。关注点分离使每条路径拥有优化的提示。适用于不同类别需要分别处理的场景。
-3. **并行化 (Parallelization)**: LLM 同时工作并聚合输出。两种变体：分段（独立子任务并行）和投票（同一任务多次执行以获得置信度）。
+3. **并行化 (Parallelization)**: LLM 有时可以同时处理同一任务，并通过程序化方式聚合输出。两种变体：任务分割（将任务拆分为独立子任务并行执行）和投票（同一任务多次执行以获得多样化输出）。
 4. **编排者-工作者 (Orchestrator-Workers)**: 中心 LLM 动态分解任务、委派给工作者 LLM、综合结果。子任务非预定义。这一模式在生产中的成功应用参见 [How We Built Our Multi-Agent Research System](how-we-built-our-multi-agent-research-system.md)。
 5. **评估者-优化者 (Evaluator-Optimizer)**: 一个 LLM 生成响应，另一个提供评估和反馈，循环直到满足质量阈值。这一模式在 [Harness Design for Long-Running Application Development](harness-design-for-long-running-application-development.md) 中被发展为 Planner-Generator-Evaluator 三角色系统。
 
