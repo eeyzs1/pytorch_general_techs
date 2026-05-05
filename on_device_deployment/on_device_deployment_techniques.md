@@ -54,7 +54,7 @@
 
 > **目的**：将模型权重和/或激活值从高精度浮点表示（FP32/FP16）映射到低精度整数表示（INT8/INT4/INT2等）或低比特浮点表示（FP8等），以减少存储空间和计算量，同时利用低精度运算单元获得更高吞吐。
 
-📖 代码实践：[1.1_quantization.ipynb](model_compression/1.1_quantization.ipynb)
+📖 代码实践：[1.1_quantization.ipynb](01_model_compression/1.1_quantization.ipynb)
 
 #### 1.1.1 训练后量化（Post-Training Quantization, PTQ）
 
@@ -111,7 +111,7 @@
 
 > **目的**：移除模型中对输出贡献较小的参数（权重/神经元/注意力头等），直接减少模型参数量和计算量。
 
-📖 代码实践：[1.2_pruning.ipynb](model_compression/1.2_pruning.ipynb)
+📖 代码实践：[1.2_pruning.ipynb](01_model_compression/1.2_pruning.ipynb)
 
 #### 1.2.1 非结构化剪枝（Unstructured Pruning）
 
@@ -154,7 +154,7 @@
 
 > **目的**：将大模型（教师模型）的知识迁移到小模型（学生模型），使小模型在参数量大幅减少的情况下仍能逼近大模型的性能。
 
-📖 代码实践：[1.3_knowledge_distillation.ipynb](model_compression/1.3_knowledge_distillation.ipynb)
+📖 代码实践：[1.3_knowledge_distillation.ipynb](01_model_compression/1.3_knowledge_distillation.ipynb)
 
 #### 1.3.1 白盒蒸馏（White-Box Distillation）
 
@@ -186,7 +186,7 @@
 
 > **目的**：将大型权重矩阵分解为两个或多个低秩矩阵的乘积，减少参数量和计算量。
 
-📖 代码实践：[1.4_low_rank_factorization.ipynb](model_compression/1.4_low_rank_factorization.ipynb)
+📖 代码实践：[1.4_low_rank_factorization.ipynb](01_model_compression/1.4_low_rank_factorization.ipynb)
 
 - **SVD分解（Singular Value Decomposition）**
   - 原理：对权重矩阵进行奇异值分解 W = UΣV^T，保留前r个最大奇异值，得到 W ≈ U_r Σ_r V_r^T，参数量从mn降至r(m+n)。
@@ -205,7 +205,7 @@
 
 > **基本原理**：自回归生成中，每步需访问之前所有token的Key/Value向量。KV Cache缓存已计算的KV以避免重复计算，但其内存占用随序列长度线性增长，成为长序列推理的核心瓶颈。
 
-📖 代码实践：[2.1_kv_cache.ipynb](efficient_inference/2.1_kv_cache.ipynb)
+📖 代码实践：[2.1_kv_cache.ipynb](02_efficient_inference/2.1_kv_cache.ipynb)
 
 #### 2.1.1 KV Cache 量化
 
@@ -238,7 +238,7 @@
 
 > **目的**：标准自注意力的计算复杂度为O(n²)，是长序列推理的核心瓶颈。优化注意力计算可显著降低延迟和内存。
 
-📖 代码实践：[2.2_attention_optimization.ipynb](efficient_inference/2.2_attention_optimization.ipynb)
+📖 代码实践：[2.2_attention_optimization.ipynb](02_efficient_inference/2.2_attention_optimization.ipynb)
 
 #### 2.2.1 高效注意力计算
 
@@ -269,7 +269,7 @@
 
 ### 2.3 推理加速策略
 
-📖 代码实践：[2.3_inference_acceleration.ipynb](efficient_inference/2.3_inference_acceleration.ipynb)
+📖 代码实践：[2.3_inference_acceleration.ipynb](02_efficient_inference/2.3_inference_acceleration.ipynb)
 
 #### 2.3.1 投机解码（Speculative Decoding）
 
@@ -308,7 +308,7 @@
 
 ### 3.1 轻量化架构设计
 
-📖 代码实践：[3.1_lightweight_architecture.ipynb](efficient_architecture/3.1_lightweight_architecture.ipynb)
+📖 代码实践：[3.1_lightweight_architecture.ipynb](03_efficient_architecture/3.1_lightweight_architecture.ipynb)
 
 - **小参数量模型（Small Language Models, SLM）**
   - 原理：通过精心设计训练数据（高质量、高多样性）和训练策略，使小参数量模型（1B-3B）达到甚至超越更大模型的性能。代表：Phi系列、Gemma-2B、MiniCPM。
@@ -323,7 +323,7 @@
 
 > **基本原理**：标准注意力的O(n²)复杂度限制了长序列推理。线性注意力通过kernel化或分解将复杂度降至O(n)，状态空间模型通过隐状态递推实现O(n)推理。
 
-📖 代码实践：[3.2_linear_attention_ssm.ipynb](efficient_architecture/3.2_linear_attention_ssm.ipynb)
+📖 代码实践：[3.2_linear_attention_ssm.ipynb](03_efficient_architecture/3.2_linear_attention_ssm.ipynb)
 
 - **线性注意力（Linear Attention）**
   - 原理：将softmax(QK^T)V分解为 φ(Q)(φ(K)^T V)，先计算 φ(K)^T V（与序列长度无关），再与 φ(Q) 相乘，复杂度从O(n²)降至O(nd²)。如Linear Transformer、RetNet。
@@ -338,7 +338,7 @@
 
 > **基本原理**：将FFN层替换为多个专家网络（experts），通过路由器（router）为每个token选择Top-K个专家。总参数量大但每次推理仅激活部分专家，实现"大模型能力、小模型成本"。
 
-📖 代码实践：[3.3_moe.ipynb](efficient_architecture/3.3_moe.ipynb)
+📖 代码实践：[3.3_moe.ipynb](03_efficient_architecture/3.3_moe.ipynb)
 
 - **稀疏MoE（Sparse MoE）**
   - 原理：每个token仅激活Top-1或Top-2专家，如Mixtral 8x7B每次仅激活2个专家（约13B参数），但拥有46B总参数的知识容量。
@@ -359,7 +359,7 @@
 
 ### 4.1 计算图优化
 
-📖 代码实践：[4.1_graph_optimization.ipynb](compilation_runtime/4.1_graph_optimization.ipynb)
+📖 代码实践：[4.1_graph_optimization.ipynb](04_compilation_runtime/4.1_graph_optimization.ipynb)
 
 - **算子融合（Operator Fusion）**
   - 原理：将多个连续算子合并为单个算子执行，减少中间结果的内存读写。如将QKV投影+RoPE+Attention融合为单个kernel，将Linear+LayerNorm融合等。
@@ -372,7 +372,7 @@
 
 ### 4.2 针对硬件的代码生成
 
-📖 代码实践：[4.2_code_generation.ipynb](compilation_runtime/4.2_code_generation.ipynb)
+📖 代码实践：[4.2_code_generation.ipynb](04_compilation_runtime/4.2_code_generation.ipynb)
 
 - **TVM / Apache TVM**
   - 原理：统一的深度学习编译器框架，通过搜索最优算子实现（AutoTVM/Ansor）为目标硬件生成高效代码。支持CPU、GPU、NPU等多种后端。
@@ -385,7 +385,7 @@
 
 ### 4.3 内存优化
 
-📖 代码实践：[4.3_memory_optimization.ipynb](compilation_runtime/4.3_memory_optimization.ipynb)
+📖 代码实践：[4.3_memory_optimization.ipynb](04_compilation_runtime/4.3_memory_optimization.ipynb)
 
 - **激活重计算 / 梯度检查点（Activation Recomputation / Gradient Checkpointing）**
   - 原理：前向传播时不保存中间激活值，反向传播时重新计算所需激活，以计算换内存。端侧推理中可用于降低峰值内存占用。
@@ -402,7 +402,7 @@
 
 ### 5.1 端侧NPU适配
 
-📖 代码实践：[5.1_npu_adaptation.ipynb](hardware_deployment/5.1_npu_adaptation.ipynb)
+📖 代码实践：[5.1_npu_adaptation.ipynb](05_hardware_deployment/5.1_npu_adaptation.ipynb)
 
 #### 5.1.1 NPU架构深潜
 
@@ -478,7 +478,7 @@
 
 ### 5.2 端侧部署框架
 
-📖 代码实践：[5.2_deployment_frameworks.ipynb](hardware_deployment/5.2_deployment_frameworks.ipynb)
+📖 代码实践：[5.2_deployment_frameworks.ipynb](05_hardware_deployment/5.2_deployment_frameworks.ipynb)
 
 #### 5.2.1 llama.cpp / GGUF生态
 
@@ -534,7 +534,7 @@
 
 ### 5.3 硬件感知优化
 
-📖 代码实践：[5.3_hardware_aware.ipynb](hardware_deployment/5.3_hardware_aware.ipynb)
+📖 代码实践：[5.3_hardware_aware.ipynb](05_hardware_deployment/5.3_hardware_aware.ipynb)
 
 #### 5.3.1 Roofline模型深度分析
 
@@ -595,7 +595,7 @@
 
 > **目的**：高效的模型存储格式直接影响加载速度、内存占用和跨平台兼容性。
 
-📖 代码实践：[6.0_model_format.ipynb](model_format/6.0_model_format.ipynb)
+📖 代码实践：[6.0_model_format.ipynb](06_model_format/6.0_model_format.ipynb)
 
 | 格式 | 核心原理 | 特点 |
 |------|---------|------|
@@ -614,7 +614,7 @@
 
 ### 7.1 端云协同推理
 
-📖 代码实践：[7.1_edge_cloud_inference.ipynb](edge_cloud/7.1_edge_cloud_inference.ipynb)
+📖 代码实践：[7.1_edge_cloud_inference.ipynb](07_edge_cloud/7.1_edge_cloud_inference.ipynb)
 
 - **模型拆分推理（Split Computing / Model Splitting）**
   - 原理：将模型按层拆分，浅层在端侧执行，深层在云端执行。中间特征上传至云端而非原始数据，兼顾隐私和计算效率。
@@ -625,7 +625,7 @@
 
 ### 7.2 多模态端侧部署
 
-📖 代码实践：[7.2_multimodal_deployment.ipynb](edge_cloud/7.2_multimodal_deployment.ipynb)
+📖 代码实践：[7.2_multimodal_deployment.ipynb](07_edge_cloud/7.2_multimodal_deployment.ipynb)
 
 - **视觉语言模型压缩（VLM Compression）**
   - 原理：对视觉编码器（如ViT）和语言模型分别进行量化和压缩，视觉编码器通常可更激进量化。如LLaVA的端侧部署。
@@ -636,7 +636,7 @@
 
 ### 7.3 隐私与安全
 
-📖 代码实践：[7.3_privacy_security.ipynb](edge_cloud/7.3_privacy_security.ipynb)
+📖 代码实践：[7.3_privacy_security.ipynb](07_edge_cloud/7.3_privacy_security.ipynb)
 
 - **联邦学习（Federated Learning）**
   - 原理：在端侧本地训练模型更新，仅上传梯度/参数差值到服务器聚合，原始数据不出端。适合端侧模型的个性化微调。
@@ -668,7 +668,7 @@
 
 ### 8.1 参数高效微调（PEFT）
 
-📖 代码实践：[8.1_peft.ipynb](on_device_training/8.1_peft.ipynb)
+📖 代码实践：[8.1_peft.ipynb](08_on_device_training/8.1_peft.ipynb)
 
 - **LoRA / QLoRA**
   - 原理：冻结预训练权重，仅训练低秩适配器矩阵。QLoRA进一步将基座模型量化为4bit（NF4格式），仅适配器保持高精度（BF16），端侧训练显存需求极低。QLoRA的核心是双重量化（double quantization）和分页优化器（paged optimizer），使7B模型在24GB显存上可训练。
@@ -681,7 +681,7 @@
 
 ### 8.2 端侧训练优化
 
-📖 代码实践：[8.2_training_optimization.ipynb](on_device_training/8.2_training_optimization.ipynb)
+📖 代码实践：[8.2_training_optimization.ipynb](08_on_device_training/8.2_training_optimization.ipynb)
 
 - **选择性反向传播（Selective Backpropagation）**
   - 原理：仅对部分层进行反向传播，冻结其余层，减少训练的计算量和内存占用。

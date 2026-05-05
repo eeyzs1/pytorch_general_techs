@@ -1,6 +1,6 @@
-﻿# Anthropic Engineering Blog — 核心观点总结
+# Anthropic Engineering Blog — 核心观点总结
 
-> 汇总自 [Anthropic Engineering](https://www.anthropic.com/engineering) 博客的 21 篇文章，涵盖 2024 年 9 月至 2026 年 4 月。
+> 汇总自 [Anthropic Engineering](https://www.anthropic.com/engineering) 博客的 22 篇文章，涵盖 2024 年 9 月至 2026 年 4 月。
 
 ## 一、总体脉络
 
@@ -40,7 +40,7 @@ Anthropic 的工程博客呈现了一条清晰的技术演进路径：
 
 ### 4. 安全与可靠性
 
-[Beyond Permission Prompts](beyond-permission-prompts.md) 确立了"安全是自主性前提"的原则——文件系统隔离 + 网络隔离的双重沙箱架构。[A Postmortem of Three Recent Issues](a-postmortem-of-three-recent-issues.md) 揭示了基础设施 Bug 如何伪装成模型退化。[Quantifying Infrastructure Noise in Agentic Coding Evals](quantifying-infrastructure-noise-in-agentic-coding-evals.md) 量化了基础设施配置对基准测试的影响（6 个百分点差距）。
+[Beyond Permission Prompts](beyond-permission-prompts.md) 确立了"安全是自主性前提"的原则——文件系统隔离 + 网络隔离的双重沙箱架构。[A Postmortem of Three Recent Issues](a-postmortem-of-three-recent-issues.md) 揭示了基础设施 Bug 如何伪装成模型退化。[Quantifying Infrastructure Noise in Agentic Coding Evals](quantifying-infrastructure-noise-in-agentic-coding-evals.md) 量化了基础设施配置对基准测试的影响（6 个百分点差距）。[An Update on Recent Claude Code Quality Reports](an-update-on-recent-claude-code-quality-reports.md) 是最新的事后分析——三个独立工程变更（默认推理负荷降低、缓存 Bug 清除思考历史、系统提示词限制长度）导致 Claude Code 为期一个半月的质量下降，4月20日全部修复并公开道歉。
 
 ### 5. 评估框架
 
@@ -109,3 +109,4 @@ Anthropic 的工程博客呈现了一条清晰的技术演进路径：
 | 19 | 2026-02-05 | [Building a C Compiler with a Team of Parallel Claudes](building-a-c-compiler-with-a-team-of-parallel-claudes.md) | 并行 Agent Teams |
 | 20 | 2026-03-24 | [Harness Design for Long-Running Application Development](harness-design-for-long-running-application-development.md) | 高级 Harness |
 | 21 | 2026-04-10 | [Scaling Managed Agents](scaling-managed-agents.md) | 基础设施解耦 |
+| 22 | 2026-04-23 | [An Update on Recent Claude Code Quality Reports](an-update-on-recent-claude-code-quality-reports.md) | 质量事后分析 |
