@@ -1,7 +1,7 @@
-﻿# A Postmortem of Three Recent Issues
+# A Postmortem of Three Recent Issues
 
 - **原文链接**: [A postmortem of three recent issues](https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues)
-- **发布日期**: 2025-09
+- **发布日期**: 2025-09-17
 - **标签**: #事后分析 #基础设施 #TPU #路由 #精度 #可靠性
 
 ## 核心观点

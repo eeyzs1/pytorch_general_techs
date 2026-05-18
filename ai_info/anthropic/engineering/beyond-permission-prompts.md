@@ -1,7 +1,7 @@
-﻿# Beyond Permission Prompts: Making Claude Code More Secure and Autonomous
+# Beyond Permission Prompts: Making Claude Code More Secure and Autonomous
 
 - **原文链接**: [Beyond permission prompts: making Claude Code more secure and autonomous](https://www.anthropic.com/engineering/beyond-permission-prompts)
-- **发布日期**: 2025-10-31
+- **发布日期**: 2025-10-20
 - **标签**: #安全 #沙箱 #Claude-Code #文件系统隔离 #网络隔离
 
 ## 核心观点

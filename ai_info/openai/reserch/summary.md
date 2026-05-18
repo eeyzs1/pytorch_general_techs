@@ -1,18 +1,18 @@
 # OpenAI Research & Engineering — 核心观点总结
 
-> 汇总自 [OpenAI Research](https://openai.com/research/) 和 [OpenAI Blog](https://openai.com/index/) 的 21 篇文章，涵盖 2025 年 1 月至 2026 年 5 月。
+> 汇总自 [OpenAI Research](https://openai.com/research/) 和 [OpenAI Blog](https://openai.com/index/) 的 23 篇文章，涵盖 2025 年 1 月至 2026 年 5 月。
 
 ## 一、总体脉络
 
 OpenAI 的技术文章呈现了两条并行的演进路径：
 
 ```
-路径1（工程实践）: Agent 指南 → Codex/Operator → Harness Engineering → AgentKit → Codex 全面升级
-路径2（安全研究）: Model Spec → 指令层级 → CoT 监控 → CoT-Control → RL奖励信号分析
-路径3（平台生态）: Responses API → Apps SDK → ChatGPT 超级App → 计算机环境 → MCP 互操作
+路径1（工程实践）: Agent 指南 → Codex/Operator → Harness Engineering → AgentKit → Codex 全面升级 → Codex 企业安全
+路径2（安全研究）: Model Spec → 指令层级 → CoT 监控 → CoT-Control → RL奖励信号分析 → Codex 安全部署实践
+路径3（平台生态）: Responses API → Apps SDK → ChatGPT 超级App → 计算机环境 → MCP 互操作 → 多平台沙箱
 ```
 
-工程路径从 Agent 构建基础方法论出发，逐步构建产品（Codex、Operator、Deep Research），最终形成 Harness Engineering 方法论和 AgentKit 工具集，并在 2026 年 4 月发布 Codex 桌面版和全面升级（Computer Use、多 Agent、图像生成、90+ 插件）。安全路径从模型行为规范出发，逐步建立指令层级、CoT 监控和可监控性研究，并于 2026 年 4 月发布了 RL 奖励信号导致"Goblins"行为偏差的详细事后分析，形成纵深防御体系。平台路径从 API 工具出发，为 Responses API 配备完整计算机环境（Shell 工具 + 容器工作区 + Skills + Compaction），构建 ChatGPT 超级应用生态，并采纳 MCP 开放协议实现跨平台互操作。
+工程路径从 Agent 构建基础方法论出发，逐步构建产品（Codex、Operator、Deep Research），最终形成 Harness Engineering 方法论和 AgentKit 工具集，并在 2026 年 4-5 月发布 Codex 桌面版和全面升级（Computer Use、多 Agent、图像生成、90+ 插件、企业级安全部署、Windows 原生沙箱）。安全路径从模型行为规范出发，逐步建立指令层级、CoT 监控和可监控性研究，并于 2026 年 4-5 月发布了 RL 奖励信号导致"Goblins"行为偏差的详细事后分析，以及 Codex 企业内部部署的完整安全实践（OpenTelemetry 遥测、AI 安全 triage、规则引擎），形成纵深防御体系。平台路径从 API 工具出发，为 Responses API 配备完整计算机环境（Shell 工具 + 容器工作区 + Skills + Compaction），构建 ChatGPT 超级应用生态，采纳 MCP 开放协议实现跨平台互操作，并将 Codex 扩展到 Windows 平台。
 
 ## 二、五大核心主题
 
@@ -47,9 +47,9 @@ OpenAI 的技术文章呈现了两条并行的演进路径：
 
 ### 4. 安全与对齐研究
 
-[Inside Our Approach to the Model Spec](inside-our-approach-to-the-model-spec.md) 定义了模型行为的公开框架。[Improving Instruction Hierarchy in Frontier LLMs](improving-instruction-hierarchy-in-frontier-llms.md) 解决提示注入防御。[How We Monitor Internal Coding Agents for Misalignment](how-we-monitor-internal-coding-agents-for-misalignment.md) 实践 CoT 监控。[Reasoning Models Struggle to Control Their Chains of Thought](reasoning-models-struggle-to-control-their-chains-of-thought.md) 证明了 CoT 监控的有效性。[Where the Goblins Came From](where-the-goblins-came-from.md) 是最有趣的模型行为调查——追踪 RL 奖励信号偏差如何通过 SFT 数据飞轮在多个模型代际间传播"Nerdy 风格"的口头禅（goblins/gremlins），揭示了奖励信号→训练数据→模型行为的完整因果链。
+[Inside Our Approach to the Model Spec](inside-our-approach-to-the-model-spec.md) 定义了模型行为的公开框架。[Improving Instruction Hierarchy in Frontier LLMs](improving-instruction-hierarchy-in-frontier-llms.md) 解决提示注入防御。[How We Monitor Internal Coding Agents for Misalignment](how-we-monitor-internal-coding-agents-for-misalignment.md) 实践 CoT 监控。[Reasoning Models Struggle to Control Their Chains of Thought](reasoning-models-struggle-to-control-their-chains-of-thought.md) 证明了 CoT 监控的有效性。[Where the Goblins Came From](where-the-goblins-came-from.md) 是最有趣的模型行为调查——追踪 RL 奖励信号偏差如何通过 SFT 数据飞轮在多个模型代际间传播"Nerdy 风格"的口头禅（goblins/gremlins），揭示了奖励信号→训练数据→模型行为的完整因果链。[Running Codex Safely at OpenAI](running-codex-safely.md) 展示了企业内部 Codex 部署的多层次安全控制——沙箱+审批+网络策略+规则引擎+Agent原生OpenTelemetry遥测，用AI安全triage agent解释代理行为意图。[Building a Safe, Effective Sandbox to Enable Codex on Windows](building-codex-windows-sandbox.md) 详述了从零构建 Windows 沙箱的两代方案（Unescalated→Elevated），克服了 Windows 缺乏原生沙箱隔离工具的限制。
 
-**核心洞察**: OpenAI 的安全策略是纵深防御——Model Spec（规范层）+ 指令层级（模型层）+ CoT 监控（运行时层）。推理模型 CoT 的不可控性反而是安全监控的优势。
+**核心洞察**: OpenAI 的安全策略是纵深防御——Model Spec（规范层）+ 指令层级（模型层）+ CoT 监控（运行时层）+ 工程沙箱（执行层）+ Agent 原生审计（可见性层）。推理模型 CoT 的不可控性反而是安全监控的优势。Windows 沙箱的构建证明了 Agent 安全在多平台部署中的工程挑战。
 
 ## 三、关键数据点
 
@@ -78,7 +78,7 @@ OpenAI 的技术文章呈现了两条并行的演进路径：
 | 博客结构 | 分散在 /index/ 和 /research/ | 集中在 /engineering/ |
 | 工程方法论 | Harness Engineering | Context Engineering → Harness Engineering |
 | 上下文管理 | AGENTS.md | CLAUDE.md + Skills |
-| 安全策略 | 指令层级 + CoT 监控 + RL 奖励审计 | 沙箱隔离 + 双重隔离 + 事后分析 |
+| 安全策略 | 指令层级 + CoT 监控 + RL 奖励审计 + 工程沙箱 + Agent 原生遥测 | 沙箱隔离 + 双重隔离 + 事后分析 + Auto Mode 分类器 |
 | 工具生态 | Shell 工具 + 内置工具 + MCP 采纳 | 开放（MCP 协议） |
 | 评估 | Evals 平台 + AgentKit 内联 | 8 步路线图 + LLM-as-judge |
 | 产品定位 | 消费者 + 企业 + 开发者 | 开发者为主 |
@@ -93,6 +93,8 @@ OpenAI 的技术文章呈现了两条并行的演进路径：
 6. **工业化 Agent 开发**: 从手工作坊到可视化设计、版本控制、内联评估
 7. **平台化是终局**: ChatGPT 从聊天机器人到超级应用平台，8 亿用户是生态基础
 8. **奖励信号审计至关重要**: RL 训练中的微小奖励偏差可通过 SFT 数据飞轮在多个模型代际间放大，需建立系统化的行为审计工具
+9. **Agent 原生审计是安全的最后防线**: 传统安全日志只能回答"发生了什么"，Agent 原生遥测才能解释"为什么"和"用户意图"
+10. **多平台安全是 Agent 部署的基础工程挑战**: Windows 等平台缺乏原生沙箱工具，需从 OS 原语层构建安全执行环境
 
 ## 六、文章索引
 
@@ -119,3 +121,5 @@ OpenAI 的技术文章呈现了两条并行的演进路径：
 | 19 | 2026-03 | [Equipping the Responses API with a Computer Environment](equipping-the-responses-api-with-a-computer-environment.md) | Agent 计算机环境 |
 | 20 | 2026-04-17 | [Codex for (almost) everything](codex-for-almost-everything.md) | Codex 全面升级 |
 | 21 | 2026-04-29 | [Where the Goblins Came From](where-the-goblins-came-from.md) | RL 奖励信号事后分析 |
+| 22 | 2026-05-08 | [Running Codex Safely at OpenAI](running-codex-safely.md) | Codex 企业安全部署 |
+| 23 | 2026-05-13 | [Building a Safe, Effective Sandbox to Enable Codex on Windows](building-codex-windows-sandbox.md) | Windows 沙箱工程 |

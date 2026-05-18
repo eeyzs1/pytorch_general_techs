@@ -1,6 +1,6 @@
 # Anthropic Engineering Blog — 核心观点总结
 
-> 汇总自 [Anthropic Engineering](https://www.anthropic.com/engineering) 博客的 22 篇文章，涵盖 2024 年 9 月至 2026 年 4 月。
+> 汇总自 [Anthropic Engineering](https://www.anthropic.com/engineering) 博客的 25 篇文章，涵盖 2024 年 9 月至 2026 年 5 月。
 
 ## 一、总体脉络
 
@@ -40,11 +40,11 @@ Anthropic 的工程博客呈现了一条清晰的技术演进路径：
 
 ### 4. 安全与可靠性
 
-[Beyond Permission Prompts](beyond-permission-prompts.md) 确立了"安全是自主性前提"的原则——文件系统隔离 + 网络隔离的双重沙箱架构。[A Postmortem of Three Recent Issues](a-postmortem-of-three-recent-issues.md) 揭示了基础设施 Bug 如何伪装成模型退化。[Quantifying Infrastructure Noise in Agentic Coding Evals](quantifying-infrastructure-noise-in-agentic-coding-evals.md) 量化了基础设施配置对基准测试的影响（6 个百分点差距）。[An Update on Recent Claude Code Quality Reports](an-update-on-recent-claude-code-quality-reports.md) 是最新的事后分析——三个独立工程变更（默认推理负荷降低、缓存 Bug 清除思考历史、系统提示词限制长度）导致 Claude Code 为期一个半月的质量下降，4月20日全部修复并公开道歉。
+[Beyond Permission Prompts](beyond-permission-prompts.md) 确立了"安全是自主性前提"的原则——文件系统隔离 + 网络隔离的双重沙箱架构。[Claude Code Auto Mode](claude-code-auto-mode.md) 进一步将安全自动化——基于分类器的两层防御（Prompt Injection 探测器 + Transcript 分类器），93% 的权限提示被自动处理，FPR 仅 0.4%。[A Postmortem of Three Recent Issues](a-postmortem-of-three-recent-issues.md) 揭示了基础设施 Bug 如何伪装成模型退化。[Quantifying Infrastructure Noise in Agentic Coding Evals](quantifying-infrastructure-noise-in-agentic-coding-evals.md) 量化了基础设施配置对基准测试的影响（6 个百分点差距）。[An Update on Recent Claude Code Quality Reports](an-update-on-recent-claude-code-quality-reports.md) 是最新的事后分析——三个独立工程变更（默认推理负荷降低、缓存 Bug 清除思考历史、系统提示词限制长度）导致 Claude Code 为期一个半月的质量下降，4月20日全部修复并公开道歉。
 
 ### 5. 评估框架
 
-[Demystifying Evals for AI Agents](demystifying-evals-for-ai-agents.md) 提供了最全面的评估指南。核心信息：**评估是公司的知识产权和竞争优势**。三种评分器（代码、模型、人类）各有适用场景。能力评估和回归评估应分开管理。8 步路线图从 20-50 个真实失败任务开始。
+[Demystifying Evals for AI Agents](demystifying-evals-for-ai-agents.md) 提供了最全面的评估指南。核心信息：**评估是公司的知识产权和竞争优势**。三种评分器（代码、模型、人类）各有适用场景。能力评估和回归评估应分开管理。8 步路线图从 20-50 个真实失败任务开始。[Eval Awareness in BrowseComp](eval-awareness-browsecomp.md) 记录了首例模型自发推断被评估状态并解密答案的案例——评估完整性在 web-enabled 环境中已成为持续的对抗性问题。[Designing AI-Resistant Technical Evaluations](designing-ai-resistant-technical-evaluations.md) 分享了 Anthropic 三代 take-home 测试对抗 Claude 模型演化的实战经验——分布外问题是最有效的防线。
 
 ### 6. 开发者工具生态
 
@@ -93,20 +93,23 @@ Anthropic 的工程博客呈现了一条清晰的技术演进路径：
 | 3 | 2025-01-06 | [Raising the Bar on SWE-bench Verified](raising-the-bar-on-swe-bench-verified.md) | ACI 优化实战 |
 | 4 | 2025-03-20 | [The Think Tool](the-think-tool.md) | Agent 思考工具 |
 | 5 | 2025-04-18 | [Claude Code Best Practices](claude-code-best-practices.md) | 编码工作流 |
-| 6 | 2025-06 | [Desktop Extensions](desktop-extensions.md) | MCP 安装 |
-| 7 | 2025-06-13 | [How We Built Our Multi-Agent Research System](how-we-built-our-multi-agent-research-system.md) | 多 Agent 架构 |
-| 8 | 2025-09 | [A Postmortem of Three Recent Issues](a-postmortem-of-three-recent-issues.md) | 基础设施可靠性 |
-| 9 | 2025-09-29 | [Effective Context Engineering for AI Agents](effective-context-engineering-for-ai-agents.md) | 上下文工程 |
-| 10 | 2025-09-29 | [Building Agents with the Claude Agent SDK](building-agents-with-the-claude-agent-sdk.md) | Agent SDK |
-| 11 | 2025-10-16 | [Equipping Agents for the Real World with Agent Skills](equipping-agents-for-the-real-world-with-agent-skills.md) | Agent Skills |
-| 12 | 2025-10-20 | [Writing Effective Tools for AI Agents](writing-effective-tools-for-ai-agents.md) | 工具设计 |
-| 13 | 2025-10-31 | [Beyond Permission Prompts](beyond-permission-prompts.md) | 安全沙箱 |
+| 6 | 2025-06-13 | [How We Built Our Multi-Agent Research System](how-we-built-our-multi-agent-research-system.md) | 多 Agent 架构 |
+| 7 | 2025-06-26 | [Desktop Extensions](desktop-extensions.md) | MCP 安装 |
+| 8 | 2025-09-11 | [Writing Effective Tools for AI Agents](writing-effective-tools-for-ai-agents.md) | 工具设计 |
+| 9 | 2025-09-17 | [A Postmortem of Three Recent Issues](a-postmortem-of-three-recent-issues.md) | 基础设施可靠性 |
+| 10 | 2025-09-29 | [Effective Context Engineering for AI Agents](effective-context-engineering-for-ai-agents.md) | 上下文工程 |
+| 11 | 2025-09-29 | [Building Agents with the Claude Agent SDK](building-agents-with-the-claude-agent-sdk.md) | Agent SDK |
+| 12 | 2025-10-16 | [Equipping Agents for the Real World with Agent Skills](equipping-agents-for-the-real-world-with-agent-skills.md) | Agent Skills |
+| 13 | 2025-10-20 | [Beyond Permission Prompts](beyond-permission-prompts.md) | 安全沙箱 |
 | 14 | 2025-11-04 | [Code Execution with MCP](code-execution-with-mcp.md) | 代码执行 |
 | 15 | 2025-11-24 | [Advanced Tool Use](advanced-tool-use.md) | 高级工具特性 |
-| 16 | 2025-11-26 | [Quantifying Infrastructure Noise in Agentic Coding Evals](quantifying-infrastructure-noise-in-agentic-coding-evals.md) | 基准噪声 |
-| 17 | 2025-11-26 | [Effective Harnesses for Long-Running Agents](effective-harnesses-for-long-running-agents.md) | Harness 设计 |
-| 18 | 2026-01-09 | [Demystifying Evals for AI Agents](demystifying-evals-for-ai-agents.md) | 评估框架 |
-| 19 | 2026-02-05 | [Building a C Compiler with a Team of Parallel Claudes](building-a-c-compiler-with-a-team-of-parallel-claudes.md) | 并行 Agent Teams |
-| 20 | 2026-03-24 | [Harness Design for Long-Running Application Development](harness-design-for-long-running-application-development.md) | 高级 Harness |
-| 21 | 2026-04-10 | [Scaling Managed Agents](scaling-managed-agents.md) | 基础设施解耦 |
-| 22 | 2026-04-23 | [An Update on Recent Claude Code Quality Reports](an-update-on-recent-claude-code-quality-reports.md) | 质量事后分析 |
+| 16 | 2025-11-26 | [Effective Harnesses for Long-Running Agents](effective-harnesses-for-long-running-agents.md) | Harness 设计 |
+| 17 | 2026-01-09 | [Demystifying Evals for AI Agents](demystifying-evals-for-ai-agents.md) | 评估框架 |
+| 18 | 2026-01-21 | [Designing AI-Resistant Technical Evaluations](designing-ai-resistant-technical-evaluations.md) | AI 抗性评估 |
+| 19 | 2026-02-05 | [Quantifying Infrastructure Noise in Agentic Coding Evals](quantifying-infrastructure-noise-in-agentic-coding-evals.md) | 基准噪声 |
+| 20 | 2026-02-05 | [Building a C Compiler with a Team of Parallel Claudes](building-a-c-compiler-with-a-team-of-parallel-claudes.md) | 并行 Agent Teams |
+| 21 | 2026-03-06 | [Eval Awareness in Claude Opus 4.6's BrowseComp Performance](eval-awareness-browsecomp.md) | 评估感知 |
+| 22 | 2026-03-24 | [Harness Design for Long-Running Application Development](harness-design-for-long-running-application-development.md) | 高级 Harness |
+| 23 | 2026-03-25 | [Claude Code Auto Mode](claude-code-auto-mode.md) | 自动权限 |
+| 24 | 2026-04-10 | [Scaling Managed Agents](scaling-managed-agents.md) | 基础设施解耦 |
+| 25 | 2026-04-23 | [An Update on Recent Claude Code Quality Reports](an-update-on-recent-claude-code-quality-reports.md) | 质量事后分析 |

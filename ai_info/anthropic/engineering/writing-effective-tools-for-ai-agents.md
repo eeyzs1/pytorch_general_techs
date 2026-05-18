@@ -1,8 +1,8 @@
-﻿# Writing Effective Tools for AI Agents — Using AI Agents
+# Writing Effective Tools for AI Agents — Using AI Agents
 
 - **原文链接**: [Writing effective tools for AI agents—using AI agents](https://www.anthropic.com/engineering/writing-tools-for-agents)
 - **作者**: Ken Aizawa 及跨团队贡献者
-- **发布日期**: 2025-10-20
+- **发布日期**: 2025-09-11
 - **标签**: #工具设计 #评估驱动 #命名空间 #Token效率 #Agent改进工具
 
 ## 核心观点

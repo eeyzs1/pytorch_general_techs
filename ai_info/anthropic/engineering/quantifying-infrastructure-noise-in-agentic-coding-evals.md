@@ -1,8 +1,8 @@
-﻿# Quantifying Infrastructure Noise in Agentic Coding Evals
+# Quantifying Infrastructure Noise in Agentic Coding Evals
 
 - **原文链接**: [Quantifying infrastructure noise in agentic coding evals](https://www.anthropic.com/engineering/infrastructure-noise)
 - **作者**: Gian Segato 等
-- **发布日期**: 2025-11-26
+- **发布日期**: 2026-02-05
 - **标签**: #基准测试 #基础设施噪声 #评估 #可靠性 #资源配置
 
 ## 核心观点
