@@ -10,14 +10,14 @@
 
 | 阶段 | 名称 | 周期 | 课时 | 项目数 | 目标角色 |
 |------|------|------|------|--------|----------|
-| L0 | 预备阶段：编程基本功 | 8周 | 160h | 3 | 编程入门 |
-| L1 | 初级工程师：大数据入门 | 12周 | 240h | 3 | 大数据初级工程师 |
-| L2 | 中级工程师：工程深化 | 16周 | 320h | 4 | 大数据中级工程师 |
-| L3 | 高级工程师：技术深度 | 20周 | 400h | 2 | 大数据高级工程师 |
-| L4 | 架构师：全局设计 | 24周 | 480h | 3 | 数据架构师 |
+| L0 | 预备阶段：编程基本功 | 8周 | 175h | 3 | 编程入门 |
+| L1 | 初级工程师：大数据入门 | 12周 | 255h | 3 | 大数据初级工程师 |
+| L2 | 中级工程师：工程深化 | 16周 | 485h | 6 | 大数据中级工程师 |
+| L3 | 高级工程师：技术深度 | 20周 | 540h | 4 | 大数据高级工程师 |
+| L4 | 架构师：全局设计 | 24周 | 540h | 3 | 数据架构师 |
 | L5 | CTO视野：战略领导 | 持续 | 按需 | 1 | CTO/技术VP |
 
-> **总课时**：约1600小时面授 + 2000小时自学，按每天8小时计算约24个月。
+> **总课时**：约1680小时面授 + 2000小时自学，按每天8小时计算约24个月。
 
 ---
 
@@ -586,6 +586,74 @@ git pull origin main
 
 ---
 
+### 课时9.5：Docker与容器化基础（3h）
+
+**教学内容**：
+1. 容器 vs 虚拟机：隔离原理与适用场景对比
+2. Docker核心概念：镜像（Image）、容器（Container）、仓库（Registry）
+3. Dockerfile编写：FROM、RUN、COPY、ENTRYPOINT、多阶段构建
+4. Docker Compose：多服务编排与网络配置
+5. 数据卷（Volume）与持久化存储
+
+**实战——用Docker搭建开发环境**：
+```bash
+# 场景：用Docker一键启动MySQL + Redis开发环境
+
+# 编写Dockerfile
+cat > Dockerfile << 'EOF'
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+CMD ["python", "main.py"]
+EOF
+
+# 编写docker-compose.yml
+cat > docker-compose.yml << 'EOF'
+version: "3.8"
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: bigdata
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+  app:
+    build: .
+    depends_on:
+      - mysql
+      - redis
+volumes:
+  mysql_data:
+EOF
+
+# 启动所有服务
+docker-compose up -d
+
+# 查看运行状态
+docker-compose ps
+docker-compose logs -f app
+```
+
+**课堂练习**（45min）：
+- 编写Dockerfile将L0项目1的日志分析脚本容器化
+- 使用Docker Compose启动MySQL，将项目2的电商数据导入容器中的MySQL
+- 要求：数据在容器重启后不丢失
+
+**课后作业**：
+- 将自己的某个Python项目Docker化，推送到Docker Hub
+- 编写docker-compose.yml同时启动3个服务：Python应用 + MySQL + Redis
+
+---
+
 ## 第5-6周：L0项目实战
 
 ### 项目1：Web日志分析系统（15h）
@@ -1075,6 +1143,71 @@ spark.conf.set("spark.sql.adaptive.skewJoin.enabled", "true")
 **课后作业**：
 - 故意制造数据倾斜场景，尝试三种方案解决
 - 输出对比报告：解决前后的Shuffle数据量、Task耗时分布、总运行时间
+
+---
+
+### 课时16.5：现代OLAP引擎入门（3h）
+
+**教学内容**：
+1. OLAP引擎演进：从传统ROLAP/MOLAP到现代SQL-on-Hadoop
+2. ClickHouse架构概览：列式存储、MergeTree引擎族、向量化执行
+3. Apache Doris架构概览：FE/BE分离、预聚合（Rollup）、MySQL协议兼容
+4. OLAP选型对比：ClickHouse vs Doris vs StarRocks vs Trino
+5. 典型应用场景：实时报表、Ad-hoc查询、用户画像圈选
+
+**实战——ClickHouse快速上手**：
+```sql
+-- 场景：用ClickHouse替代Hive做实时报表查询
+
+-- 创建MergeTree表
+CREATE TABLE user_behavior (
+    user_id UInt64,
+    item_id UInt64,
+    category_id UInt16,
+    behavior String,
+    dt Date
+) ENGINE = MergeTree()
+PARTITION BY toYYYYMM(dt)
+ORDER BY (dt, user_id);
+
+-- 导入数据（从CSV）
+INSERT INTO user_behavior
+FROM INFILE 'behavior.csv'
+FORMAT CSVWithNames;
+
+-- 典型OLAP查询（毫秒级响应）
+SELECT
+    dt,
+    behavior,
+    COUNT() AS cnt,
+    COUNT(DISTINCT user_id) AS uv
+FROM user_behavior
+WHERE dt >= '2024-01-01'
+GROUP BY dt, behavior
+ORDER BY dt, cnt DESC;
+
+-- 物化视图加速高频查询
+CREATE MATERIALIZED VIEW user_behavior_daily
+ENGINE = SummingMergeTree()
+PARTITION BY toYYYYMM(dt)
+ORDER BY (dt, behavior)
+AS SELECT
+    dt,
+    behavior,
+    COUNT() AS cnt,
+    COUNT(DISTINCT user_id) AS uv
+FROM user_behavior
+GROUP BY dt, behavior;
+```
+
+**课堂练习**（45min）：
+- 使用Docker启动ClickHouse实例
+- 将L1项目4的ADS层报表迁移到ClickHouse
+- 对比相同查询在Hive和ClickHouse上的执行时间
+
+**课后作业**：
+- 调研ClickHouse的ReplacingMergeTree与CollapsingMergeTree的区别
+- 写一篇简短笔记：什么场景下选择ClickHouse，什么场景下选择Doris
 
 ---
 
@@ -1787,6 +1920,204 @@ Consumer调优:
 
 ---
 
+## 补充模块：数据湖仓实战
+
+### 课时22：数据湖仓架构与实践（6h）
+
+**教学内容**：
+1. 数据湖仓（Lakehouse）概念：为什么需要"湖仓一体"
+2. 开放表格式对比：Apache Iceberg vs Delta Lake vs Apache Hudi
+3. Iceberg核心机制：Snapshot隔离、Manifest文件、Partition Evolution
+4. 湖仓上的ACID事务：并发写入、Schema Evolution、Time Travel
+5. 湖仓与计算引擎集成：Spark + Iceberg、Flink + Iceberg、Trino + Iceberg
+
+**实战——从Hive数仓迁移到Iceberg湖仓**：
+```sql
+-- 场景：将L1项目4的Hive数仓迁移到Iceberg
+
+-- Spark Session配置Iceberg
+spark.conf.set("spark.sql.catalog.lakehouse", "org.apache.iceberg.spark.SparkCatalog")
+spark.conf.set("spark.sql.catalog.lakehouse.type", "hadoop")
+spark.conf.set("spark.sql.catalog.lakehouse.warehouse", "s3a://lakehouse/warehouse")
+
+-- 创建Iceberg表（支持Partition Evolution）
+CREATE TABLE lakehouse.dwd.order_detail (
+    order_id STRING,
+    user_id BIGINT,
+    item_id BIGINT,
+    amount DECIMAL(10,2),
+    dt DATE
+) USING iceberg
+PARTITIONED BY (months(dt));
+
+-- CTAS迁移历史数据
+INSERT INTO lakehouse.dwd.order_detail
+SELECT * FROM hive_dwd.order_detail;
+
+-- Schema Evolution（无需重写数据）
+ALTER TABLE lakehouse.dwd.order_detail ADD COLUMN payment_method STRING;
+
+-- Time Travel查询
+SELECT * FROM lakehouse.dwd.order_detail VERSION AS OF 20240101000000;
+```
+
+**课堂练习**（60min）：
+- 使用Spark + Iceberg创建湖仓表，完成CRUD操作
+- 演示Schema Evolution和Partition Evolution
+- 对比同一查询在Hive表和Iceberg表上的执行计划
+
+**课后作业**：
+- 将L1项目4的完整数仓迁移到Iceberg，输出迁移报告
+- 测试并发写入场景，观察Snapshot隔离效果
+
+---
+
+### 项目8.5：数据湖仓迁移与优化（20h）
+
+**项目描述**：将现有Hive数仓迁移到Iceberg湖仓架构，完成性能优化与治理。
+
+**项目需求**：
+
+```yaml
+阶段1 - 湖仓架构设计（5h）:
+  设计Iceberg湖仓分层:
+    - ODS/DWD/DWS/ADS各层迁移策略
+    - 分区策略设计（对比Hive分区与Iceberg隐藏分区）
+    - 存储格式选择（Parquet vs ORC，压缩算法对比）
+    - Catalog选型：Hadoop Catalog vs Hive Catalog vs REST Catalog
+
+阶段2 - 数据迁移实施（8h）:
+  迁移执行:
+    - 编写迁移脚本（CTAS + 增量同步）
+    - 数据校验：行数、校验和、抽样对比
+    - ETL任务适配：Spark作业改写为Iceberg写入
+    - 增量读取：Flink CDC → Iceberg Upsert
+
+阶段3 - 性能优化（4h）:
+  优化项:
+    - 数据压缩（Compaction）：小文件合并
+    - Orphan文件清理
+    - Snapshot过期策略
+    - 分区演进（按需调整分区粒度）
+
+阶段4 - 治理与监控（3h）:
+  治理能力:
+    - 数据血缘追踪（Iceberg Metadata Table）
+    - 数据版本回滚（Rollback）
+    - 湖仓健康度监控Dashboard
+```
+
+**交付物**：
+1. 湖仓架构设计文档
+2. 迁移脚本与数据校验报告
+3. 性能优化对比报告（Hive vs Iceberg查询性能）
+4. 湖仓运维SOP（Compaction、Snapshot清理、回滚操作）
+
+---
+
+## 补充模块：数据治理实操
+
+### 课时23：数据治理体系与实践（6h）
+
+**教学内容**：
+1. 数据治理框架：DAMA-DMBOK核心知识领域
+2. 数据质量管理：质量规则定义、检测、告警与修复
+3. 数据血缘追踪：从字段级到表级的血缘图谱
+4. 元数据管理：技术元数据、业务元数据、操作元数据
+5. 数据安全与合规：分级分类、脱敏策略、访问控制
+
+**实战——构建数据质量监控**：
+```python
+# 场景：为L2项目7的实时管道添加数据质量监控
+
+from pydantic import BaseModel
+from typing import Optional
+
+class QualityRule(BaseModel):
+    table_name: str
+    column: str
+    rule_type: str
+    threshold: float
+    description: str
+
+rules = [
+    QualityRule(table_name="dwd_order_detail", column="amount",
+                rule_type="not_null", threshold=1.0,
+                description="订单金额不能为空"),
+    QualityRule(table_name="dwd_order_detail", column="amount",
+                rule_type="min_value", threshold=0.01,
+                description="订单金额必须大于0"),
+    QualityRule(table_name="dwd_user_log", column="user_id",
+                rule_type="not_null", threshold=1.0,
+                description="用户ID不能为空"),
+    QualityRule(table_name="dwd_user_log", column="dt",
+                rule_type="freshness", threshold=1.0,
+                description="数据延迟不超过1天"),
+]
+
+# 执行质量检查
+def check_quality(df, rule):
+    if rule.rule_type == "not_null":
+        null_rate = df.filter(df[rule.column].isNull()).count() / df.count()
+        return null_rate <= (1 - rule.threshold)
+    elif rule.rule_type == "freshness":
+        max_dt = df.agg({"dt": "max"}).collect()[0][0]
+        return (today - max_dt).days <= rule.threshold
+```
+
+**课堂练习**（60min）：
+- 为L1项目4的数仓定义至少10条数据质量规则
+- 编写Spark作业执行质量检查，输出质量报告
+- 设计质量告警机制（质量分低于阈值时触发）
+
+**课后作业**：
+- 调研开源数据治理工具（Apache Atlas、DataHub、OpenMetadata）
+- 输出对比报告：功能覆盖度、部署复杂度、社区活跃度
+
+---
+
+### 项目9.5：数据治理平台搭建（20h）
+
+**项目描述**：搭建轻量级数据治理平台，覆盖元数据管理、数据质量、数据血缘三大核心能力。
+
+**项目需求**：
+
+```yaml
+阶段1 - 元数据管理（6h）:
+  功能:
+    - 自动采集Hive/Iceberg表的元数据（表结构、分区、统计信息）
+    - 业务元数据标注（表/字段级别的业务含义、负责人、SLA）
+    - 元数据搜索与目录浏览
+
+阶段2 - 数据质量监控（6h）:
+  功能:
+    - 质量规则配置界面（支持not_null、unique、range、regex等规则类型）
+    - 定时执行质量检查（与Airflow调度集成）
+    - 质量评分卡（表级别/字段级别）
+    - 质量趋势图与告警通知
+
+阶段3 - 数据血缘追踪（5h）:
+  功能:
+    - 解析Spark SQL执行计划，提取字段级血缘
+    - 血缘图谱可视化（上游→下游）
+    - 影响分析：修改某字段时，自动列出所有下游影响
+
+阶段4 - 平台集成（3h）:
+  集成:
+    - 单点登录（SSO）
+    - 与现有数仓的元数据同步
+    - 治理报告自动生成（周报/月报）
+```
+
+**交付物**：
+1. 数据治理平台（基于DataHub或自研）
+2. 元数据采集脚本与同步配置
+3. 数据质量规则库（至少30条规则）
+4. 血缘解析器与可视化图谱
+5. 治理平台使用文档
+
+---
+
 ## L2 结业考核
 
 | 考核项 | 方式 | 通过标准 |
@@ -1967,6 +2298,378 @@ Consumer调优:
     - PR中的Code Review讨论
     - 从中学到的开源协作规范
 ```
+
+---
+
+## 补充模块：MLOps与AI工程
+
+### 课时27：MLOps基础与模型生命周期（4h）
+
+**教学内容**：
+1. MLOps定义与演进：从手动ML到MLOps Level 0/1/2
+2. 模型生命周期：数据准备→特征工程→训练→评估→部署→监控
+3. 特征存储（Feature Store）：离线/在线特征、特征复用与一致性
+4. 实验管理：MLflow Tracking、实验对比、超参数记录
+5. 模型注册与版本管理：MLflow Model Registry
+
+**实战——用MLflow管理模型实验**：
+```python
+# 场景：用MLflow追踪用户流失预测模型的训练过程
+
+import mlflow
+import mlflow.sklearn
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, f1_score
+
+mlflow.set_experiment("user_churn_prediction")
+
+with mlflow.start_run(run_name="rf_baseline"):
+    # 记录超参数
+    mlflow.log_param("n_estimators", 100)
+    mlflow.log_param("max_depth", 10)
+    
+    # 训练模型
+    model = RandomForestClassifier(n_estimators=100, max_depth=10)
+    model.fit(X_train, y_train)
+    
+    # 评估并记录指标
+    y_pred = model.predict(X_test)
+    mlflow.log_metric("accuracy", accuracy_score(y_test, y_pred))
+    mlflow.log_metric("f1_score", f1_score(y_test, y_pred))
+    
+    # 注册模型
+    mlflow.sklearn.log_model(model, "model")
+
+# 对比不同实验
+runs = mlflow.search_runs(order_by=["metrics.f1_score DESC"])
+print(runs[["params.n_estimators", "metrics.f1_score"]].head())
+```
+
+**课堂练习**（45min）：
+- 使用MLflow追踪3组不同超参数的模型训练
+- 对比实验结果，选择最优模型并注册
+- 通过MLflow UI查看实验对比图
+
+**课后作业**：
+- 调研Feature Store工具（Feast、Hopsworks），输出选型对比笔记
+- 设计一个简单的Feature Store方案，服务于L2项目7的用户画像特征
+
+---
+
+### 课时28：模型部署与推理优化（4h）
+
+**教学内容**：
+1. 模型部署模式：在线推理（REST/gRPC）、批量推理、流式推理
+2. 模型服务化：MLflow Serving、Seldon Core、Triton Inference Server
+3. 推理优化：模型量化、蒸馏、ONNX Runtime
+4. A/B测试与模型灰度发布
+5. 模型监控：数据漂移检测、预测质量监控
+
+**实战——模型服务化与漂移检测**：
+```python
+# 场景：将训练好的模型部署为REST服务，并监控数据漂移
+
+# 1. MLflow模型服务化
+# 命令行启动：mlflow models serve -m "models:/churn_model/Production" -p 5001
+
+# 2. 客户端调用
+import requests
+import numpy as np
+
+features = X_test[:10].tolist()
+response = requests.post(
+    "http://localhost:5001/invocations",
+    json={"instances": features}
+)
+predictions = response.json()["predictions"]
+
+# 3. 数据漂移检测（PSI指标）
+def calculate_psi(expected, actual, buckets=10):
+    expected_pct = np.histogram(expected, bins=buckets)[0] / len(expected)
+    actual_pct = np.histogram(actual, bins=buckets)[0] / len(actual)
+    psi = sum((actual_pct - expected_pct) * np.log(actual_pct / expected_pct + 1e-6))
+    return psi
+
+# PSI < 0.1: 无显著漂移; 0.1-0.25: 中等漂移; > 0.25: 严重漂移
+psi_score = calculate_psi(X_train[:, 0], X_test[:, 0])
+print(f"PSI Score: {psi_score:.4f}")
+```
+
+**课堂练习**（45min）：
+- 将MLflow中的模型部署为REST API
+- 编写漂移检测脚本，模拟训练数据与线上数据的分布变化
+- 设计模型回滚方案
+
+**课后作业**：
+- 对比Triton Inference Server与MLflow Serving的推理延迟
+- 输出模型部署架构设计文档
+
+---
+
+### 课时29：LLM与大数据融合（4h）
+
+**教学内容**：
+1. 大语言模型（LLM）基础：Transformer架构、Tokenization、上下文窗口
+2. LLM在大数据场景的应用：Text2SQL、数据问答、智能ETL
+3. RAG（检索增强生成）架构：向量数据库 + LLM
+4. Prompt Engineering与Agent设计模式
+5. LLM工程化：模型微调、推理优化、成本控制
+
+**实战——构建数据问答助手**：
+```python
+# 场景：基于RAG构建数据平台问答助手
+
+from langchain.schema import Document
+from langchain.vectorstores import Chroma
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.chat_models import ChatOpenAI
+from langchain.chains import RetrievalQA
+
+# 1. 构建知识库（数据字典 + 常见查询）
+docs = [
+    Document(page_content="dwd_order_detail: 订单明细宽表，包含order_id, user_id, amount, dt等字段",
+             metadata={"source": "data_dictionary"}),
+    Document(page_content="查询每日GMV: SELECT dt, SUM(amount) FROM dwd_order_detail GROUP BY dt",
+             metadata={"source": "sql_examples"}),
+]
+
+# 2. 向量化存储
+vectorstore = Chroma.from_documents(docs, OpenAIEmbeddings())
+
+# 3. 构建RAG链
+qa_chain = RetrievalQA.from_chain_type(
+    llm=ChatOpenAI(model="gpt-4"),
+    retriever=vectorstore.as_retriever(search_kwargs={"k": 3}),
+)
+
+# 4. 问答
+answer = qa_chain.run("帮我写一个查询，看最近7天每个品类的GMV排名")
+print(answer)
+```
+
+**课堂练习**（45min）：
+- 构建一个基于数据字典的Text2SQL助手
+- 测试不同Prompt模板对SQL生成准确率的影响
+- 讨论LLM在数据平台中的安全边界
+
+**课后作业**：
+- 设计一个完整的"数据平台AI助手"架构方案
+- 输出方案需包含：RAG知识库设计、安全策略、成本估算
+
+---
+
+### 项目10.5：MLOps流水线搭建（30h）
+
+**项目描述**：端到端搭建MLOps流水线，从特征管理到模型监控的完整闭环。
+
+**项目需求**：
+
+```yaml
+阶段1 - 特征工程与Feature Store（8h）:
+  功能:
+    - 基于Feast搭建离线+在线Feature Store
+    - 将L2项目7的用户画像特征注册到Feature Store
+    - 保证离线训练特征与在线推理特征的一致性
+
+阶段2 - 实验管理与模型训练（8h）:
+  功能:
+    - MLflow实验追踪（自动记录参数、指标、模型）
+    - 超参数搜索（Optuna + MLflow集成）
+    - 模型注册与版本管理
+    - 训练流水线编排（Airflow/Kubeflow Pipeline）
+
+阶段3 - 模型部署（8h）:
+  功能:
+    - 模型服务化（MLflow Serving或Seldon Core）
+    - A/B测试框架（流量分流 + 指标对比）
+    - 模型灰度发布与自动回滚
+    - 批量推理任务（Spark + MLflow）
+
+阶段4 - 模型监控（6h）:
+  功能:
+    - 数据漂移检测（PSI/KS检验）
+    - 预测质量监控（标签延迟反馈处理）
+    - 模型性能Dashboard（Grafana）
+    - 自动重训练触发机制
+```
+
+**交付物**：
+1. MLOps流水线架构文档
+2. Feature Store配置与特征定义
+3. 训练流水线代码（含Airflow DAG）
+4. 模型部署配置与A/B测试方案
+5. 模型监控Dashboard与告警规则
+
+---
+
+## 补充模块：云原生大数据
+
+### 课时30：Kubernetes与大数据编排（4h）
+
+**教学内容**：
+1. Kubernetes核心概念：Pod、Service、Deployment、Namespace
+2. 大数据on K8s架构：Spark Operator、Flink Operator、Kafka Strimzi
+3. 资源调度与弹性伸缩：HPA、VPA、Descheduler
+4. 存储编排：PV/PVC、StorageClass、对象存储集成
+5. K8s上的数据安全：NetworkPolicy、RBAC、Secret管理
+
+**实战——Spark on K8s运行作业**：
+```bash
+# 场景：在K8s集群上提交Spark作业
+
+# 1. 构建Spark Docker镜像
+docker build -t spark:3.5-k8s -f Dockerfile.spark .
+
+# 2. 提交Spark作业到K8s
+spark-submit \
+  --master k8s://https://k8s-api:6443 \
+  --deploy-mode cluster \
+  --name etl-daily-job \
+  --conf spark.kubernetes.container.image=spark:3.5-k8s \
+  --conf spark.kubernetes.namespace=bigdata \
+  --conf spark.executor.instances=4 \
+  --conf spark.executor.memory=4g \
+  --conf spark.executor.cores=2 \
+  local:///app/etl_job.py
+
+# 3. 使用Spark Operator（声明式）
+cat > spark-job.yaml << 'EOF'
+apiVersion: sparkoperator.k8s.io/v1beta2
+kind: SparkApplication
+metadata:
+  name: etl-daily-job
+  namespace: bigdata
+spec:
+  type: Python
+  mode: cluster
+  image: spark:3.5-k8s
+  mainApplicationFile: s3a://jobs/etl_job.py
+  executor:
+    instances: 4
+    memory: 4g
+    cores: 2
+  sparkVersion: 3.5.0
+EOF
+
+kubectl apply -f spark-job.yaml
+```
+
+**课堂练习**（45min）：
+- 使用Kind搭建本地K8s集群
+- 部署Spark Operator并提交一个ETL作业
+- 观察Pod调度、资源使用、作业日志
+
+**课后作业**：
+- 将L1项目4的离线数仓ETL迁移到Spark on K8s
+- 对比YARN模式与K8s模式的资源利用率和运维复杂度
+
+---
+
+### 课时31：云原生数据平台设计（4h）
+
+**教学内容**：
+1. 云原生数据平台架构：存算分离、Serverless、多租户
+2. 对象存储作为统一存储层：S3/OSS语义与性能优化
+3. Serverless计算：AWS Athena、Google BigQuery、阿里云DLA
+4. 多云与混合云策略：数据同步、容灾、成本优化
+5. GitOps与基础设施即代码（IaC）：Terraform + ArgoCD
+
+**实战——Terraform管理数据基础设施**：
+```hcl
+# 场景：用Terraform管理云上数据平台资源
+
+# S3 Bucket（数据湖存储）
+resource "aws_s3_bucket" "data_lake" {
+  bucket = "company-data-lake"
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "cold_storage" {
+  bucket = aws_s3_bucket.data_lake.id
+  rule {
+    id     = "archive-old-data"
+    status = "Enabled"
+    transition {
+      days          = 90
+      storage_class = "GLACIER"
+    }
+  }
+}
+
+# EMR Cluster（按需Spark集群）
+resource "aws_emr_cluster" "etl_cluster" {
+  name          = "daily-etl"
+  release_label = "emr-6.9.0"
+  applications  = ["Spark", "Hive"]
+  master_instance_group {
+    instance_type = "m5.xlarge"
+    instance_count = 1
+  }
+  core_instance_group {
+    instance_type  = "r5.2xlarge"
+    instance_count = 4
+    autoscaling_policy = file("autoscale.json")
+  }
+}
+```
+
+**课堂练习**（45min）：
+- 使用Terraform创建S3 Bucket + EMR集群
+- 配置生命周期策略实现冷热数据分层
+- 编写Terraform Module封装可复用的数据平台组件
+
+**课后作业**：
+- 设计一个多云数据平台架构（AWS + 阿里云）
+- 输出架构文档，包含数据同步方案、容灾策略、成本对比
+
+---
+
+### 项目11：云原生数据平台迁移（30h）
+
+**项目描述**：将现有Hadoop数据平台迁移到云原生架构，实现存算分离与弹性伸缩。
+
+**项目需求**：
+
+```yaml
+阶段1 - 迁移评估与架构设计（8h）:
+  评估:
+    - 现有平台资产盘点（集群规模、数据量、任务数、依赖关系）
+    - 迁移风险与可行性评估
+    - TCO对比：自建Hadoop vs 云原生方案
+  架构设计:
+    - 存算分离架构（S3/OSS + 弹性计算）
+    - 数据湖格式选型（Iceberg/Delta/Hudi）
+    - 任务编排方案（Airflow on K8s / Argo Workflows）
+    - 安全与合规方案
+
+阶段2 - 存储层迁移（8h）:
+  迁移:
+    - HDFS → S3/OSS数据迁移（DistCp / s3sync）
+    - Hive Metastore迁移与兼容
+    - 存储格式优化（Text → Parquet/Iceberg）
+    - 数据校验与一致性验证
+
+阶段3 - 计算层迁移（8h）:
+  迁移:
+    - Spark on YARN → Spark on K8s
+    - Flink on YARN → Flink on K8s（Native模式）
+    - 任务调度迁移（Crontab/Airflow → Airflow on K8s）
+    - 弹性伸缩策略设计（按任务队列动态扩缩）
+
+阶段4 - 运维体系重建（6h）:
+  重建:
+    - 监控体系（Prometheus + Grafana）
+    - 日志体系（ELK/Loki）
+    - GitOps工作流（Terraform + ArgoCD）
+    - 灾备演练SOP
+```
+
+**交付物**：
+1. 迁移评估报告与TCO分析
+2. 云原生架构设计文档
+3. 存储迁移脚本与校验报告
+4. 计算迁移配置（K8s Manifests / Helm Charts）
+5. 运维体系配置（监控、日志、GitOps）
+6. 迁移回滚方案
 
 ---
 
@@ -2200,6 +2903,161 @@ Consumer调优:
 
 ---
 
+## 补充模块：dbt与现代数据栈
+
+### 课时32：dbt核心与数据转换工程化（4h）
+
+**教学内容**：
+1. 现代数据栈（Modern Data Stack）全景：Fivetran → Snowflake → dbt → Looker
+2. dbt核心理念：Analytics as Code、SQL-first转换、版本控制
+3. dbt项目结构：models、macros、tests、docs、seeds
+4. dbt模型开发：ref/source、增量模型（Incremental）、物化策略
+5. dbt测试与文档：schema tests、data tests、自动生成文档站
+
+**实战——用dbt重构数仓ETL**：
+```sql
+-- 场景：用dbt重构L1项目4的DWD/DWS/ADS层
+
+-- models/staging/stg_orders.sql（Staging层）
+WITH source AS (
+    SELECT * FROM {{ source('raw', 'orders') }}
+),
+renamed AS (
+    SELECT
+        order_id,
+        user_id,
+        amount,
+        DATE(created_at) AS order_date
+    FROM source
+    WHERE amount > 0
+)
+SELECT * FROM renamed
+
+-- models/marts/dws_user_order_daily.sql（DWS层，增量模型）
+{{ config(
+    materialized='incremental',
+    unique_key='user_date_key',
+    cluster_by=['order_date']
+) }}
+
+WITH orders AS (
+    SELECT * FROM {{ ref('stg_orders') }}
+),
+daily AS (
+    SELECT
+        user_id,
+        order_date,
+        COUNT(*) AS order_count,
+        SUM(amount) AS total_amount,
+        {{ dbt_utils.generate_surrogate_key('user_id', 'order_date') }} AS user_date_key
+    FROM orders
+    {% if is_incremental() %}
+    WHERE order_date >= (SELECT MAX(order_date) FROM {{ this }})
+    {% endif %}
+    GROUP BY user_id, order_date
+)
+SELECT * FROM daily
+
+-- models/marts/ads_user_retention.sql（ADS层）
+WITH first_order AS (
+    SELECT user_id, MIN(order_date) AS first_order_date
+    FROM {{ ref('stg_orders') }}
+    GROUP BY user_id
+),
+retention AS (
+    SELECT
+        f.first_order_date,
+        DATEDIFF(o.order_date, f.first_order_date) AS day_diff,
+        COUNT(DISTINCT o.user_id) AS retained_users
+    FROM {{ ref('stg_orders') }} o
+    JOIN first_order f ON o.user_id = f.user_id
+    GROUP BY f.first_order_date, day_diff
+)
+SELECT * FROM retention
+```
+
+**课堂练习**（60min）：
+- 初始化dbt项目，连接到Snowflake/PostgreSQL
+- 将L1项目4的DWD层至少3张表改写为dbt模型
+- 为模型添加schema tests（unique、not_null、accepted_values）
+
+**课后作业**：
+- 完成DWS/ADS层的dbt模型改写
+- 运行`dbt test`确保所有测试通过
+- 生成文档站：`dbt docs generate && dbt docs serve`
+
+---
+
+### 课时33：dbt高级与数据治理集成（4h）
+
+**教学内容**：
+1. dbt高级特性：宏（Macros）、包（Packages）、自定义物化
+2. dbt与数据质量：dbt-expectations、Great Expectations集成
+3. dbt CI/CD：dbt Cloud、GitHub Actions集成、PR自动测试
+4. dbt与数据治理：元数据标注、数据血缘自动生成
+5. dbt在大规模数仓的实践：项目拆分、模型性能优化
+
+**实战——dbt CI/CD与数据质量**：
+```yaml
+# .github/workflows/dbt_ci.yml
+name: dbt CI
+on:
+  pull_request:
+    paths:
+      - 'dbt/**'
+
+jobs:
+  dbt-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dbt
+        run: pip install dbt-snowflake
+      - name: dbt deps
+        run: dbt deps --project-dir dbt
+      - name: dbt compile
+        run: dbt compile --project-dir dbt
+      - name: dbt test
+        run: dbt test --project-dir dbt --target ci
+```
+
+```sql
+-- macros/quality_check.sql：自定义数据质量宏
+{% test positive_amount(model, column_name) %}
+SELECT *
+FROM {{ model }}
+WHERE {{ column_name }} <= 0
+{% endtest %}
+
+-- 在模型中使用
+# models/marts/dws_user_order_daily.yml
+version: 2
+models:
+  - name: dws_user_order_daily
+    description: "用户日订单汇总表"
+    columns:
+      - name: total_amount
+        description: "当日总消费金额"
+        tests:
+          - positive_amount
+          - not_null
+    meta:
+      owner: "data-team"
+      sla: "T+1 9:00"
+      freshness_warning: 24
+```
+
+**课堂练习**（45min）：
+- 编写自定义宏实现通用业务逻辑（如货币换算、日期维度生成）
+- 配置GitHub Actions实现PR自动运行dbt test
+- 使用dbt-expectations包添加高级数据质量检查
+
+**课后作业**：
+- 输出一份《dbt落地评估报告》：对比dbt与传统SQL脚本ETL的优劣
+- 包含：开发效率、可维护性、测试覆盖、CI/CD集成、团队协作
+
+---
+
 ## L4 结业考核
 
 | 考核项 | 方式 | 通过标准 |
@@ -2318,6 +3176,41 @@ Consumer调优:
 
 ---
 
+### 模块4：AI与数据融合战略
+
+```yaml
+训练方法: 案例研讨 + 战略推演
+
+训练1: "AI驱动的数据平台演进路线"
+  场景: 公司要求在12个月内将AI能力融入现有数据平台
+  要求: 制定分阶段路线图
+  内容:
+    Phase 1: AI辅助数据治理（自动分类、质量检测、血缘推断）
+    Phase 2: AI增强数据分析（Text2SQL、自然语言查询、智能推荐）
+    Phase 3: AI原生数据产品（预测性分析、自动化决策、实时个性化）
+  输出: 演进路线图 + 每阶段ROI预估 + 技术风险评估
+
+训练2: "数据与AI的组织架构设计"
+  场景: 公司从"数据团队"升级为"数据+AI团队"，需要重新设计组织
+  讨论:
+    - 数据工程 vs ML工程 vs 数据科学的边界与协作
+    - 中心化 vs 去中心化（联邦式）AI团队的利弊
+    - AI人才招聘策略（内部培养 vs 外部引进）
+    - AI项目的投入产出衡量标准
+  输出: 组织架构方案 + 岗位定义 + 招聘路线图
+
+训练3: "AI伦理与数据合规战略"
+  场景: 公司AI产品面临数据隐私、算法公平性、可解释性挑战
+  讨论:
+    - GDPR/个保法对AI数据使用的约束
+    - 算法偏见的识别与缓解策略
+    - AI决策的可解释性要求（金融/医疗/招聘等敏感场景）
+    - 建立AI伦理审查委员会的可行性
+  输出: AI伦理准则 + 合规检查清单 + 审查流程设计
+```
+
+---
+
 ### 项目13：CTO年度述职报告（持续项目）
 
 **项目描述**：模拟一次CTO的年度述职汇报。
@@ -2368,6 +3261,65 @@ Part 4: 团队发展(10%)
 ---
 
 # 附录
+
+---
+
+## 贯穿式递进大项目：电商数据平台全周期演进
+
+以电商数据平台为核心载体，贯穿L0至L4全阶段，从单机脚本到分布式离线数仓，再到实时管道、湖仓架构、云原生平台，最终完成企业级架构设计。每个阶段在上一阶段成果上递进扩展，学员可直观感受技术栈演进的全周期脉络，形成端到端的工程视野。
+
+---
+
+## 跨行业实战项目
+
+### 项目A：金融实时风控系统
+
+基于Kafka+Flink构建金融交易实时风控管道，涵盖规则引擎、实时决策、风控指标计算与告警，训练学员在高可靠、低延迟场景下的流处理工程能力。
+
+### 项目B：IoT设备监控与预测性维护
+
+基于Kafka+Flink+时序数据库构建IoT设备监控与异常检测系统，涵盖设备数据采集、时序特征提取、异常检测模型与预测性维护策略，训练学员在物联网场景下的数据处理与运维能力。
+
+### 项目C：广告实时竞价与归因分析
+
+基于Kafka+Flink+ClickHouse构建广告实时竞价与归因分析系统，涵盖流式Join、实时竞价指标计算、多触点归因模型，训练学员在高吞吐、低延迟场景下的实时数据分析能力。
+
+---
+
+## 面试题库与刷题指南
+
+按L0-L4阶段分级整理大数据面试高频题库，涵盖理论知识、场景设计、代码实操与行为面试，每题附参考答案与评分要点，帮助学员系统性备战面试。
+
+---
+
+## 学习进度追踪体系
+
+提供阶段化学习进度追踪模板，涵盖课时完成度、项目交付状态、技能雷达图与里程碑检查点，帮助学员和讲师实时掌握学习进展，及时发现与补齐短板。
+
+---
+
+## 回头看机制
+
+在每个阶段结束时设置"回头看"环节，回顾前一阶段的核心知识点与项目经验，通过复盘笔记、知识串联与跨阶段对比，确保知识体系的连贯性与深度内化，避免"学完就忘"。
+
+---
+
+## 交互式学习资源
+
+### 编程挑战集
+- L0: 5个挑战(CSV清洗/SQL窗口函数/日志分析/Docker部署/Git协作)
+- L1: 6个挑战(HDFS Shell/Spark RDD/Spark SQL/Hive数仓/数据倾斜/Airflow DAG)
+- L2: 5个挑战(Kafka调优/Flink实时计算/Iceberg湖仓/数据质量/故障排查竞速)
+- L3: 4个挑战(Catalyst源码/百TB调优/MLOps全流程/K8s迁移)
+- 积分赛制和晋级体系
+
+### 动手实验室指南
+- 10个Step-by-Step实验(HDFS/Hive/Spark/Kafka/Flink/ClickHouse/Iceberg/dbt/K8s/MLOps)
+- 每个实验含Docker部署命令、验证步骤、常见问题排查
+
+### 随堂测验题库
+- L0-L4全覆盖，150+道题
+- 选择题/判断题/填空题，每题含答案和解析
 
 ---
 
@@ -2478,12 +3430,19 @@ Kubernetes环境:
 ──────────────────────────────────────────────
  4      L0        Python爬虫 + SQL 50题 + Git绿点30天
  6      L0结业    L0项目3个完成 + 综合笔试通过 → 升L1
+ 8      L0补充    Docker容器化项目完成
 14      L1结业    离线数仓 + 用户画像 + Airflow → 升L2
+16      L1补充    OLAP引擎实操完成
 22      L2结业    实时管道 + DDIA读书笔记 → 升L3
+24      L2补充    数据湖仓迁移项目8.5完成
+26      L2补充    数据治理平台项目9.5完成
 26      L3中期    论文精读6篇 + 源码3000行
 32      L3结业    调优攻坚 + 开源PR → 升L4
+34      L3补充    MLOps流水线项目10.5完成
+36      L3补充    云原生迁移项目11完成
 38      L4中期    系统设计8题完成
 44      L4结业    架构方案通过评审团 → 升L5
+46      L4补充    dbt与现代数据栈模块完成
 52+     L5持续    年度述职 + 技术战略输出
 ```
 
@@ -2527,18 +3486,28 @@ Kubernetes环境:
 | L0 | Python编程：从入门到实践 | Eric Matthes | 必读 |
 | L0 | SQL必知必会 | Ben Forta | 必读 |
 | L0 | 鸟哥的Linux私房菜(基础篇) | 鸟哥 | 必读(前12章) |
+| L0 | 《分布式系统概念与设计》 | George Coulouris | 选读 |
 | L1 | Hadoop权威指南 | Tom White | 必读(前10章) |
 | L1 | Spark快速大数据分析 | Holden Karau | 必读(1-6章) |
 | L1 | 数据仓库工具箱(维度建模指南) | Kimball | 必读(1-6章) |
+| L1 | 《技术写作手册》 | - | 选读 |
 | L2 | Kafka权威指南 | Neha Narkhede | 必读 |
+| L2 | Kafka权威指南(第2版) | Neha Narkhede | 必读 |
 | L2 | 基于Apache Flink的流处理 | Fabian Hueske | 必读(1-8章) |
+| L2 | Flink基础教程 | - | 选读 |
 | L2 | 数据密集型应用系统设计(DDIA) | Kleppmann | 必读全书(至少2遍) |
 | L2 | 大数据之路：阿里巴巴大数据实践 | 阿里巴巴 | 必读 |
+| L2 | 数据湖仓一体架构 | - | 选读 |
 | L3 | Apache Flink源码解析 | - | 选读(源码为主) |
 | L3 | Spark SQL内核剖析 | - | 选读(源码为主) |
+| L3 | Designing Machine Learning Systems | Chip Huyen | 必读 |
+| L3 | Streaming Systems | Tyler Akidau | 必读 |
+| L3 | LLM实战 | - | 选读 |
 | L4 | 系统设计面试 | Alex Xu | 必读 |
 | L4 | The Manager's Path | Camille Fournier | 必读 |
 | L4 | 企业IT架构转型之道 | 钟华 | 选读 |
+| L4 | dbt权威指南 | - | 必读 |
 | L5 | 从0到1 | Peter Thiel | 选读 |
 | L5 | 成为CTO | 若干 | 选读 |
 | L5 | Google软件工程 | Titus Winters | 必读 |
+| L5 | AI Superpowers | Kai-Fu Lee | 选读 |
