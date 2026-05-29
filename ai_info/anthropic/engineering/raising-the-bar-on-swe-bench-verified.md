@@ -1,4 +1,4 @@
-﻿# Raising the Bar on SWE-bench Verified with Claude 3.5 Sonnet
+# Raising the Bar on SWE-bench Verified with Claude 3.5 Sonnet
 
 - **原文链接**: [Raising the bar on SWE-bench Verified with Claude 3.5 Sonnet](https://www.anthropic.com/engineering/raising-the-bar-on-swe-bench-verified)
 - **发布日期**: 2025-01-06

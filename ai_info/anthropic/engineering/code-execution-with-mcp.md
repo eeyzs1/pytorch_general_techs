@@ -1,4 +1,4 @@
-﻿# Code Execution with MCP: Building More Efficient AI Agents
+# Code Execution with MCP: Building More Efficient AI Agents
 
 - **原文链接**: [Code execution with MCP: Building more efficient AI agents](https://www.anthropic.com/engineering/code-execution-with-mcp)
 - **作者**: Adam Jones, Conor Kelly

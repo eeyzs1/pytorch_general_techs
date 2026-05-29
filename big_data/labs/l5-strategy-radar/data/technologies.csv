@@ -1,0 +1,6 @@
+name,impact,confidence,cost,risk
+Lakehouse,9,8,6,4
+Realtime Feature Store,8,7,7,5
+Self-hosted LLM Platform,8,5,9,8
+Data Contract,7,8,3,3
+Custom Query Engine,6,4,9,8

@@ -1,4 +1,4 @@
-﻿# Equipping Agents for the Real World with Agent Skills
+# Equipping Agents for the Real World with Agent Skills
 
 - **原文链接**: [Equipping agents for the real world with Agent Skills](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
 - **作者**: Barry Zhang, Keith Lazuka, Mahesh Murag

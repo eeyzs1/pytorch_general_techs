@@ -1,4 +1,4 @@
-﻿# The "Think" Tool: Enabling Claude to Stop and Think in Complex Tool Use Situations
+# The "Think" Tool: Enabling Claude to Stop and Think in Complex Tool Use Situations
 
 - **原文链接**: [The "think" tool: Enabling Claude to stop and think in complex tool use situations](https://www.anthropic.com/engineering/claude-think-tool)
 - **发布日期**: 2025-03-20

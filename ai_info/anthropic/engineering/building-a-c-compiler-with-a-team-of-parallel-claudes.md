@@ -1,4 +1,4 @@
-﻿# Building a C Compiler with a Team of Parallel Claudes
+# Building a C Compiler with a Team of Parallel Claudes
 
 - **原文链接**: [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler)
 - **发布日期**: 2026-02-05

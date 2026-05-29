@@ -1,0 +1,4 @@
+event_id,sku,amount
+1,sku-hot,10
+2,sku-001,4
+3,sku-hot,9

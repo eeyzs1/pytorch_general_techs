@@ -1,4 +1,4 @@
-﻿# Effective Harnesses for Long-Running Agents
+# Effective Harnesses for Long-Running Agents
 
 - **原文链接**: [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
 - **作者**: Justin Young

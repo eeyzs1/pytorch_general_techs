@@ -1,6 +1,6 @@
 # Anthropic Engineering Blog — 核心观点总结
 
-> 汇总自 [Anthropic Engineering](https://www.anthropic.com/engineering) 博客的 25 篇文章，涵盖 2024 年 9 月至 2026 年 5 月。
+> 汇总自 [Anthropic Engineering](https://www.anthropic.com/engineering) 博客的 26 篇文章，涵盖 2024 年 9 月至 2026 年 5 月。
 
 ## 一、总体脉络
 
@@ -40,7 +40,7 @@ Anthropic 的工程博客呈现了一条清晰的技术演进路径：
 
 ### 4. 安全与可靠性
 
-[Beyond Permission Prompts](beyond-permission-prompts.md) 确立了"安全是自主性前提"的原则——文件系统隔离 + 网络隔离的双重沙箱架构。[Claude Code Auto Mode](claude-code-auto-mode.md) 进一步将安全自动化——基于分类器的两层防御（Prompt Injection 探测器 + Transcript 分类器），93% 的权限提示被自动处理，FPR 仅 0.4%。[A Postmortem of Three Recent Issues](a-postmortem-of-three-recent-issues.md) 揭示了基础设施 Bug 如何伪装成模型退化。[Quantifying Infrastructure Noise in Agentic Coding Evals](quantifying-infrastructure-noise-in-agentic-coding-evals.md) 量化了基础设施配置对基准测试的影响（6 个百分点差距）。[An Update on Recent Claude Code Quality Reports](an-update-on-recent-claude-code-quality-reports.md) 是最新的事后分析——三个独立工程变更（默认推理负荷降低、缓存 Bug 清除思考历史、系统提示词限制长度）导致 Claude Code 为期一个半月的质量下降，4月20日全部修复并公开道歉。
+[Beyond Permission Prompts](beyond-permission-prompts.md) 确立了"安全是自主性前提"的原则——文件系统隔离 + 网络隔离的双重沙箱架构。[Claude Code Auto Mode](claude-code-auto-mode.md) 进一步将安全自动化——基于分类器的两层防御（Prompt Injection 探测器 + Transcript 分类器），93% 的权限提示被自动处理，FPR 仅 0.4%。[How We Built a System to Contain Claude Across Products](how-we-contain-claude-across-products.md) 将安全扩展到跨产品 containment：在强对抗攻击下，泄露率从 23.6% 降到约 0.000048%。[A Postmortem of Three Recent Issues](a-postmortem-of-three-recent-issues.md) 揭示了基础设施 Bug 如何伪装成模型退化。[Quantifying Infrastructure Noise in Agentic Coding Evals](quantifying-infrastructure-noise-in-agentic-coding-evals.md) 量化了基础设施配置对基准测试的影响（6 个百分点差距）。[An Update on Recent Claude Code Quality Reports](an-update-on-recent-claude-code-quality-reports.md) 是事后分析——三个独立工程变更导致 Claude Code 为期一个半月的质量下降，4月20日全部修复并公开道歉。
 
 ### 5. 评估框架
 
@@ -67,6 +67,7 @@ Anthropic 的工程博客呈现了一条清晰的技术演进路径：
 | 代码执行 MCP Token 减少 | 98.7% (150K→2K) | [Code Execution with MCP](code-execution-with-mcp.md) |
 | Contextual Retrieval 失败率降低 | 67% | [Introducing Contextual Retrieval](introducing-contextual-retrieval.md) |
 | Think Tool 策略遵循改进 | 54% | [The Think Tool](the-think-tool.md) |
+| Claude 产品 containment 泄露率 | 23.6%→0.000048% | [How We Built a System to Contain Claude Across Products](how-we-contain-claude-across-products.md) |
 | 基础设施噪声基准差距 | 6 个百分点 | [Quantifying Infrastructure Noise in Agentic Coding Evals](quantifying-infrastructure-noise-in-agentic-coding-evals.md) |
 | 并行工具调用研究时间减少 | 90% | [How We Built Our Multi-Agent Research System](how-we-built-our-multi-agent-research-system.md) |
 | Managed Agents p50 延迟降低 | ~60% | [Scaling Managed Agents](scaling-managed-agents.md) |
@@ -111,5 +112,6 @@ Anthropic 的工程博客呈现了一条清晰的技术演进路径：
 | 21 | 2026-03-06 | [Eval Awareness in Claude Opus 4.6's BrowseComp Performance](eval-awareness-browsecomp.md) | 评估感知 |
 | 22 | 2026-03-24 | [Harness Design for Long-Running Application Development](harness-design-for-long-running-application-development.md) | 高级 Harness |
 | 23 | 2026-03-25 | [Claude Code Auto Mode](claude-code-auto-mode.md) | 自动权限 |
-| 24 | 2026-04-10 | [Scaling Managed Agents](scaling-managed-agents.md) | 基础设施解耦 |
+| 24 | 2026-04-08 | [Scaling Managed Agents](scaling-managed-agents.md) | 基础设施解耦 |
 | 25 | 2026-04-23 | [An Update on Recent Claude Code Quality Reports](an-update-on-recent-claude-code-quality-reports.md) | 质量事后分析 |
+| 26 | 2026-05-25 | [How We Built a System to Contain Claude Across Products](how-we-contain-claude-across-products.md) | 跨产品 containment |

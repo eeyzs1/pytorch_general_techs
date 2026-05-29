@@ -1,4 +1,4 @@
-﻿# Building Agents with the Claude Agent SDK
+# Building Agents with the Claude Agent SDK
 
 - **原文链接**: [Building agents with the Claude Agent SDK](https://www.anthropic.com/engineering/building-agents-with-the-claude-agent-sdk)
 - **作者**: Thariq Shihipar 等

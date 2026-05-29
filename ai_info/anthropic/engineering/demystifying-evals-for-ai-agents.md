@@ -1,4 +1,4 @@
-﻿# Demystifying Evals for AI Agents
+# Demystifying Evals for AI Agents
 
 - **原文链接**: [Demystifying evals for AI agents](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)
 - **作者**: Mikaela Grace, Jeremy Hadfield, Rodrigo Olivares, Jiri De Jonghe

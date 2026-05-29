@@ -1,0 +1,32 @@
+name: docs-quality
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  docs-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install docs tooling
+        run: python3 -m pip install -r requirements-dev.txt
+      - name: Check Markdown links
+        run: python3 scripts/check_links.py
+      - name: Check placeholders
+        run: python3 scripts/check_placeholders.py
+      - name: Check curriculum references
+        run: python3 scripts/check_curriculum_refs.py
+      - name: Check project catalog
+        run: python3 scripts/check_project_catalog.py
+      - name: Validate assessments
+        run: python3 scripts/validate_assessments.py
+      - name: Generate learner materials
+        run: make materials
+      - name: Build docs
+        run: make docs-build
+      - name: Run lab tests
+        run: make lab-test

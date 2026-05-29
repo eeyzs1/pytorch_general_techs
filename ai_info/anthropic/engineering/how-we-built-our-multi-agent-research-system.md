@@ -1,4 +1,4 @@
-﻿# How We Built Our Multi-Agent Research System
+# How We Built Our Multi-Agent Research System
 
 - **原文链接**: [How we built our multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system)
 - **作者**: Jeremy Hadfield, Barry Zhang, Kenneth Lien, Florian Scholz, Jeremy Fox, Daniel Ford

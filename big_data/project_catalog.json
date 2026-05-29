@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "last_updated": "2026-05-29",
+  "naming_rule": "主线项目使用 P01-P13；补充项目使用 PxxA/PxxB/PxxC 或 PxxS1，避免复用中文项目编号。",
+  "projects": [
+    {"id": "P01", "stage": "L0", "title": "Web日志分析系统", "path": "L0_预备阶段/第5-6周_项目实战/项目1_Web日志分析系统.md", "type": "core"},
+    {"id": "P02", "stage": "L0", "title": "电商数据库设计与SQL分析", "path": "L0_预备阶段/第5-6周_项目实战/项目2_电商数据库设计与SQL分析.md", "type": "core"},
+    {"id": "P03", "stage": "L0", "title": "命令行环境运维实战", "path": "L0_预备阶段/第5-6周_项目实战/项目3_命令行环境运维实战.md", "type": "core"},
+    {"id": "P04", "stage": "L1", "title": "离线数仓构建", "path": "L1_初级工程师/第11-14周_项目实战/项目4_离线数仓构建.md", "type": "core"},
+    {"id": "P05", "stage": "L1", "title": "Spark用户画像系统", "path": "L1_初级工程师/第11-14周_项目实战/项目5_Spark用户画像系统.md", "type": "core"},
+    {"id": "P06", "stage": "L1", "title": "Airflow工作流编排", "path": "L1_初级工程师/第11-14周_项目实战/项目6_Airflow工作流编排.md", "type": "core"},
+    {"id": "P07", "stage": "L2", "title": "实时交易监控大屏", "path": "L2_中级工程师/第19-22周_DDIA精读与项目/项目7_实时交易监控大屏.md", "type": "core"},
+    {"id": "P08", "stage": "L2", "title": "Kafka深度调优", "path": "L2_中级工程师/第19-22周_DDIA精读与项目/项目8_Kafka深度调优.md", "type": "core"},
+    {"id": "P08S1", "stage": "L2", "title": "从Hive数仓迁移到Iceberg湖仓", "path": "L2_中级工程师/补充模块_数据湖仓实战/项目8.5_从Hive数仓迁移到Iceberg湖仓.md", "type": "supplemental"},
+    {"id": "P09", "stage": "L2", "title": "数据管道故障排查手册", "path": "L2_中级工程师/第19-22周_DDIA精读与项目/项目9_数据管道故障排查手册.md", "type": "core"},
+    {"id": "P09S1", "stage": "L2", "title": "数据治理平台搭建", "path": "L2_中级工程师/补充模块_数据治理实操/项目9.5_数据治理平台搭建.md", "type": "supplemental"},
+    {"id": "P09A", "stage": "L2", "title": "金融实时风控系统", "path": "L2_中级工程师/补充模块_跨行业实战/项目A_金融实时风控系统.md", "type": "supplemental"},
+    {"id": "P09B", "stage": "L2", "title": "IoT设备监控与预测性维护", "path": "L2_中级工程师/补充模块_跨行业实战/项目B_IoT设备监控与预测性维护.md", "type": "supplemental"},
+    {"id": "P09C", "stage": "L2", "title": "广告实时竞价与归因分析", "path": "L2_中级工程师/补充模块_跨行业实战/项目C_广告实时竞价与归因分析.md", "type": "supplemental"},
+    {"id": "P10", "stage": "L3", "title": "Spark/Flink调优攻坚", "path": "L3_高级工程师/项目10_调优攻坚/项目10_Spark_Flink调优攻坚.md", "type": "core"},
+    {"id": "P10S1", "stage": "L3", "title": "MLOps平台构建", "path": "L3_高级工程师/补充模块_MLOps与AI工程/项目10.5_MLOps平台构建.md", "type": "supplemental"},
+    {"id": "P10S2", "stage": "L3", "title": "云原生大数据平台迁移", "path": "L3_高级工程师/补充模块_云原生大数据/项目10.6_云原生大数据平台迁移.md", "type": "supplemental"},
+    {"id": "P11", "stage": "L4", "title": "企业大数据平台架构设计", "path": "L4_架构师/项目11_企业架构方案/项目11_企业大数据平台架构设计.md", "type": "core"},
+    {"id": "P12", "stage": "L4", "title": "FinOps成本优化方案", "path": "L4_架构师/项目12_FinOps成本优化/项目12_成本优化方案.md", "type": "core"},
+    {"id": "P13", "stage": "L5", "title": "CTO年度述职报告", "path": "L5_CTO视野/项目13_年度述职/项目13_CTO年度述职报告.md", "type": "core"}
+  ]
+}

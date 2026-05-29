@@ -1,4 +1,4 @@
-﻿# Advanced Tool Use
+# Advanced Tool Use
 
 - **原文链接**: [Advanced tool use](https://www.anthropic.com/engineering/advanced-tool-use)
 - **作者**: Bin Wu 等

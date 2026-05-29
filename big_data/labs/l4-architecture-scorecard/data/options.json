@@ -1,0 +1,14 @@
+{
+  "criteria": {
+    "scalability": 0.25,
+    "reliability": 0.25,
+    "cost": 0.20,
+    "operability": 0.15,
+    "ecosystem": 0.15
+  },
+  "options": [
+    {"name": "Kafka + Flink + ClickHouse", "scores": {"scalability": 9, "reliability": 8, "cost": 7, "operability": 7, "ecosystem": 9}, "risks": ["运维复杂度较高", "Flink 状态治理要求高"]},
+    {"name": "Cloud PubSub + Dataflow + BigQuery", "scores": {"scalability": 9, "reliability": 9, "cost": 6, "operability": 9, "ecosystem": 8}, "risks": ["云厂商绑定", "成本随用量上升明显"]},
+    {"name": "Kafka + Spark Structured Streaming + Doris", "scores": {"scalability": 8, "reliability": 7, "cost": 8, "operability": 7, "ecosystem": 8}, "risks": ["低延迟能力不如 Flink", "Exactly-once 链路需额外验证"]}
+  ]
+}

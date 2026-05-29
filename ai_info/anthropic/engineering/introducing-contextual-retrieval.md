@@ -1,4 +1,4 @@
-﻿# Introducing Contextual Retrieval
+# Introducing Contextual Retrieval
 
 - **原文链接**: [Introducing Contextual Retrieval](https://www.anthropic.com/engineering/contextual-retrieval)
 - **发布日期**: 2024-09-19

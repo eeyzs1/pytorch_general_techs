@@ -1,4 +1,4 @@
-﻿# Harness Design for Long-Running Application Development
+# Harness Design for Long-Running Application Development
 
 - **原文链接**: [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)
 - **作者**: Prithvi Rajasekaran

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "id": "L0-PROJECT-EXAM",
+  "stage": "L0",
+  "duration_minutes": 180,
+  "sections": [
+    {"name": "Python 数据处理", "points": 35, "source": "assessments/questions/l0_sample.json"},
+    {"name": "SQL 分析", "points": 30, "source": "assessments/questions/l0_sample.json"},
+    {"name": "Linux/Git 操作", "points": 20, "source": "assessments/questions/l0_sample.json"},
+    {"name": "项目答辩", "points": 15, "rubric": "assessments/rubrics/l0-project-rubric.md"}
+  ]
+}

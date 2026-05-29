@@ -1,4 +1,4 @@
-﻿# Building Effective Agents
+# Building Effective Agents
 
 - **原文链接**: [Building effective agents](https://www.anthropic.com/engineering/building-effective-agents)
 - **作者**: Erik Schluntz, Barry Zhang

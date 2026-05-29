@@ -1,4 +1,4 @@
-﻿# Claude Code: Best Practices for Agentic Coding
+# Claude Code: Best Practices for Agentic Coding
 
 - **原文链接**: [Claude Code: Best practices for agentic coding](https://www.anthropic.com/engineering/claude-code-best-practices)
 - **作者**: Boris Cherny 等

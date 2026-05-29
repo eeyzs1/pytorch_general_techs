@@ -30,8 +30,29 @@ ml_train/
 ### 环境配置
 
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
+
+### 质量检查
+
+提交或继续扩展 Notebook 前，先运行项目自带的静态门禁：
+
+```bash
+make validate
+# 或直接运行：
+python3 scripts/validate_notebooks.py
+```
+
+该检查会覆盖：
+
+- 所有 `.ipynb` 是否为合法 JSON / nbformat 4
+- Notebook 是否包含 Python kernel 元数据
+- 每个代码 cell 是否能通过 Python AST 语法解析
+- Notebook `source` 行尾格式是否正确，避免多行代码被拼成一行
+- 代码中使用的第三方 import 是否已写入 `requirements.txt`
+- 是否误提交了执行计数或输出结果
 
 ### 推荐学习路径
 
@@ -49,7 +70,8 @@ pip install -r requirements.txt
 
 - 每个 Notebook 遵循"**理论说明 → 代码实现 → 结果打印**"的教学模式
 - 代码中包含丰富的 `print` 输出和 `Key:` 关键结论总结
-- 各 cell 设计为可独立运行
+- 建议按 Notebook 内顺序运行；部分后续 cell 会复用前面定义的模型或辅助函数
+- 默认示例尽量保持 CPU 可运行；涉及 Hugging Face 模型下载的 cell 需要联网环境
 
 ## 技术全景
 

@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "stage": "L0",
+  "questions": [
+    {
+      "id": "L0-PY-001",
+      "type": "single_choice",
+      "knowledge": ["Python", "environment"],
+      "difficulty": 1,
+      "prompt": "检查 Python 版本的标准命令是什么？",
+      "options": ["python -v", "python --version", "python info", "python check"],
+      "answer": "python --version",
+      "explanation": "--version 是查询版本的标准参数。"
+    },
+    {
+      "id": "L0-SQL-001",
+      "type": "short_answer",
+      "knowledge": ["SQL", "aggregation"],
+      "difficulty": 2,
+      "prompt": "写出按 user_id 统计订单数的 SQL 核心结构。",
+      "answer": "SELECT user_id, COUNT(*) FROM orders GROUP BY user_id;",
+      "explanation": "分组聚合需要 GROUP BY，订单数用 COUNT(*)。"
+    },
+    {
+      "id": "L0-LINUX-001",
+      "type": "single_choice",
+      "knowledge": ["Linux", "text-processing"],
+      "difficulty": 2,
+      "prompt": "在命令行中查看文件最后 20 行的命令是？",
+      "options": ["head -20 app.log", "tail -20 app.log", "cat -20 app.log", "less -20 app.log"],
+      "answer": "tail -20 app.log",
+      "explanation": "tail 用于查看文件尾部内容。"
+    }
+  ]
+}

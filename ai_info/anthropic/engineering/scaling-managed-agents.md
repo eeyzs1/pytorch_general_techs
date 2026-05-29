@@ -1,7 +1,9 @@
-﻿# Scaling Managed Agents: Decoupling the Brain from the Hands
+# Scaling Managed Agents: Decoupling the Brain from the Hands
 
 - **原文链接**: [Scaling managed agents: Decoupling the brain from the hands](https://www.anthropic.com/engineering/managed-agents)
-- **发布日期**: 2026-04-10
+- **作者**: Lance Martin, Gabe Cemaj, Michael Cohen
+- **发布日期**: 2026-04-08
+- **检索日期**: 2026-05-29
 - **标签**: #Managed-Agents #架构解耦 #Brain-Hands #可扩展性 #容错
 
 ## 核心观点

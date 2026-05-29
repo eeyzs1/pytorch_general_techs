@@ -1,0 +1,4 @@
+order_id,user_id,order_date,status
+1001,1,2026-05-20,paid
+1002,2,2026-05-20,paid
+1003,1,2026-05-21,cancelled

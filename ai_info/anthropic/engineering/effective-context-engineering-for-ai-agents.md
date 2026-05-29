@@ -1,4 +1,4 @@
-﻿# Effective Context Engineering for AI Agents
+# Effective Context Engineering for AI Agents
 
 - **原文链接**: [Effective context engineering for AI agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)
 - **作者**: Prithvi Rajasekaran, Ethan Dixon, Carly Ryan, Jeremy Hadfield

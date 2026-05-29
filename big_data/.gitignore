@@ -1,0 +1,19 @@
+# Generated documentation site
+.docs_src/
+.site/
+site/
+
+# Python runtime artifacts
+__pycache__/
+*.py[cod]
+
+# Lab runtime outputs
+labs/**/output/
+labs/**/*.db
+labs/**/*.jsonl
+labs/l0-web-log-analysis/data/access.log
+labs/l3-skew-tuning/data/events.csv
+
+# Local virtual environments
+.venv/
+.venv-*/
