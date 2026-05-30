@@ -2,3 +2,32 @@ torch>=2.0.0
 numpy>=1.21.0
 transformers>=4.30.0
 bitsandbytes>=0.41.0
+
+# 模型导出与格式转换
+onnx>=1.14.0
+onnxruntime>=1.16.0
+safetensors>=0.3.0
+
+# 量化与推理优化
+accelerate>=0.24.0
+peft>=0.6.0
+optimum>=1.13.0
+
+# Tokenizer
+sentencepiece>=0.1.99
+tiktoken>=0.5.0
+
+# 可视化与分析
+matplotlib>=3.7.0
+psutil>=5.9.0
+
+# Jupyter 环境
+jupyter>=1.0.0
+ipywidgets>=8.0.0
+
+# 可选：GPTQ/AWQ 量化 (需CUDA)
+# auto-gptq>=0.5.0
+# autoawq>=0.2.0
+
+# 可选：llama.cpp Python绑定
+# llama-cpp-python>=0.2.0

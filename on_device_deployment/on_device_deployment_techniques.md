@@ -24,17 +24,27 @@
   - [5.1 端侧NPU适配](#51-端侧npu适配)
   - [5.2 端侧部署框架](#52-端侧部署框架)
   - [5.3 硬件感知优化](#53-硬件感知优化)
+  - [5.4 硬件基准测试与选型](#54-硬件基准测试与选型)
 - [6 模型格式与序列化（Model Format & Serialization）](#6-模型格式与序列化model-format--serialization)
 - [7 端云协同与系统集成（Edge-Cloud Collaboration & System Integration）](#7-端云协同与系统集成edge-cloud-collaboration--system-integration)
   - [7.1 端云协同推理](#71-端云协同推理)
   - [7.2 多模态端侧部署](#72-多模态端侧部署)
   - [7.3 隐私与安全](#73-隐私与安全)
   - [7.4 端侧推理服务](#74-端侧推理服务)
+  - [7.5 功耗管理与电池感知调度](#75-功耗管理与电池感知调度)
+  - [7.6 WebAssembly与浏览器端推理](#76-webassembly与浏览器端推理)
 - [8 端侧训练与个性化（On-Device Training & Personalization）](#8-端侧训练与个性化on-device-training--personalization)
   - [8.1 参数高效微调（PEFT）](#81-参数高效微调peft)
   - [8.2 端侧训练优化](#82-端侧训练优化)
   - [8.3 个性化与持续适应](#83-个性化与持续适应)
-- [9 评估指标体系（Evaluation Metrics）](#9-评估指标体系evaluation-metrics)
+- [9 端到端实战与故障排查（E2E Deployment & Troubleshooting）](#9-端到端实战与故障排查e2e-deployment--troubleshooting)
+  - [9.1 端到端部署流水线](#91-端到端部署流水线)
+  - [9.2 故障排查与调试方法](#92-故障排查与调试方法)
+- [10 中国国产硬件生态专题（China Domestic Hardware Ecosystem）](#10-中国国产硬件生态专题china-domestic-hardware-ecosystem)
+  - [10.1 国产NPU部署实践](#101-国产npu部署实践)
+  - [10.2 国产开源模型端侧部署](#102-国产开源模型端侧部署)
+- [11 课后练习与思考题（Exercises）](#11-课后练习与思考题exercises)
+- [12 评估指标体系（Evaluation Metrics）](#12-评估指标体系evaluation-metrics)
 - [技术选型决策树](#技术选型决策树)
 - [总结](#总结)
 
@@ -589,6 +599,67 @@
 | **进阶优化** | 硬件感知NAS | 双缓冲 / 算子融合 |
 | **量化效果** | 有限 (~1.2x) | 显著 (~3-4x) |
 
+### 5.4 硬件基准测试与选型
+
+> **目的**：系统化的硬件基准测试是端侧部署选型的基础。通过四层测试体系（微基准→核函数→模型→压力），在多维度（性能、内存、功耗、生态、成本）上对候选硬件进行数据驱动的评估。
+
+📖 代码实践：[5.4_hardware_benchmarking.ipynb](05_hardware_deployment/5.4_hardware_benchmarking.ipynb)
+
+#### 5.4.1 四层基准测试体系
+
+| 层级 | 测试内容 | 测量对象 | 典型耗时 |
+|------|---------|---------|---------|
+| **微基准 (Micro)** | 单算子（GEMM/Attention）峰值性能 | Roofline参数 | 5-10分钟 |
+| **核函数基准 (Kernel)** | 完整推理步骤(prefill/decode) | 算子融合+内存优化效果 | 30-60分钟 |
+| **模型基准 (Model)** | 完整模型端到端性能 | TTFT、吞吐、内存峰值、功耗 | 2-4小时 |
+| **压力基准 (Stress)** | 长时间运行(1-24h)稳定性 | 热节流、内存泄漏、性能退化 | 1-24小时 |
+
+#### 5.4.2 五维评估框架
+
+| 维度 | 权重(推理) | 关键指标 |
+|------|-----------|---------|
+| **性能** | 35% | TTFT <500ms, ITL <50ms, 吞吐 >15 tok/s |
+| **内存** | 25% | 可用内存、带宽、SRAM容量、KV Cache预算 |
+| **功耗** | 20% | TDP、能效比(tok/J)、热节流比例 |
+| **生态** | 10% | SDK成熟度、算子覆盖率、社区活跃度 |
+| **成本** | 10% | 芯片成本、开发成本、维护成本 |
+
+#### 5.4.3 关键性能指标
+
+- **TTFT (Time To First Token)**：首token延迟，prefill阶段效率指标，端侧目标<500ms
+- **ITL (Inter-Token Latency)**：token间延迟，decode阶段效率指标，端侧目标<50ms
+- **P99长尾延迟**：99%请求的最大延迟，比平均值更能反映用户体验
+- **持续性能vs峰值性能**：30分钟压力测试后的稳态性能，由于热节流通常只有峰值的50-70%
+
+#### 5.4.4 GEMM微基准与Roofline分析
+
+通过测量不同M/N/K尺寸的GEMM性能，确定硬件的实际Roofline参数：
+
+- **Decode阶段 (M=1)**：算术强度极低（~1-10 FLOP/B），几乎全部memory-bound → 量化收益最大
+- **Prefill阶段 (M=512+)**：算术强度高（~50-200 FLOP/B），compute-bound → 量化收益有限
+- **Ridge Point**：端侧NPU（1000+ FLOP/B）远高于云端GPU（~150 FLOP/B），端侧量化加速效果更显著
+
+#### 5.4.5 硬件选型速查
+
+| 场景 | 首选硬件 | 量化 | 预期性能 |
+|------|---------|------|----------|
+| 旗舰手机AI助手 | 骁龙8 Elite / A18 Pro | W4A16 | 1.5B@30tok/s, 3B@18tok/s |
+| 中端手机 | 骁龙7 Gen3 / 天玑8300 | W4A16 | 1.5B@20tok/s |
+| 平板/笔记本 | M4 / 骁龙X Elite | W4A16 | 3B@30tok/s, 7B@12tok/s |
+| 边缘服务器 | Jetson Orin / 昇腾310P | W4A8 | 7B@15tok/s |
+| IoT/低成本 | RK3588 | W8A8 | 0.5B@5tok/s |
+
+#### 5.4.6 CI/CD集成与性能回归检测
+
+产业级部署必须将基准测试自动化到CI/CD流水线中，关键阈值：
+
+| 指标 | 回归阈值 | 动作 |
+|------|---------|------|
+| TTFT | 增加>20% | 阻止合并 |
+| 吞吐 | 下降>15% | 阻止合并 |
+| 内存峰值 | 增加>10% | 警告 |
+| 功耗 | 增加>20% | 警告 |
+
 ---
 
 ## 6 模型格式与序列化（Model Format & Serialization）
@@ -660,6 +731,98 @@
 - **模型热更新与A/B测试**
   - 原理：端侧模型需要在不中断服务的情况下更新。通过双缓冲加载（新模型在后台加载，加载完成后原子切换）实现热更新；通过流量分配实现A/B测试，逐步验证新模型效果。
 
+### 7.5 功耗管理与电池感知调度
+
+> **目的**：端侧设备的电池约束是硬性限制，需要系统化的功耗管理策略来最大化推理时长和用户体验。
+
+📖 代码实践：[5.4_hardware_benchmarking.ipynb](05_hardware_deployment/5.4_hardware_benchmarking.ipynb)（热节流与持续性能测试部分）
+
+#### 7.5.1 功耗建模
+
+芯片功耗由动态功耗和静态功耗两部分组成：
+
+$$P = \alpha C V^2 f + V I_{\text{leak}}$$
+
+其中：
+- $\alpha$：活动因子（active factor），取决于执行的操作类型
+- $C$：等效电容
+- $V$：供电电压
+- $f$：工作频率
+- $I_{\text{leak}}$：漏电流
+
+**LLM推理的功耗特征**：
+- Prefill阶段：计算密集型，功耗较高（接近TDP）
+- Decode阶段：内存带宽密集型，功耗较低（通常为TDP的50-70%）
+- NPU推理功耗远低于CPU/GPU（能效比高3-10倍）
+
+#### 7.5.2 DVFS（动态电压频率调节）
+
+- 原理：动态调整NPU/CPU的频率$f$和电压$V$，功耗按$V^2f$降低，在满足延迟要求的前提下最小化功耗
+- 实现：根据推理负载的紧迫程度选择不同的频率档位，如交互式请求使用高频、后台请求使用低频
+- 收益：典型配置可降低20-40%功耗
+
+#### 7.5.3 电池感知调度策略
+
+| 电池电量 | 调度策略 | 预期效果 |
+|---------|---------|---------|
+| >50% | 全速推理，最大模型 | 最佳精度 |
+| 20-50% | 切换中等模型，降低分辨率 | 平衡精度与续航 |
+| 10-20% | 仅核心功能，最小模型 | 延长续航 |
+| <10% | 仅云端推理或禁用AI | 保护可用性 |
+
+#### 7.5.4 精度自适应与功耗的权衡
+
+| 温度/电量条件 | 量化配置 | 功耗降低 | 精度影响 |
+|-------------|---------|---------|---------|
+| 正常 | W4A16 (INT4权重+FP16激活) | 基线 | 几乎无损 |
+| 高温/低电 | W4A8 (INT4权重+INT8激活) | 30-50% | 轻微损失 |
+| 极端 | 回退到1.5B模型 | 40-60% | 可接受 |
+
+### 7.6 WebAssembly与浏览器端推理
+
+> **目的**：WebAssembly (WASM) 和 WebGPU 技术的发展使得在浏览器中运行 AI 模型成为现实，这是端侧部署的新兴重要场景。
+
+📖 代码实践：本节为知识性内容，浏览器端推理依赖Web平台API，暂不提供Python notebook。
+
+#### 7.6.1 技术栈概览
+
+| 技术 | 角色 | 特点 |
+|------|------|------|
+| **WASM** | CPU推理运行时 | 接近原生性能，跨浏览器兼容 |
+| **WebGPU** | GPU加速推理 | 更低延迟，最新浏览器支持 |
+| **WebNN** | NPU推理API | 标准化NPU访问，W3C草案阶段 |
+| **ONNX Runtime Web** | 推理引擎 | 自动选择WASM/WebGPU后端 |
+
+#### 7.6.2 主流浏览器端推理框架
+
+| 框架 | 引擎 | 量化支持 | 特点 |
+|------|------|---------|------|
+| **WebLLM** | Apache TVM WebGPU | W4A16 | 端到端聊天界面，Mistral/Llama支持 |
+| **Transformers.js** | ONNX Runtime Web | INT8 | HuggingFace生态兼容 |
+| **MediaPipe LLM** | 自研 WebGPU | W4A16 | Google出品，Gemma/Phi优化 |
+| **llama.cpp (WASM)** | 手写SIMD | Q4_K_M | 成熟稳定，社区活跃 |
+
+#### 7.6.3 浏览器端推理的优势与局限
+
+**优势**：
+1. 零安装：用户打开网页即可使用，无需下载App
+2. 隐私：数据完全留在浏览器，不上传服务器
+3. 跨平台：适用于所有现代浏览器（Chrome、Edge、Safari、Firefox）
+4. 分发简单：模型文件通过CDN分发
+
+**局限**：
+1. 内存限制：WASM默认可寻址4GB，浏览器Tab有更严格限制（通常1-2GB）
+2. 模型加载慢：首次加载需从CDN下载（可配合Service Worker缓存）
+3. 性能差距：WASM比原生慢1.5-2×，WebGPU受限于浏览器调度
+4. 算子覆盖：部分算子无WASM/WebGPU实现
+
+#### 7.6.4 Chrome内置AI（Gemini Nano）
+
+Chrome 126+ 直接内置Gemini Nano模型（约3B参数），通过Prompt API提供本地AI能力：
+- 零下载：模型预装在Chrome中
+- 本地执行：完全离线可用
+- API简洁：`const session = await ai.languageModel.create()`
+
 ---
 
 ## 8 端侧训练与个性化（On-Device Training & Personalization）
@@ -707,7 +870,312 @@
 
 ---
 
-## 9 评估指标体系（Evaluation Metrics）
+## 9 端到端实战与故障排查（E2E Deployment & Troubleshooting）
+
+> **目的**：将前述所有技术串联成完整的端到端部署流水线，并提供系统化的故障排查方法论，使学习者具备独立完成端侧部署项目的能力。
+
+### 9.1 端到端部署流水线
+
+> **目的**：从原始PyTorch模型出发，经历量化→导出→编译→部署→验证的完整流程，涵盖GPU和NPU两条路径。
+
+📖 代码实践：[9.1_end_to_end_deployment.ipynb](09_end_to_end/9.1_end_to_end_deployment.ipynb)
+
+#### 9.1.1 标准端侧部署流程
+
+```
+原始PyTorch模型（FP16/FP32）
+        │
+        ├──→ 路径A：GPU端侧（手机GPU/笔记本GPU）
+        │       │
+        │       ├── Step 1: AWQ/GPTQ量化 → W4A16
+        │       ├── Step 2: 导出GGUF格式
+        │       ├── Step 3: llama.cpp加载推理
+        │       └── Step 4: 精度验证+性能基准
+        │
+        ├──→ 路径B：NPU端侧（高通骁龙/苹果ANE/华为昇腾）
+        │       │
+        │       ├── Step 1: SmoothQuant量化 → W8A8
+        │       ├── Step 2: 导出ONNX
+        │       ├── Step 3: NPU编译器编译（QNN/Core ML/CANN）
+        │       └── Step 4: 精度验证+性能基准
+        │
+        └──→ 路径C：浏览器端
+                │
+                ├── Step 1: 导出ONNX
+                ├── Step 2: ONNX Runtime Web转换
+                └── Step 3: WebGPU/WASM推理
+```
+
+#### 9.1.2 各阶段关键检查点
+
+| 阶段 | 检查项 | 通过标准 |
+|------|--------|---------|
+| 量化后 | 权重余弦相似度 | >0.999（逐层） |
+| 量化后 | Perplexity变化 | <+0.5（WikiText-2） |
+| 导出后 | ONNX推理一致性 | $\|f_{torch} - f_{onnx}\|_\infty < 10^{-5}$ |
+| 编译后 | NPU推理一致性 | >0.999（逐层余弦相似度） |
+| 部署后 | 端到端TTFT | <500ms（目标场景） |
+| 部署后 | 端到端ITL | <50ms（目标场景） |
+
+#### 9.1.3 实战案例清单
+
+| 案例 | 模型 | 量化 | 目标硬件 | 关键挑战 |
+|------|------|------|---------|---------|
+| 案例1 | Qwen2.5-1.5B | W4A16 GPTQ | 骁龙8 Elite | GGUF导出+CPU推理 |
+| 案例2 | Llama-3.2-3B | W8A8 SmoothQuant | 高通Hexagon NPU | QNN算子兼容性 |
+| 案例3 | Phi-3-mini | FP16 | 苹果ANE (Core ML) | ANE算子适配 |
+| 案例4 | Qwen2.5-7B | Q4_K_M | Jetson Orin | 内存管理+KV Cache |
+
+#### 9.1.4 各平台标准化检查清单
+
+**GPU端侧（llama.cpp/GGUF）**：
+- [ ] 量化完成，PPL变化<0.5
+- [ ] GGUF文件大小符合预期
+- [ ] mmap加载正常（查看加载时间<1s）
+- [ ] 生成结果与原始模型一致（BLEU>0.95）
+- [ ] 内存峰值在设备容量的70%以内
+
+**NPU端侧（QNN/Core ML/CANN）**：
+- [ ] ONNX导出成功，无动态shape报错
+- [ ] 算子兼容性检查通过（支持率>95%）
+- [ ] NPU编译器编译成功
+- [ ] 逐层精度对比>0.999
+- [ ] NPU推理不出现CPU回退（或回退<2个算子）
+
+**浏览器端**：
+- [ ] ONNX模型体积<500MB
+- [ ] WASM/WebGPU推理正常
+- [ ] Service Worker缓存命中率>90%（二次访问）
+- [ ] 首Token延迟<2s（含模型加载）
+
+### 9.2 故障排查与调试方法
+
+> **目的**：端侧部署的调试难度远高于服务器端（无法直接print、日志受限、设备异构），需要系统化的排查方法论。
+
+📖 代码实践：[9.2_troubleshooting_debug.ipynb](09_end_to_end/9.2_troubleshooting_debug.ipynb)
+
+#### 9.2.1 常见问题分类与排查
+
+##### 类型一：内存不足（OOM）
+
+| 症状 | 可能原因 | 排查方法 | 解决方案 |
+|------|---------|---------|---------|
+| 模型加载即OOM | 量化后模型仍过大 | 计算模型理论大小，对比设备可用内存 | 降低量化比特（INT8→INT4）、切换更小模型 |
+| 推理中间OOM | KV Cache增长 | 监控KV Cache增长曲线 | KV量化、滑动窗口、H2O淘汰 |
+| 长时间运行后OOM | 内存泄漏 | 监控内存增长趋势 | 检查KV Cache释放、模型热更新逻辑 |
+
+##### 类型二：精度异常
+
+| 症状 | 可能原因 | 排查方法 | 解决方案 |
+|------|---------|---------|---------|
+| 输出乱码/重复 | 量化精度损失过大 | 逐层对比余弦相似度 | 混合精度量化（敏感层FP16） |
+| 某些输入正常，某些异常 | 离群值通道未保护 | 检查激活分布 | SmoothQuant/W4A16→保护离群值通道 |
+| NPU输出与CPU不一致 | 算子实现差异 | 逐算子对比，定位差异算子 | 使用CPU回退该算子，或换用等效算子 |
+
+##### 类型三：性能不达标
+
+| 症状 | 可能原因 | 排查方法 | 解决方案 |
+|------|---------|---------|---------|
+| TTFT过长 | Prefill计算慢 | Profile各层耗时 | Flash Attention、增大batch |
+| ITL过长 | Decode带宽受限 | 检查MAC利用率 | 量化（核心方法）、KV量化 |
+| 持续运行后性能下降 | 热节流 | 监控温度曲线 | DVFS降频、间歇推理、小模型切换 |
+
+##### 类型四：框架/编译错误
+
+| 症状 | 可能原因 | 排查方法 | 解决方案 |
+|------|---------|---------|---------|
+| ONNX导出失败 | 动态shape/自定义算子 | 检查trace vs scripting | torch.export / 算子分解 |
+| NPU编译失败 | 不支持的算子 | 检查算子兼容性列表 | 算子分解、CPU回退 |
+| 运行时crash | SDK版本不匹配 | 检查驱动/SDK版本矩阵 | 对齐版本、使用Docker |
+
+#### 9.2.2 逐层精度对比方法
+
+```python
+# 精度排查的核心方法：逐层对比输出
+for layer_name, (fp_output, q_output) in zip(layer_names, layer_outputs):
+    cos_sim = F.cosine_similarity(fp_output, q_output)
+    if cos_sim < 0.999:  # 阈值
+        print(f"⚠ {layer_name}: cos_sim={cos_sim:.6f} — 量化损失过大!")
+```
+
+#### 9.2.3 NPU算子回退的代价估算
+
+$$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{CPU}\to\text{NPU}}$$
+
+单个算子的CPU回退可能引入10-50ms额外延迟，若1-2个算子回退将成为整体推理瓶颈。因此优先使用算子分解/等效替换，仅在无替代时回退CPU。
+
+#### 9.2.4 调试工具速查
+
+| 工具 | 用途 | 平台 |
+|------|------|------|
+| PyTorch Profiler | 算子级耗时分析 | GPU/CPU |
+| QNN Profiler | 高通NPU算子耗时 | 骁龙 |
+| msprof | 华为昇腾NPU算子耗时 | 昇腾 |
+| Instruments (Xcode) | ANE利用率、内存 | Apple |
+| ONNX Runtime Profiling | ONNX推理瓶颈 | 通用 |
+
+---
+
+## 10 中国国产硬件生态专题（China Domestic Hardware Ecosystem）
+
+> **目的**：在中国市场部署端侧AI模型，需要了解国产NPU芯片和国产开源模型的特性，制定针对性的适配方案。
+
+### 10.1 国产NPU部署实践
+
+#### 10.1.1 华为昇腾（Ascend）全栈部署
+
+| 组件 | 说明 |
+|------|------|
+| **硬件** | 昇腾310P（边缘）、昇腾910B（云端推理） |
+| **推理引擎** | ACL (Ascend Computing Language) |
+| **量化工具** | AMCT (Ascend Model Compression Toolkit)：支持量化感知训练和训练后量化 |
+| **编译工具** | ATC (Ascend Tensor Compiler)：将ONNX/Caffe模型编译为OM离线模型 |
+| **部署流程** | PyTorch → ONNX → AMCT量化 → ATC编译 → OM模型 → ACL推理 |
+
+**昇腾端侧部署关键注意事项**：
+- 动态shape支持有限，推荐使用固定shape + padding方案
+- OM模型是预编译格式，设备加载即可推理，无需在线编译
+- 支持INT8和INT4量化，推荐W8A8配置
+- 关注算子支持度：部分LLM自定义算子（如GELU变体）需要分解
+
+#### 10.1.2 寒武纪（Cambricon）MLU
+
+| 组件 | 说明 |
+|------|------|
+| **硬件** | MLU370（边缘推理卡） |
+| **SDK** | Cambricon Neuware |
+| **推理框架** | MagicMind（算子融合+编译优化） |
+| **量化支持** | INT8/INT16，支持逐通道量化 |
+| **部署流程** | PyTorch → ONNX → MagicMind编译 → 离线模型 → CNRT推理 |
+
+#### 10.1.3 地平线（Horizon Robotics）
+
+| 组件 | 说明 |
+|------|------|
+| **硬件** | Journey系列（车载AI芯片）、Sunrise系列（AIoT） |
+| **SDK** | Horizon Open Explorer (OE) 开发包 |
+| **推理框架** | HBDK (Horizon BPU Development Kit) |
+| **量化特点** | 强制INT8量化，专有量化校准方法 |
+| **适用场景** | 车载座舱AI、机器人视觉+语言 |
+
+#### 10.1.4 瑞芯微（Rockchip）RK系列
+
+| 组件 | 说明 |
+|------|------|
+| **硬件** | RK3588（6 TOPS NPU）、RK3576 |
+| **SDK** | RKNN-Toolkit2 |
+| **推理框架** | RKNN Runtime |
+| **量化** | 支持FP16/INT8，仅权重INT8 |
+| **适用模型** | 极小语言模型（0.5B-1.5B），以视觉模型为强项 |
+
+#### 10.1.5 国产NPU选型速查
+
+| NPU | 算力 (TOPS) | 内存 | 功耗 | 量化 | 适用模型 | 最佳场景 |
+|-----|-----------|------|------|------|---------|---------|
+| 昇腾310P | 128 | 8-32GB | 12W | INT8/INT4 | 1.5B-7B | 边缘服务器 |
+| 寒武纪MLU370 | 48 | 8-24GB | 75W | INT8/INT16 | 1.5B-7B | 云端+边缘 |
+| 地平线J6 | 34 | 4-8GB | 15W | INT8 | 0.5B-1.5B | 车载AI |
+| RK3588 | 6 | 2-8GB | 5W | INT8/FP16 | 0.5B-1.5B | IoT低成本 |
+
+### 10.2 国产开源模型端侧部署
+
+#### 10.2.1 主流国产模型端侧部署特性
+
+| 模型 | 参数量 | 架构特点 | 推荐量化 | 推荐硬件 | 关键注意 |
+|------|--------|---------|---------|---------|---------|
+| **Qwen2.5** | 0.5B-7B | GQA、SwiGLU、RoPE | W4A16 AWQ | 骁龙8 Elite / 昇腾310P | GQA天然友好，无特殊注意事项 |
+| **DeepSeek** | 1.5B-7B | MLA (Multi-head Latent Attention) | W4A16 | 骁龙/昇腾/M4 | MLA需自定义attention kernel |
+| **MiniCPM** | 1B-3B | 深而窄+WSD调度 | W4A16 | 骁龙7+ | 为端侧设计，开箱即用 |
+| **ChatGLM** | 1.5B-4B | 双向位置编码 | W8A8 SmoothQuant | 骁龙8系列 | 位置编码需NPU适配 |
+| **Yi** | 1.5B-6B | 标准LLaMA架构 | Q4_K_M (llama.cpp) | CPU推理 | 架构标准，GGUF导出顺利 |
+
+#### 10.2.2 模型格式生态
+
+| 平台 | 分发格式 | 量化 | 社区 |
+|------|---------|------|------|
+| ModelScope | SafeTensors+config | 多种 | 中国最大模型社区 |
+| HuggingFace | SafeTensors+config | 多种 | 国际主流 |
+| Gitee AI | 多种格式 | 有限 | 国产替代方案 |
+| 各厂商自有 | 自研格式 | 厂商量化 | 仅供厂商SDK使用 |
+
+---
+
+## 11 课后练习与思考题（Exercises）
+
+> **目的**：通过动手实践和深度思考，巩固各章节学到的方法论，培养独立解决端侧部署问题的能力。
+
+### 第1章 模型压缩
+
+**动手题**：
+1. 实现对同一个LLaMA-3.2-1B模型分别使用逐张量INT4、逐组INT4和GPTQ量化，比较三者的PPL和输出余弦相似度
+2. 使用Hessian迹方法对6层Transformer进行混合精度分配，验证不同比特组合的精度-存储效率
+
+**思考题**：
+1. 为什么SmoothQuant将激活的量化难度"迁移"到权重？这种迁移的代价是什么？
+2. AWQ和GPTQ都利用校准数据，它们的根本区别是什么？为什么AWQ不需要Hessian逆而GPTQ需要？
+
+### 第2章 高效推理架构
+
+**动手题**：
+1. 实现PagedAttention的连续批处理调度器，展示内存利用率从60%提升到95%
+2. 对比滑动窗口(4096)和无限制KV Cache在不同序列长度下的内存占用，绘制增长曲线
+
+**思考题**：
+1. H2O淘汰策略保留"最近窗口"和"历史高注意力token"，为什么单独任何一种策略都不够？
+2. 在计算资源极度受限的端侧，Flash Attention是否仍然有效？为什么？
+
+### 第3章 高效模型架构
+
+**动手题**：
+1. 实现一个GQA版本的注意力（从MHA 32头改为GQA 4组），测量KV Cache的内存节省
+2. 用MoE架构（4个expert，Top-2路由）替换标准FFN，对比相同参数量下的推理速度
+
+**思考题**：
+1. SSM（如Mamba）声称O(n)复杂度，为什么在实际端侧部署中可能不比优化的Transformer快？
+2. MoE模型的总参数量可以达到大模型水平，但端侧推理时只有部分专家活跃，为什么依然难以在手机上部署Mixtral 8x7B？
+
+### 第4章 编译与运行时优化
+
+**动手题**：
+1. 使用torch.compile对一个小型Transformer进行编译优化，对比编译前后的推理速度
+2. 手动实现算子融合（QKV投影+注意力），测量融合前后的内存和延迟变化
+
+**思考题**：
+1. 为什么NPU上PagedAttention难以直接映射？有什么可能的解决方案？
+2. 激活重计算用计算换内存，端侧设备上计算和内存哪个更稀缺？如何据此决定重计算策略？
+
+### 第5章 硬件部署
+
+**动手题**：
+1. 用5.4提供的Roofline分析工具，为骁龙8 Elite和M4分别绘制Roofline图，标注典型LLM算子的位置
+2. 使用硬件选型决策框架，为"车载语音助手（7B模型，要求<30ms ITL）"选出最佳硬件方案
+
+**思考题**：
+1. 端侧NPU的Ridge Point（1000+ FLOP/B）远高于GPU（~150 FLOP/B），这对部署策略有何影响？
+2. 芯片的标称TOPS（峰值算力）和实际LLM推理性能之间为什么存在巨大差距？
+
+### 第7章 端云协同
+
+**思考题**：
+1. 端云协同推理中，中间特征传输替代原始数据上传，是否真正保护了用户隐私？攻击者能从中间特征重建原始输入吗？
+2. 浏览器端推理（WebGPU vs WASM）与原生App推理相比，在哪些场景下是更优选择？
+
+### 第8章 端侧训练
+
+**动手题**：
+1. 使用QLoRA对一个1B模型进行个性化微调（模拟用户数据），测量训练内存和速度
+
+**思考题**：
+1. 端侧微调带来个性化能力的同时，为什么可能导致灾难性遗忘？如何检测和防止？
+2. 联邦学习中"梯度"传输替代"数据"传输，差分隐私如何防止梯度泄漏用户信息？
+
+### 综合实战
+
+1. 独立完成一个完整的端侧部署项目：选择3B模型 → AWQ量化 → 导出GGUF → llama.cpp部署 → 基准测试 → 撰写部署报告
+
+---
+
+## 12 评估指标体系（Evaluation Metrics）
 
 > **目的**：系统化的评估指标是端侧部署技术选型和优化的基础。不同应用场景对精度、延迟、内存、功耗的优先级不同，需要综合评估。
 
@@ -762,7 +1230,7 @@
 ```
 端侧部署大模型
 │
-├── 模型太大放不下？ → 模型压缩
+├── 模型太大放不下？ → 模型压缩 (第1章)
 │   ├── 量化（首选，效果最好）
 │   │   ├── W4A16：AWQ/GPTQ（GPU端侧）
 │   │   ├── W8A8：SmoothQuant（CPU/NPU端侧）
@@ -771,34 +1239,67 @@
 │   ├── 剪枝（结构化剪枝优先）
 │   └── 蒸馏（需要训练资源）
 │
-├── 推理太慢？ → 推理优化
+├── 推理太慢？ → 推理优化 (第2章)
 │   ├── Prefill慢 → Flash Attention / 批量优化
 │   ├── Decode慢 → 投机解码 / 量化 / KV Cache优化
 │   └── 长序列慢 → 稀疏注意力 / SSM / 滑动窗口
 │
-├── 内存不够？ → 内存优化
+├── 内存不够？ → 内存优化 (第4章)
 │   ├── KV Cache太大 → KV量化 / PagedAttention / 滑动窗口
 │   ├── 权重太大 → 量化 + 权重按需加载
 │   └── 峰值内存高 → 激活重计算 / 内存复用
 │
-├── 需要个性化？ → 端侧训练
+├── 需要个性化？ → 端侧训练 (第8章)
 │   ├── QLoRA（推荐）
 │   ├── IA³（极低资源）
 │   └── Adapter / Prefix Tuning
 │
-└── 硬件适配？ → 部署框架选择
-    ├── iOS → Core ML / MLC-LLM
-    ├── Android (高通) → QNN / ExecuTorch / MNN
-    ├── Android (联发科) → NeuroPilot / MNN
-    ├── 通用CPU → llama.cpp
-    └── NVIDIA GPU → TensorRT-LLM
+├── 硬件适配？ → 部署框架选择 (第5章)
+│   ├── iOS → Core ML / MLC-LLM
+│   ├── Android (高通) → QNN / ExecuTorch / MNN
+│   ├── Android (联发科) → NeuroPilot / MNN
+│   ├── 国产NPU (第10章)
+│   │   ├── 华为昇腾 → CANN / AMCT
+│   │   ├── 寒武纪 → MagicMind
+│   │   ├── 地平线 → HBDK
+│   │   └── 瑞芯微 → RKNN
+│   ├── 通用CPU → llama.cpp
+│   ├── 浏览器端 → WebLLM / Transformers.js (第7.6节)
+│   └── NVIDIA GPU → TensorRT-LLM
+│
+├── 部署出问题？ → 故障排查 (第9.2节)
+│   ├── OOM → 量化/小模型/KV管理
+│   ├── 精度异常 → 逐层对比/混合精度
+│   ├── 性能不达标 → Profile/量化
+│   └── 编译失败 → 算子分解/CPU回退
+│
+└── 需要系统评估？ → 评估指标 (第12章)
+    ├── 性能：TTFT、ITL、吞吐
+    ├── 内存：峰值、带宽利用率
+    ├── 精度：PPL、下游任务
+    └── 功耗：TDP、能效比
 ```
 
 ---
 
 ## 总结
 
-大模型端侧部署是一个系统工程，涉及从模型算法层到硬件系统层的全栈优化。各技术之间并非独立，而是相互配合、联合使用：
+大模型端侧部署是一个系统工程，涉及从模型算法层到硬件系统层的全栈优化。本课程从以下维度系统覆盖：
+
+| 维度 | 核心技术 | 关键收益 |
+|------|---------|---------|
+| **模型压缩** (第1章) | 量化、剪枝、蒸馏、低秩分解 | 模型体积 60-75%，精度损失 <1% |
+| **推理优化** (第2章) | KV Cache、Flash Attention、投机解码 | 吞吐 2-5×，延迟降低 50% |
+| **架构设计** (第3章) | GQA、SSM、MoE、自定义算子 | KV Cache 4-8×减少 |
+| **编译运行时** (第4章) | 图优化、代码生成、内存优化 | 延迟 20-30%，内存 15-25% |
+| **硬件部署** (第5章) | NPU适配、框架选择、基准测试 | 硬件利用率 70%+ |
+| **模型格式** (第6章) | ONNX、GGUF、TorchScript、版本管理 | 多平台互操作 |
+| **端云协同** (第7章) | 协同推理、多模态、隐私安全、功耗管理、WASM | 云端算力+端侧隐私 |
+| **端侧训练** (第8章) | PEFT、QLoRA、训练优化、个性化 | 适配内存 <2GB |
+| **实战与排查** (第9章) | 端到端流水线、故障诊断 | 独立完成部署 |
+| **国产生态** (第10章) | 昇腾/寒武纪/地平线、Qwen/DeepSeek/MiniCPM | 中国市场适配 |
+
+各技术之间并非独立，而是相互配合、联合使用：
 
 1. **量化 + KV Cache优化**：同时压缩权重和KV，最大化内存节省
 2. **量化 + 投机解码**：小模型量化后更快生成候选，大模型量化后更快验证
@@ -807,4 +1308,39 @@
 5. **端云协同 + 隐私保护**：在享受云端算力的同时保护用户数据
 6. **MoE + 按需加载**：利用MoE的稀疏激活特性，结合权重流式加载降低端侧内存压力
 
-产业级端侧部署的关键在于：**在精度、速度、内存、功耗之间找到最优平衡点**，这需要根据具体硬件平台、应用场景和性能指标进行系统性调优。
+**产业级端侧部署的核心**：在精度、速度、内存、功耗、成本五大维度之间找到最优平衡点，这需要根据具体硬件平台、应用场景和性能指标进行系统性调优。
+
+---
+
+## 课程文件索引
+
+| 章节 | 内容 | Notebook |
+|------|------|----------|
+| 1.1 | 量化技术 | [01_model_compression/1.1_quantization.ipynb](01_model_compression/1.1_quantization.ipynb) |
+| 1.2 | 模型剪枝 | [01_model_compression/1.2_pruning.ipynb](01_model_compression/1.2_pruning.ipynb) |
+| 1.3 | 知识蒸馏 | [01_model_compression/1.3_knowledge_distillation.ipynb](01_model_compression/1.3_knowledge_distillation.ipynb) |
+| 1.4 | 低秩分解 | [01_model_compression/1.4_low_rank_factorization.ipynb](01_model_compression/1.4_low_rank_factorization.ipynb) |
+| 2.1 | KV Cache | [02_efficient_inference/2.1_kv_cache.ipynb](02_efficient_inference/2.1_kv_cache.ipynb) |
+| 2.2 | 注意力优化 | [02_efficient_inference/2.2_attention_optimization.ipynb](02_efficient_inference/2.2_attention_optimization.ipynb) |
+| 2.3 | 推理加速 | [02_efficient_inference/2.3_inference_acceleration.ipynb](02_efficient_inference/2.3_inference_acceleration.ipynb) |
+| 3.1 | 轻量级架构 | [03_efficient_architecture/3.1_lightweight_architecture.ipynb](03_efficient_architecture/3.1_lightweight_architecture.ipynb) |
+| 3.2 | 线性注意力/SSM | [03_efficient_architecture/3.2_linear_attention_ssm.ipynb](03_efficient_architecture/3.2_linear_attention_ssm.ipynb) |
+| 3.3 | MoE架构 | [03_efficient_architecture/3.3_moe.ipynb](03_efficient_architecture/3.3_moe.ipynb) |
+| 4.1 | 图优化 | [04_compilation_runtime/4.1_graph_optimization.ipynb](04_compilation_runtime/4.1_graph_optimization.ipynb) |
+| 4.2 | 代码生成 | [04_compilation_runtime/4.2_code_generation.ipynb](04_compilation_runtime/4.2_code_generation.ipynb) |
+| 4.3 | 内存优化 | [04_compilation_runtime/4.3_memory_optimization.ipynb](04_compilation_runtime/4.3_memory_optimization.ipynb) |
+| 5.1 | NPU适配 | [05_hardware_deployment/5.1_npu_adaptation.ipynb](05_hardware_deployment/5.1_npu_adaptation.ipynb) |
+| 5.2 | 部署框架 | [05_hardware_deployment/5.2_deployment_frameworks.ipynb](05_hardware_deployment/5.2_deployment_frameworks.ipynb) |
+| 5.3 | 硬件感知优化 | [05_hardware_deployment/5.3_hardware_aware.ipynb](05_hardware_deployment/5.3_hardware_aware.ipynb) |
+| 5.4 | 硬件基准测试 | [05_hardware_deployment/5.4_hardware_benchmarking.ipynb](05_hardware_deployment/5.4_hardware_benchmarking.ipynb) |
+| 6.0 | 模型格式 | [06_model_format/6.0_model_format.ipynb](06_model_format/6.0_model_format.ipynb) |
+| 6.1 | 模型版本管理 | [06_model_format/6.1_model_versioning.ipynb](06_model_format/6.1_model_versioning.ipynb) |
+| 7.1 | 端云协同推理 | [07_edge_cloud/7.1_edge_cloud_inference.ipynb](07_edge_cloud/7.1_edge_cloud_inference.ipynb) |
+| 7.2 | 多模态部署 | [07_edge_cloud/7.2_multimodal_deployment.ipynb](07_edge_cloud/7.2_multimodal_deployment.ipynb) |
+| 7.3 | 隐私安全 | [07_edge_cloud/7.3_privacy_security.ipynb](07_edge_cloud/7.3_privacy_security.ipynb) |
+| 7.4 | 端侧监控 | [07_edge_cloud/7.4_edge_monitoring.ipynb](07_edge_cloud/7.4_edge_monitoring.ipynb) |
+| 8.1 | PEFT | [08_on_device_training/8.1_peft.ipynb](08_on_device_training/8.1_peft.ipynb) |
+| 8.2 | 训练优化 | [08_on_device_training/8.2_training_optimization.ipynb](08_on_device_training/8.2_training_optimization.ipynb) |
+| 8.3 | 端侧评估 | [08_on_device_training/8.3_on_device_eval.ipynb](08_on_device_training/8.3_on_device_eval.ipynb) |
+| 9.1 | 端到端流水线 | [09_end_to_end/9.1_end_to_end_deployment.ipynb](09_end_to_end/9.1_end_to_end_deployment.ipynb) |
+| 9.2 | 故障排查 | [09_end_to_end/9.2_troubleshooting_debug.ipynb](09_end_to_end/9.2_troubleshooting_debug.ipynb) |
