@@ -1,18 +1,18 @@
 # OpenAI Research & Engineering — 核心观点总结
 
-> 汇总自 [OpenAI Research](https://openai.com/research/) 和 [OpenAI Blog](https://openai.com/index/) 的 34 篇文章，涵盖 2025 年 1 月至 2026 年 5 月。
+> 汇总自 [OpenAI Research](https://openai.com/research/) 和 [OpenAI Blog](https://openai.com/index/) 的 43 篇文章，涵盖 2025 年 1 月至 2026 年 6 月。
 
 ## 一、总体脉络
 
 OpenAI 的技术文章呈现了三条并行的演进路径：
 
 ```
-路径1（工程实践）: Agent 指南 → Codex/Operator → Harness Engineering → AgentKit → Codex 全面升级 → Codex 企业安全
-路径2（安全研究）: Model Spec → 指令层级 → CoT 监控 → CoT-Control → RL奖励信号分析 → Codex 安全部署实践
-路径3（平台生态）: Responses API → Apps SDK → ChatGPT 超级App → 计算机环境 → MCP 互操作 → 多平台沙箱
+路径1（工程实践）: Agent 指南 → Codex/Operator → Harness Engineering → AgentKit → Codex 全面升级 → Codex 企业安全 → Codex 多角色 → AWS 分发
+路径2（安全研究）: Model Spec → 指令层级 → CoT 监控 → CoT-Control → RL奖励信号分析 → Codex 安全部署实践 → 青少年安全 → 前沿治理
+路径3（平台生态）: Responses API → Apps SDK → ChatGPT 超级App → 计算机环境 → MCP 互操作 → 多平台沙箱 → AWS 企业分发 → 记忆系统
 ```
 
-工程路径从 Agent 构建基础方法论出发，逐步构建产品（Codex、Operator、Deep Research），最终形成 Harness Engineering 方法论和 AgentKit 工具集，并在 2026 年 2-5 月连续发布 GPT-5.3-Codex、GPT-5.3-Codex-Spark、GPT-5.5、Codex 移动端、Remote SSH 和企业部署能力。安全路径从模型行为规范出发，逐步建立指令层级、CoT 监控和可监控性研究，并于 2026 年 4-5 月发布了 RL 奖励信号导致"Goblins"行为偏差的详细事后分析、Privacy Filter、Rosalind Biodefense，以及 Codex 企业内部部署的完整安全实践（OpenTelemetry 遥测、AI 安全 triage、规则引擎）。平台路径从 API 工具出发，为 Responses API 配备完整计算机环境（Shell 工具 + 容器工作区 + Skills + Compaction），构建 ChatGPT 超级应用生态，采纳 MCP 开放协议实现跨平台互操作，并将 Codex 扩展到 Windows、移动端、混合云和本地企业环境。
+工程路径从 Agent 构建基础方法论出发，逐步构建产品（Codex、Operator、Deep Research），最终形成 Harness Engineering 方法论和 AgentKit 工具集，并在 2026 年 2-5 月连续发布 GPT-5.3-Codex、GPT-5.3-Codex-Spark、GPT-5.5、Codex 移动端、Remote SSH 和企业部署能力。6 月进一步发布 Codex 多角色插件（覆盖数据分析、投资银行等 6 个角色），并登陆 AWS Bedrock 实现企业级云分发。安全路径从模型行为规范出发，逐步建立指令层级、CoT 监控和可监控性研究，并于 2026 年 4-5 月发布了 RL 奖励信号导致"Goblins"行为偏差的详细事后分析、Privacy Filter、Rosalind Biodefense，以及 Codex 企业内部部署的完整安全实践（OpenTelemetry 遥测、AI 安全 triage、规则引擎）。6 月转向青少年 AI 安全治理，在 G7 峰会前发布 9 项青少年安全原则并呼吁建立国际青少年 AI 安全研究所。平台路径从 API 工具出发，为 Responses API 配备完整计算机环境（Shell 工具 + 容器工作区 + Skills + Compaction），构建 ChatGPT 超级应用生态，采纳 MCP 开放协议实现跨平台互操作，并将 Codex 扩展到 Windows、移动端、混合云和本地企业环境。6 月发布 Dreaming V3 记忆系统，ChatGPT 从"被动存储"转向"主动推理记忆"。
 
 ## 二、五大核心主题
 
@@ -36,6 +36,8 @@ OpenAI 的技术文章呈现了三条并行的演进路径：
 | [Codex Now Generally Available](codex-now-generally-available.md) | 编码 Agent GA + SDK | Claude Code GA |
 | [Introducing GPT-5.3-Codex](introducing-gpt-5-3-codex.md) | Codex 专用长任务模型 | Claude Code 模型层 |
 | [Work with Codex from Anywhere](work-with-codex-from-anywhere.md) | 移动端与远程环境协作 | Claude Code 远程/托管工作流 |
+| [Codex for Every Role, Tool, Workflow](codex-for-every-role-tool-workflow.md) | 多角色插件 + Sites + Annotations | — |
+| [OpenAI Frontier Models on AWS](openai-frontier-models-and-codex-are-now-available-on-aws.md) | AWS Bedrock 企业分发 | — |
 | [Introducing Operator](introducing-operator.md) | GUI 操作 Agent (CUA) | Computer Use |
 | [Introducing Deep Research](introducing-deep-research.md) | 多步研究 Agent | Research Feature |
 
@@ -45,13 +47,13 @@ OpenAI 的技术文章呈现了三条并行的演进路径：
 
 [New Tools for Building Agents](new-tools-for-building-agents.md) 发布了首批 Agent 构建块（Responses API + Agents SDK）。[Equipping the Responses API with a Computer Environment](equipping-the-responses-api-with-a-computer-environment.md) 为 Responses API 配备了完整计算机环境（Shell 工具 + 托管容器 + 服务端 Compaction + Agent Skills），标志着从"模型调用"到"系统级 Agent 执行"的转变。[Introducing Apps in ChatGPT](introducing-apps-in-chatgpt.md) 将 ChatGPT 转变为超级应用平台——8 亿用户可在对话中直接使用第三方应用。[Codex Now Generally Available](codex-now-generally-available.md) 标志着编码 Agent 进入生产。[The Next Evolution of the Agents SDK](the-next-evolution-of-the-agents-sdk.md) 采纳 MCP 开放协议实现跨平台互操作。
 
-**核心洞察**: ChatGPT 正从"聊天机器人"演变为"超级应用平台"。MCP 的采纳意味着 OpenAI 从封闭生态走向开放互操作。
+**核心洞察**: ChatGPT 正从"聊天机器人"演变为"超级应用平台"。MCP 的采纳意味着 OpenAI 从封闭生态走向开放互操作。Codex 登陆 AWS Bedrock 标志着 OpenAI 从"自建分发"到"多云企业分发"的战略转变。Dreaming V3 记忆系统让 ChatGPT 从被动存储转向主动推理记忆，是平台智能化的关键一步。
 
 ### 5. 安全与对齐研究
 
-[Inside Our Approach to the Model Spec](inside-our-approach-to-the-model-spec.md) 定义了模型行为的公开框架。[Improving Instruction Hierarchy in Frontier LLMs](improving-instruction-hierarchy-in-frontier-llms.md) 解决提示注入防御。[How We Monitor Internal Coding Agents for Misalignment](how-we-monitor-internal-coding-agents-for-misalignment.md) 实践 CoT 监控。[Reasoning Models Struggle to Control Their Chains of Thought](reasoning-models-struggle-to-control-their-chains-of-thought.md) 证明了 CoT 监控的有效性。[Where the Goblins Came From](where-the-goblins-came-from.md) 追踪 RL 奖励信号偏差如何通过 SFT 数据飞轮传播。[Introducing OpenAI Privacy Filter](introducing-openai-privacy-filter.md) 把隐私过滤做成可本地运行的基础设施模型。[Strengthening Societal Resilience with Rosalind Biodefense](strengthening-societal-resilience-with-rosalind-biodefense.md) 展示了高能力生物模型的 trusted access 防御路线。[Running Codex Safely at OpenAI](running-codex-safely.md) 展示了企业内部 Codex 部署的多层次安全控制。[Building a Safe, Effective Sandbox to Enable Codex on Windows](building-codex-windows-sandbox.md) 详述了从零构建 Windows 沙箱的两代方案。
+[Inside Our Approach to the Model Spec](inside-our-approach-to-the-model-spec.md) 定义了模型行为的公开框架。[Improving Instruction Hierarchy in Frontier LLMs](improving-instruction-hierarchy-in-frontier-llms.md) 解决提示注入防御。[How We Monitor Internal Coding Agents for Misalignment](how-we-monitor-internal-coding-agents-for-misalignment.md) 实践 CoT 监控。[Reasoning Models Struggle to Control Their Chains of Thought](reasoning-models-struggle-to-control-their-chains-of-thought.md) 证明了 CoT 监控的有效性。[Where the Goblins Came From](where-the-goblins-came-from.md) 追踪 RL 奖励信号偏差如何通过 SFT 数据飞轮传播。[Introducing OpenAI Privacy Filter](introducing-openai-privacy-filter.md) 把隐私过滤做成可本地运行的基础设施模型。[Strengthening Societal Resilience with Rosalind Biodefense](strengthening-societal-resilience-with-rosalind-biodefense.md) 展示了高能力生物模型的 trusted access 防御路线。[Running Codex Safely at OpenAI](running-codex-safely.md) 展示了企业内部 Codex 部署的多层次安全控制。[Building a Safe, Effective Sandbox to Enable Codex on Windows](building-codex-windows-sandbox.md) 详述了从零构建 Windows 沙箱的两代方案。[Advancing Youth Safety and Opportunity Through Global Leadership](advancing-youth-safety-and-opportunity-through-global-leadership.md) 在 G7 峰会前发布 9 项青少年 AI 安全原则，呼吁建立国际青少年 AI 安全研究所。
 
-**核心洞察**: OpenAI 的安全策略是纵深防御——Model Spec（规范层）+ 指令层级（模型层）+ CoT 监控（运行时层）+ 工程沙箱（执行层）+ Agent 原生审计（可见性层）。推理模型 CoT 的不可控性反而是安全监控的优势。Windows 沙箱的构建证明了 Agent 安全在多平台部署中的工程挑战。
+**核心洞察**: OpenAI 的安全策略是纵深防御——Model Spec（规范层）+ 指令层级（模型层）+ CoT 监控（运行时层）+ 工程沙箱（执行层）+ Agent 原生审计（可见性层）。推理模型 CoT 的不可控性反而是安全监控的优势。Windows 沙箱的构建证明了 Agent 安全在多平台部署中的工程挑战。Trusted Contact 和 Safety Summaries 标志着 AI 安全从"内容审核"扩展到"人机协作安全网"，ChatGPT 从被动工具转变为主动安全参与者。Content Provenance 的多层策略（C2PA + SynthID + 公共验证）是应对 AI 生成内容泛滥的系统性方案。
 
 ## 三、关键数据点
 
@@ -74,6 +76,14 @@ OpenAI 的技术文章呈现了三条并行的演进路径：
 | GPT-5.1 后 goblin 使用量增长 | +175% | [Where the Goblins Came From](where-the-goblins-came-from.md) |
 | Nerdy 人格占 ChatGPT 回复 | 2.5%（却占 goblin 提及的 66.7%） | 同上 |
 | Nerdy 奖励信号 creature 偏好 | 76.2% 数据集正偏向 | 同上 |
+| Codex 每周用户数 | 500 万+ | [Codex for Every Role](codex-for-every-role-tool-workflow.md) |
+| Codex 新增角色插件 | 6 个（覆盖 62 应用 / 110 技能） | 同上 |
+| Dreaming V3 事实回忆成功率 | 82.8%（2024 年为 41.5%） | [ChatGPT Memory Dreaming](chatgpt-memory-dreaming.md) |
+| Dreaming V3 计算成本降低 | 约 5 倍 | 同上 |
+| 语音 AI 首字节时间（美国） | ~500ms | [Low-Latency Voice AI](delivering-low-latency-voice-ai-at-scale.md) |
+| ChatGPT 周活跃用户 | 9 亿+ | 同上 |
+| 跨对话安全响应提升（GPT-5.5 Instant） | +52%（伤害他人）/ +39%（自残） | [Sensitive Conversations](chatgpt-recognize-context-in-sensitive-conversations.md) |
+| Safety Summaries 质量评分 | 相关性 4.93/5, 事实性 4.34/5 | 同上 |
 
 ## 四、与 Anthropic 的对比
 
@@ -138,3 +148,12 @@ OpenAI 的技术文章呈现了三条并行的演进路径：
 | 32 | 2026-05-20 | [An OpenAI Model Has Disproved a Central Conjecture in Discrete Geometry](model-disproves-discrete-geometry-conjecture.md) | 数学 / ResearchMilestone |
 | 33 | 2026-05-22 | [OpenAI Named a Leader in Enterprise Coding Agents by Gartner](gartner-2026-agentic-coding-leader.md) | Codex / Enterprise |
 | 34 | 2026-05-29 | [Strengthening Societal Resilience with Rosalind Biodefense](strengthening-societal-resilience-with-rosalind-biodefense.md) | 生物安全 / Rosalind |
+| 35 | 2026-06-01 | [OpenAI Frontier Models and Codex Are Now Available on AWS](openai-frontier-models-and-codex-are-now-available-on-aws.md) | AWS / Bedrock / Codex / 企业 |
+| 36 | 2026-06-02 | [Advancing Youth Safety and Opportunity Through Global Leadership](advancing-youth-safety-and-opportunity-through-global-leadership.md) | 青少年安全 / G7 / 治理 |
+| 37 | 2026-06-04 | [Dreaming: Better Memory for a More Helpful ChatGPT](chatgpt-memory-dreaming.md) | ChatGPT / Memory / DreamingV3 |
+| 38 | 2026-04-23 | [GPT-5.5 System Card](gpt-5-5-system-card.md) | GPT-5.5 / SystemCard / 安全 |
+| 39 | 2026-05-04 | [How OpenAI Delivers Low-Latency Voice AI at Scale](delivering-low-latency-voice-ai-at-scale.md) | VoiceAI / WebRTC / 基础设施 |
+| 40 | 2026-05-05 | [Advancing Youth Safety and Wellbeing in EMEA](advancing-youth-safety-in-emea.md) | 青少年安全 / EMEA / 资助 |
+| 41 | 2026-05-07 | [Introducing Trusted Contact in ChatGPT](introducing-trusted-contact-in-chatgpt.md) | ChatGPT / 安全 / 心理健康 |
+| 42 | 2026-05-14 | [Helping ChatGPT Better Recognize Context in Sensitive Conversations](chatgpt-recognize-context-in-sensitive-conversations.md) | ChatGPT / 安全 / 上下文感知 |
+| 43 | 2026-05-19 | [Advancing Content Provenance](advancing-content-provenance.md) | 内容溯源 / C2PA / SynthID |
