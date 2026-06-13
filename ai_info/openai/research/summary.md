@@ -1,6 +1,6 @@
 # OpenAI Research & Engineering — 核心观点总结
 
-> 汇总自 [OpenAI Research](https://openai.com/research/) 和 [OpenAI Blog](https://openai.com/index/) 的 43 篇文章，涵盖 2025 年 1 月至 2026 年 6 月。
+> 汇总自 [OpenAI Research](https://openai.com/research/) 和 [OpenAI Blog](https://openai.com/index/) 的 50 篇文章，涵盖 2025 年 1 月至 2026 年 6 月。
 
 ## 一、总体脉络
 
@@ -12,7 +12,7 @@ OpenAI 的技术文章呈现了三条并行的演进路径：
 路径3（平台生态）: Responses API → Apps SDK → ChatGPT 超级App → 计算机环境 → MCP 互操作 → 多平台沙箱 → AWS 企业分发 → 记忆系统
 ```
 
-工程路径从 Agent 构建基础方法论出发，逐步构建产品（Codex、Operator、Deep Research），最终形成 Harness Engineering 方法论和 AgentKit 工具集，并在 2026 年 2-5 月连续发布 GPT-5.3-Codex、GPT-5.3-Codex-Spark、GPT-5.5、Codex 移动端、Remote SSH 和企业部署能力。6 月进一步发布 Codex 多角色插件（覆盖数据分析、投资银行等 6 个角色），并登陆 AWS Bedrock 实现企业级云分发。安全路径从模型行为规范出发，逐步建立指令层级、CoT 监控和可监控性研究，并于 2026 年 4-5 月发布了 RL 奖励信号导致"Goblins"行为偏差的详细事后分析、Privacy Filter、Rosalind Biodefense，以及 Codex 企业内部部署的完整安全实践（OpenTelemetry 遥测、AI 安全 triage、规则引擎）。6 月转向青少年 AI 安全治理，在 G7 峰会前发布 9 项青少年安全原则并呼吁建立国际青少年 AI 安全研究所。平台路径从 API 工具出发，为 Responses API 配备完整计算机环境（Shell 工具 + 容器工作区 + Skills + Compaction），构建 ChatGPT 超级应用生态，采纳 MCP 开放协议实现跨平台互操作，并将 Codex 扩展到 Windows、移动端、混合云和本地企业环境。6 月发布 Dreaming V3 记忆系统，ChatGPT 从"被动存储"转向"主动推理记忆"。
+工程路径从 Agent 构建基础方法论出发，逐步构建产品（Codex、Operator、Deep Research），最终形成 Harness Engineering 方法论和 AgentKit 工具集，并在 2026 年 2-5 月连续发布 GPT-5.3-Codex、GPT-5.3-Codex-Spark、GPT-5.5、Codex 移动端、Remote SSH 和企业部署能力。6 月进一步发布 Codex 多角色插件（覆盖数据分析、投资银行等 6 个角色），登陆 AWS Bedrock 和 Oracle Cloud 实现多云企业分发，收购 Ona 将 Agent 持久化执行能力纳入 Codex 生态。安全路径从模型行为规范出发，逐步建立指令层级、CoT 监控和可监控性研究，并于 2026 年 4-5 月发布了 RL 奖励信号导致"Goblins"行为偏差的详细事后分析、Privacy Filter、Rosalind Biodefense，以及 Codex 企业内部部署的完整安全实践（OpenTelemetry 遥测、AI 安全 triage、规则引擎）。6 月转向青少年 AI 安全治理，在 G7 峰会前发布 9 项青少年安全原则并呼吁建立国际青少年 AI 安全研究所。平台路径从 API 工具出发，为 Responses API 配备完整计算机环境（Shell 工具 + 容器工作区 + Skills + Compaction），构建 ChatGPT 超级应用生态，采纳 MCP 开放协议实现跨平台互操作，并将 Codex 扩展到 Windows、移动端、混合云和本地企业环境。6 月发布 Dreaming V3 记忆系统，ChatGPT 从"被动存储"转向"主动推理记忆"。OpenAI Academy 推出 AI 技能培训课程体系，将"学习视为部署的一部分"。
 
 ## 二、五大核心主题
 
@@ -157,3 +157,10 @@ OpenAI 的技术文章呈现了三条并行的演进路径：
 | 41 | 2026-05-07 | [Introducing Trusted Contact in ChatGPT](introducing-trusted-contact-in-chatgpt.md) | ChatGPT / 安全 / 心理健康 |
 | 42 | 2026-05-14 | [Helping ChatGPT Better Recognize Context in Sensitive Conversations](chatgpt-recognize-context-in-sensitive-conversations.md) | ChatGPT / 安全 / 上下文感知 |
 | 43 | 2026-05-19 | [Advancing Content Provenance](advancing-content-provenance.md) | 内容溯源 / C2PA / SynthID |
+| 44 | 2026-06-08 | [Built to Benefit Everyone: Our Plan](built-to-benefit-everyone-our-plan.md) | 战略 / AGI / 三阶段 |
+| 45 | 2026-06-08 | [Confidential Submission of Draft S-1 to the SEC](openai-submits-confidential-s-1.md) | IPO / SEC / 公司治理 |
+| 46 | 2026-06-08 | [Introducing the OpenAI Economic Research Exchange](economic-research-exchange.md) | 经济研究 / AI经济影响 |
+| 47 | 2026-06-10 | [Access OpenAI Models and Codex Through Your Oracle Cloud Commitment](openai-on-oracle-cloud.md) | Oracle / OCI / 多云分发 |
+| 48 | 2026-06-11 | [OpenAI to Acquire Ona](openai-to-acquire-ona.md) | 收购 / Codex / 持久化Agent |
+| 49 | 2026-06-11 | [How an Astrophysicist Uses Codex to Help Simulate Black Holes](using-codex-to-simulate-black-holes.md) | Codex / 天体物理 / 应用AI |
+| 50 | 2026-06-12 | [New OpenAI Academy Courses for the Next Era of Work](academy-courses-applying-ai-at-work.md) | OpenAI-Academy / AI培训 / Agent工作流 |
