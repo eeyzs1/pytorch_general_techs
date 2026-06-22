@@ -1,4 +1,4 @@
-# 论文7：Raft 深度解读
+# 论文9：Raft 深度解读
 
 > **论文**：In Search of an Understandable Consensus Algorithm (USENIX ATC 2014)
 >

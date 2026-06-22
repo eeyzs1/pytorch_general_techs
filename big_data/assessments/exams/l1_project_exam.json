@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "id": "L1-PROJECT-EXAM",
+  "stage": "L1",
+  "duration_minutes": 300,
+  "sections": [
+    {"name": "笔试：HDFS/MapReduce 原理", "points": 25, "source": "assessments/questions/l1_sample.json"},
+    {"name": "笔试：Hive/Spark 原理", "points": 25, "source": "assessments/questions/l1_sample.json"},
+    {"name": "机试：Hive SQL 与 Spark 编程", "points": 20, "rubric": "assessments/rubrics/l1-project-rubric.md"},
+    {"name": "机试：实战调优", "points": 15, "rubric": "assessments/rubrics/l1-project-rubric.md"},
+    {"name": "项目答辩（离线数仓/用户画像/Airflow）", "points": 15, "rubric": "assessments/rubrics/l1-project-rubric.md"}
+  ]
+}

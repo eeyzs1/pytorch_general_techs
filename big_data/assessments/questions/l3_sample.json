@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "stage": "L3",
+  "questions": [
+    {
+      "id": "L3-SPARK-001",
+      "type": "short_answer",
+      "knowledge": ["Spark", "Catalyst", "source-code"],
+      "difficulty": 4,
+      "prompt": "描述 Spark Catalyst 优化器的完整流程（从 DataFrame 到 RDD 执行）。解释 RuleExecutor 的 FixedPoint 和 Once 策略的区别。",
+      "answer": "Catalyst 完整流程（QueryExecution 的 lazy val 链）：\n1) logical： unresolved LogicalPlan（未解析，列名/表名未绑定）\n2) analyzed： Analyzer 应用 Resolution 规则，结合 Catalog 解析表名、列名、类型\n3) optimizedPlan： Optimizer 应用优化规则（PushDownPredicate、ConstantFolding、ColumnPruning 等）\n4) sparkPlan： SparkPlanner 应用 Strategy 模式匹配，将逻辑算子转为物理算子（如 Join → BroadcastHashJoin/SortMergeJoin）\n5) executedPlan： preparations 应用物理优化（CollapseCodegenStages、AdaptiveSparkPlanExec 等）\n6) 第一个 Action（count/collect）触发 executedPlan 计算，连锁触发前面所有 lazy val\n\nRuleExecutor 的两种策略：\n- Once：Batch 中的每个 Rule 只应用一次，按顺序执行。适用于幂等规则（如 ResolveReferences），一次解析即可。\n- FixedPoint(maxIterations)：Batch 中的所有 Rule 反复应用，直到 LogicalPlan 树不再变化（通过 fastEquals 比较）或达到 maxIterations 上限。适用于需要迭代的规则（如 PushDownPredicate 可能创造新的下推机会）。\n\nBatch 之间的顺序很重要——前一个 Batch 的输出是后一个 Batch 的输入。例如 Analysis Batch 必须在 Optimization Batch 之前。",
+      "explanation": "这是 L3 源码阅读考核的核心题目，要求能从源码层面解释 Catalyst 的设计。"
+    },
+    {
+      "id": "L3-FLINK-001",
+      "type": "short_answer",
+      "knowledge": ["Flink", "checkpoint", "source-code"],
+      "difficulty": 5,
+      "prompt": "描述 Flink Checkpoint Barrier 对齐的完整流程（CheckpointBarrierAligner.processBarrier）。为什么对齐会导致反压？非对齐 Checkpoint 如何解决？",
+      "answer": "Barrier 对齐流程（CheckpointBarrierAligner.processBarrier）：\n1) 算子有多个输入通道，每个通道会收到 Barrier\n2) 第一个 Barrier 到达：阻塞该通道（barrierChannelStates[channel].setBlocked(true)），后续数据通过 processNonBarrier() 缓存到 bufferStorage（不处理）\n3) 中间 Barrier 到达：递增 numBarriersReceived 计数器，阻塞对应通道\n4) 最后一个 Barrier 到达（所有通道都收到）：\n   - notifyCheckpoint() → 触发各算子的 snapshotState()（异步快照）\n   - 释放所有阻塞通道（setBlocked(null)）\n   - bufferStorage.resumeConsumption() 释放缓存数据继续处理\n   - 向下游转发 Barrier\n   - 重置计数器\n\n对齐导致反压原因：\n阻塞通道期间，该通道的数据被缓存到 bufferStorage（内存），若对齐时间长（其他通道 Barrier 迟迟未到），缓存数据堆积导致内存压力，进而反压上游。在数据倾斜或网络抖动场景下尤为严重。\n\n非对齐 Checkpoint（CheckpointBarrierUnaligner）解决方式：\n1) 收到第一个 Barrier 时不阻塞任何通道，立即向下游转发 Barrier\n2) 追踪每个通道在「第一个 Barrier」和「最后一个 Barrier」之间到达的数据（in-flight data），作为 Channel State 一起快照\n3) 恢复时：先恢复算子 State，再重放 Channel State 中的 in-flight 数据\n4) 优势：Barrier 即时传播，消除对齐等待，适合反压场景\n5) 代价：State 更大（包含 in-flight 数据），恢复时间更长",
+      "explanation": "这是 L3 源码阅读的高难度题，要求理解 Barrier 对齐的源码实现和非对齐 Checkpoint 的设计动机。"
+    },
+    {
+      "id": "L3-KAFKA-001",
+      "type": "short_answer",
+      "knowledge": ["Kafka", "zero-copy", "source-code"],
+      "difficulty": 4,
+      "prompt": "解释 Kafka 零拷贝（Zero-Copy）原理。从磁盘到网卡，传统方式经过几次拷贝？sendfile 如何减少拷贝？为什么 Kafka 消费者用零拷贝而生产者不用？",
+      "answer": "传统方式（4次拷贝 + 4次上下文切换）：\n1) 磁盘 → 内核空间 PageCache（DMA 拷贝）\n2) PageCache → 用户空间 Buffer（CPU 拷贝，read() 系统调用）\n3) 用户空间 Buffer → Socket Buffer（CPU 拷贝）\n4) Socket Buffer → 网卡（DMA 拷贝，write() 系统调用）\n上下文切换：read 调用 2 次（用户→内核→用户），write 调用 2 次（用户→内核→用户）\n\nsendfile 零拷贝（2次拷贝 + 2次上下文切换）：\n1) 磁盘 → 内核空间 PageCache（DMA 拷贝）\n2) PageCache → 网卡（DMA 拷贝，sendfile() 系统调用，数据全程在内核空间）\n上下文切换：sendfile 调用 2 次（用户→内核→用户）\n\nKafka 消费者用零拷贝的原因：\n消费者 Fetch 请求的响应是磁盘上的 Segment 文件数据，FileRecords.writeTo() 调用 FileChannel.transferTo()（底层 sendfile），数据从 PageCache 直接到网卡，无需经过用户空间。Kafka 源码 KafkaApis.handleFetchRequest → ReplicaManager.fetchMessages → FileRecords.writeTo()。\n\n生产者不用零拷贝的原因：\n生产者写入的数据来自用户空间（应用程序构造的消息），需要经过序列化、压缩、校验等处理，这些必须在用户空间完成。写入路径是「用户空间 → PageCache → 磁盘」，无法跳过用户空间。Kafka 使用 mmap（内存映射文件）优化写入，减少一次 CPU 拷贝（PageCache 直接映射到用户空间）。",
+      "explanation": "零拷贝是 Kafka 高吞吐的核心技术之一，L3 要求从源码和操作系统层面理解。"
+    },
+    {
+      "id": "L3-DDIA-001",
+      "type": "short_answer",
+      "knowledge": ["DDIA", "storage", "theory"],
+      "difficulty": 4,
+      "prompt": "对比 LSM-Tree 和 B-Tree 的写放大（Write Amplification）和读放大（Read Amplification）。为什么 RocksDB（LSM-Tree）适合做 Flink StateBackend？",
+      "answer": "写放大：\n- B-Tree：每次写入可能触发页分裂（Page Split），写放大约 1-2x（数据写入 + WAL + 页分裂重写）\n- LSM-Tree：数据写入 MemTable → flush 到 SSTable → 多级 Compaction 合并，写放大约 10-30x（取决于 Compaction 策略，Level Compaction 写放大更高但读放大低）\n\n读放大：\n- B-Tree：读放大约 1x（B+树索引直接定位到叶子节点，通常 3-4 层即可覆盖海量数据）\n- LSM-Tree：读放大较高，需查 MemTable + 多级 SSTable（可能 10+ 次），需 BloomFilter 优化。最坏情况需扫描所有 SSTable。\n\n为什么 RocksDB 适合做 Flink StateBackend：\n1) 写性能优：Flink State 是「写多读少」模式（每条数据都更新 State，但只在 Checkpoint 时读取快照），LSM-Tree 的顺序写 + Compaction 适合高频写入\n2) 内存可控：RocksDB 的 BlockCache 和 WriteBuffer 可配置上限，避免 OOM。相比 HashMapStateBackend（全内存），RocksDB 可管理 GB-TB 级 State\n3) 增量 Checkpoint：RocksDB 的 SST 文件是不可变的，增量 Checkpoint 只需上传新增的 SST 文件（对比上次 Checkpoint），大幅减少 Checkpoint 时间和存储成本\n4) 后台 Compaction 不阻塞读写：Compaction 在后台线程执行，不影响 Flink 数据处理\n5) 本地磁盘 + 远程存储：RocksDB 数据在 TaskManager 本地磁盘，Checkpoint 上传到 HDFS/S3，兼顾性能和容错",
+      "explanation": "LSM-Tree vs B-Tree 是 DDIA 核心考点，结合 Flink StateBackend 考察工业映射能力。"
+    },
+    {
+      "id": "L3-CONSENSUS-001",
+      "type": "short_answer",
+      "knowledge": ["DDIA", "consensus", "distributed-systems"],
+      "difficulty": 5,
+      "prompt": "解释 Raft 协议的 Leader 选举和日志复制流程。如果 5 节点集群发生网络分区（3+2），会发生什么？Raft 相比 Paxos 的优势是什么？",
+      "answer": "Leader 选举：\n1) 节点初始为 Follower，electionTimeout 超时未收到 Leader 心跳则转为 Candidate\n2) Candidate 自增 term，投票给自己，向其他节点发 RequestVote RPC\n3) 收到多数派（Quorum = N/2 + 1）选票则成为 Leader\n4) Leader 周期性发心跳（AppendEntries RPC）维持权威\n5) 每个 term 每个节点只投一票（先到先得），避免脑裂\n\n日志复制：\n1) 客户端请求 → Leader 写入本地日志（Uncommitted）\n2) Leader 通过 AppendEntries RPC 将日志复制到 Follower\n3) 多数派 Follower 确认后，Leader 标记日志为 Committed\n4) Leader 响应客户端成功\n5) Leader 在后续心跳中通知 Follower 日志已 Committed，Follower 应用到状态机\n\n5 节点 3+2 分区：\n- 3 节点分区：拥有多数派（3 > 5/2），可选举 Leader 并继续提交日志（Quorum = 3）\n- 2 节点分区：无法达到多数派（2 < 3），无法选举 Leader 也无法提交日志，所有写入阻塞\n- 分区恢复后：2 节点分区的日志 term 较低，被 3 节点分区的 Leader 覆盖（强制截断不一致日志），最终一致\n\nRaft 相比 Paxos 的优势：\n1) 强 Leader 模型：所有写入经 Leader，逻辑简单，易于理解和实现\n2) 日志连续性：Raft 保证日志按顺序复制，Follower 日志是 Leader 日志的子集，冲突解决简单（直接截断）\n3) 成员变更：Raft 提供联合共识（Joint Consensus）机制安全变更集群成员\n4) 易于实现：Paxos 是理论框架，工程实现复杂（Multi-Paxox 需自行设计日志顺序）；Raft 是工程导向，有完整规范\n\nFLP 不可能定理：异步网络中无法同时满足「终止性」和「安全性」。Raft 通过「超时 + 随机化」绕过——实际网络不是纯异步（有超时检测），且随机化 electionTimeout 降低分票概率。",
+      "explanation": "Raft 是 L3 论文复述和分布式系统理论的高频考点，要求理解选举、复制、分区容忍和与 Paxos 的对比。"
+    },
+    {
+      "id": "L3-SPARK-002",
+      "type": "short_answer",
+      "knowledge": ["Spark", "AQE", "optimization"],
+      "difficulty": 4,
+      "prompt": "描述 Spark 3.0 AQE（Adaptive Query Execution）的三大优化及其触发时机。AQE 如何动态解决数据倾斜？",
+      "answer": "AQE 三大优化：\n\n1) 自动分区合并（Coalesce Shuffle Partitions）：\n- 触发时机：Shuffle MapStage 完成后，收集 MapOutputStatistics（每个分区实际数据大小）\n- 逻辑：若多个分区数据量很小（< spark.sql.adaptive.coalescePartitions.minPartitionSize，默认1MB），自动合并为一个大分区\n- 价值：减少小 Task 调度开销，spark.sql.shuffle.partitions=200 但实际数据只有 100MB 时，合并为 1-2 个分区即可\n\n2) 倾斜 Join 优化（Optimize Skew Join）：\n- 触发时机：SortMergeJoin 的 Shuffle 完成后，检测分区大小分布\n- 检测逻辑：分区大小 > 中位数大小 × skewedPartitionFactor（默认5）且 > skewedPartitionThresholdInBytes（默认256MB）\n- 解决方式：将倾斜分区拆分为多个子分区（按 Split 模式），小表的对应数据广播到每个子分区做 BroadcastHashJoin\n- 价值：自动处理数据倾斜，无需代码改动\n\n3) 动态切换 Join 策略（Switch Join Strategy）：\n- 触发时机：Shuffle 完成后，检查实际数据大小\n- 逻辑：若编译时估算为 SortMergeJoin，但运行时发现某侧数据 < broadcast 阈值，自动切换为 BroadcastHashJoin\n- 价值：编译时估算不准（统计信息过期）时，运行时自动修正\n\nAQE 解决数据倾斜的细节：\n1) Shuffle MapStage 完成后，AQE 获取每个分区实际数据大小\n2) 识别倾斜分区（大小远超中位数）\n3) 将倾斜分区按 spark.sql.adaptive.advisoryPartitionSizeInBytes（默认64MB）拆分为多个子分区\n4) 对小表的对应分区数据，复制到每个子分区\n5) 每个子分区独立做 BroadcastHashJoin，结果 Union\n6) 优势：完全自动化，无需预先知道倾斜 Key\n\n配置：spark.sql.adaptive.enabled=true, spark.sql.adaptive.skewJoin.enabled=true",
+      "explanation": "AQE 是 Spark 3.0 的核心特性，L3 要求从源码层面理解 AdaptiveSparkPlanExec 的运行时优化逻辑。"
+    },
+    {
+      "id": "L3-TUNING-001",
+      "type": "short_answer",
+      "knowledge": ["Spark", "tuning", "practice"],
+      "difficulty": 4,
+      "prompt": "一个 Spark 任务运行 30 分钟，Spark UI 显示某 Stage 有 200 个 Task，其中 1 个 Task 处理 800MB 数据（其他 Task 平均 5MB），且该 Task GC 时间 120 秒。请给出系统性调优方案（至少 5 步），并说明每步的预期收益。",
+      "answer": "诊断：典型数据倾斜，某 Key 数据量是其他的 160 倍（800MB vs 5MB），导致单 Task 成为瓶颈且频繁 Full GC。\n\n系统性调优方案（按优先级）：\n\n1) 倾斜 Key 识别（预期：定位问题）\n- 使用 df.groupBy(key).count().orderBy(col(\"count\").desc()).show(20) 采样确认倾斜 Key\n- 或使用 spark_partition_id() 查看分区分布\n\n2) 加盐打散（预期：倾斜 Task 时间从 600s 降到 60s，10倍提升）\n- 给倾斜 Key 加 0-9 随机后缀，分散到 10 个 Task\n- 第一次聚合（加盐后）→ 去盐 → 第二次聚合\n- 适用：groupBy + agg 场景\n\n3) 开启 AQE（预期：自动优化，倾斜 Task 时间再降 50%）\n- spark.sql.adaptive.enabled=true\n- spark.sql.adaptive.skewJoin.enabled=true\n- 零代码改动，运行时自动拆分倾斜分区\n\n4) 分区数优化（预期：减少调度开销 20%）\n- 当前 200 分区，每分区平均 5MB（远小于 128MB 理想值）\n- 调整 spark.sql.shuffle.partitions 为 50（500MB / 128MB ≈ 4，考虑并行度取 50）\n- 或开启 AQE 自动合并\n\n5) 内存与 GC 优化（预期：GC 时间从 120s 降到 10s）\n- executor-memory 从 2g 增到 8g\n- 使用 G1GC：spark.executor.extraJavaOptions=-XX:+UseG1GC\n- 增大 memoryOverhead（spark.executor.memoryOverhead=2g）\n\n6) UDF 优化（预期：若存在 Python UDF，性能提升 5-10 倍）\n- 将 Python UDF（逐行处理）替换为 Pandas UDF（向量化）或 Spark 内置函数\n- Python UDF 的序列化开销极大（每行 JVM→Python→JVM）\n\n7) Cache 策略（预期：若数据被多次使用，减少重复扫描 30%）\n- 对复用的 DataFrame 使用 persist(StorageLevel.MEMORY_AND_DISK)\n- 配合 checkpoint 截断长 Lineage\n\n总预期：30 分钟 → 3 分钟以内（10 倍提升），GC 时间从 120s 降到 10s 以内。",
+      "explanation": "这是 L3 性能调优实战考核的典型场景，要求系统性诊断和多维度优化。"
+    }
+  ]
+}

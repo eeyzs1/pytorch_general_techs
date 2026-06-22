@@ -1,5 +1,5 @@
 version: 1
-last_updated: 2026-05-29
+last_updated: 2026-06-20
 status: canonical
 source_of_truth: curriculum.yaml
 
@@ -30,6 +30,10 @@ stages:
       - Web 日志分析系统
       - 电商数据库设计与 SQL 分析
       - 命令行环境运维实战
+    assessment:
+      questions: assessments/questions/l0_sample.json
+      exam: assessments/exams/l0_project_exam.json
+      rubric: assessments/rubrics/l0-project-rubric.md
 
   - id: L1
     name: 初级工程师：大数据入门
@@ -54,6 +58,10 @@ stages:
       - 离线数仓构建
       - Spark 用户画像系统
       - Airflow 工作流编排
+    assessment:
+      questions: assessments/questions/l1_sample.json
+      exam: assessments/exams/l1_project_exam.json
+      rubric: assessments/rubrics/l1-project-rubric.md
 
   - id: L2
     name: 中级工程师：工程深化
@@ -79,6 +87,10 @@ stages:
       - 数据管道故障排查手册
       - Hive 到 Iceberg 湖仓迁移
       - 数据治理平台搭建
+    assessment:
+      questions: assessments/questions/l2_sample.json
+      exam: assessments/exams/l2_project_exam.json
+      rubric: assessments/rubrics/l2-project-rubric.md
 
   - id: L3
     name: 高级工程师：技术深度
@@ -104,6 +116,10 @@ stages:
       - Spark/Flink 调优攻坚报告
       - MLOps 平台
       - 云原生大数据平台迁移
+    assessment:
+      questions: assessments/questions/l3_sample.json
+      exam: assessments/exams/l3_project_exam.json
+      rubric: assessments/rubrics/l3-project-rubric.md
 
   - id: L4
     name: 架构师：全局设计
@@ -127,6 +143,10 @@ stages:
       - 企业大数据平台架构方案
       - 成本优化方案
       - dbt 项目代码与 CI/CD 流水线
+    assessment:
+      questions: assessments/questions/l4_sample.json
+      exam: assessments/exams/l4_project_exam.json
+      rubric: assessments/rubrics/l4-project-rubric.md
 
   - id: L5
     name: CTO 视野：战略与领导力
@@ -148,6 +168,10 @@ stages:
       - 技术战略备忘录
       - 工程师能力模型
       - CTO 年度述职报告
+    assessment:
+      questions: assessments/questions/l5_sample.json
+      exam: assessments/exams/l5_project_exam.json
+      rubric: assessments/rubrics/l5-project-rubric.md
 
 quality_gates:
   - name: link-check

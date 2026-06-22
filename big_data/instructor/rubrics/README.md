@@ -9,4 +9,11 @@
 | 技术理解 | 25 | 是否能解释关键原理、权衡和边界条件 |
 | 复盘表达 | 15 | 文档、指标、问题定位和改进计划 |
 
-更细的阶段评分表放在 `assessments/rubrics/`。
+更细的阶段评分表放在 `assessments/rubrics/`：
+
+- [L0 项目评分表](../../assessments/rubrics/l0-project-rubric.md)
+- [L1 项目评分表](../../assessments/rubrics/l1-project-rubric.md)
+- [L2 项目评分表](../../assessments/rubrics/l2-project-rubric.md)
+- [L3 项目评分表](../../assessments/rubrics/l3-project-rubric.md)
+- [L4 项目评分表](../../assessments/rubrics/l4-project-rubric.md)
+- [L5 项目评分表](../../assessments/rubrics/l5-project-rubric.md)

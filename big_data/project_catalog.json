@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "last_updated": "2026-05-29",
+  "last_updated": "2026-06-20",
   "naming_rule": "主线项目使用 P01-P13；补充项目使用 PxxA/PxxB/PxxC 或 PxxS1，避免复用中文项目编号。",
   "projects": [
     {"id": "P01", "stage": "L0", "title": "Web日志分析系统", "path": "L0_预备阶段/第5-6周_项目实战/项目1_Web日志分析系统.md", "type": "core"},

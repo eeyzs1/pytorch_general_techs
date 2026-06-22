@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "stage": "L2",
+  "questions": [
+    {
+      "id": "L2-KAFKA-001",
+      "type": "single_choice",
+      "knowledge": ["Kafka", "reliability"],
+      "difficulty": 3,
+      "prompt": "Kafka Producer 配置 acks=all 且 min.insync.replicas=2（3副本集群）。当 Leader 写入成功但只有一个 Follower 同步完成时，Producer 会收到什么响应？",
+      "options": ["写入成功，返回成功响应", "写入失败，抛出 NotEnoughReplicasException，Producer 重试", "Leader 等待第二个 Follower 同步完成后再响应", "数据丢失，无任何响应"],
+      "answer": "写入失败，抛出 NotEnoughReplicasException，Producer 重试",
+      "explanation": "acks=all 要求所有 ISR 副本确认。min.insync.replicas=2 意味着至少 2 个副本（含 Leader）写入成功才算成功。当前只有 Leader + 1 个 Follower = 2 个 ISR，若该 Follower 未同步完成则 ISR 中确认数不足，触发 NotEnoughReplicasException。Producer 配置 retries 后会自动重试。这是金融级零丢失场景的关键配置。"
+    },
+    {
+      "id": "L2-FLINK-001",
+      "type": "short_answer",
+      "knowledge": ["Flink", "watermark"],
+      "difficulty": 3,
+      "prompt": "解释 Flink Watermark 机制。如果设置 Watermark = 5秒，allowedLateness = 10秒，一条延迟 7秒的数据会被处理吗？窗口何时真正关闭？",
+      "answer": "Watermark 机制：Watermark 是一种时间戳，表示「所有时间戳 <= Watermark 的数据都已到达」。Watermark = 当前最大事件时间 - 允许的乱序度（5秒）。当 Watermark 推进到窗口结束时间时，窗口触发计算并输出结果，但窗口并未立即关闭。\n\n延迟 7 秒的数据是否处理：\n- 假设窗口 [10:00, 10:05)，数据事件时间为 10:03\n- Watermark 推进到 10:05 时（即最大事件时间达到 10:10）窗口触发\n- 一条事件时间为 10:03 的数据延迟 7 秒到达，此时 Watermark 可能已超过 10:05\n- 由于 allowedLateness = 10秒，窗口在 10:05 + 10秒 = 10:15（Watermark 达到 10:15）前仍可接受迟到数据\n- 7秒延迟 < 10秒 allowedLateness，因此该数据会被处理（触发窗口的更新输出）\n\n窗口真正关闭时间：Watermark > 窗口结束时间 + allowedLateness（即 10:15）。超过此时间的数据通过 sideOutputLateData 输出到侧输出流。",
+      "explanation": "考察对 Watermark + allowedLateness + SideOutput 三者协作机制的理解，这是 Flink 时间语义的核心。"
+    },
+    {
+      "id": "L2-KAFKA-002",
+      "type": "short_answer",
+      "knowledge": ["Kafka", "replication"],
+      "difficulty": 4,
+      "prompt": "解释 Kafka ISR（In-Sync Replicas）机制。为什么 Kafka 选择 ISR 而非 Raft 的 Quorum？KRaft 模式改变了什么？",
+      "answer": "ISR 机制：ISR 是 Leader 维护的「与 Leader 数据保持同步的副本集合」。Follower 通过 Fetch 请求持续拉取 Leader 数据，若 Follower 落后超过 replica.lag.time.max.ms（默认10秒）则被移出 ISR。Leader 选举只从 ISR 中选取，保证已同步数据不丢失。\n\n为什么选 ISR 而非 Raft Quorum：\n1) Kafka 的负载特征是高吞吐写入，Raft 的强 Leader 写入需要 Quorum 确认（多数派），而 ISR 允许 acks=1 仅 Leader 确认即可，吞吐更高\n2) Kafka Partition 级别的 Leader 选举粒度远细于 Raft 的整个集群 Leader，ISR 更适合多 Partition 场景\n3) ISR 动态调整（Follower 落后即移出）比 Raft 静态 Quorum 更灵活\n\nKRaft 改变：Kafka 3.3+ 移除 ZooKeeper，使用 Raft 协议管理元数据（Controller Quorum）。注意：KRaft 只用于元数据管理共识，Partition 数据的复制仍用 ISR 机制。解决了 ZK 元数据规模瓶颈（百万 Partition 时 ZK 成为瓶颈）和运维复杂度（两套系统）问题。",
+      "explanation": "考察对 Kafka 复制机制本质的理解，以及与共识算法的对比。这是 L2 架构讲解 5 个 Why 中的高频问题。"
+    },
+    {
+      "id": "L2-LAKEHOUSE-001",
+      "type": "short_answer",
+      "knowledge": ["数据湖仓", "architecture"],
+      "difficulty": 4,
+      "prompt": "对比数据仓库、数据湖、数据湖仓（Lakehouse）三者架构，说明 Lakehouse 解决了什么问题。列举 Iceberg/Delta Lake/Hudi 的核心特性。",
+      "answer": "数据仓库：结构化数据，强 Schema，ACID 事务，但数据封闭（只能存结构化数据），成本高（专用存储）。\n\n数据湖：任意数据（结构化/半结构化/非结构化），低成本对象存储，但无事务、无 Schema 约束、易产生「数据沼泽」、不支持 Upsert。\n\nLakehouse：在数据湖之上增加元数据层（Iceberg/Delta/Hudi），实现 ACID 事务、Schema 演进、时间旅行、Upsert、Z-Order 等数据仓库能力，同时保留数据湖的低成本和开放格式（Parquet）。\n\n解决的核心问题：\n1) 数据湖的「数据沼泽」——无事务无 Schema 导致数据不可信\n2) 数据仓库的「数据孤岛」——无法直接处理机器学习/非结构化数据\n3) 双系统架构（湖+仓）的数据搬迁成本和一致性问题\n\n三大方案核心特性：\n- Iceberg：开放表格式，Schema 演进强，隐藏分区（Hidden Partitioning），与计算引擎解耦（Spark/Flink/Trino 通用）\n- Delta Lake：Databricks 主导，与 Spark 深度集成，流批一体，Z-Order 优化\n- Hudi：Upsert/增量处理强，支持 Copy-on-Write 和 Merge-on-Read 两种模式，适合 CDC 场景",
+      "explanation": "数据湖仓是 L2 阶段的重要技术趋势，要求理解架构演进逻辑和三大方案的差异。"
+    },
+    {
+      "id": "L2-CDC-001",
+      "type": "short_answer",
+      "knowledge": ["CDC", "data-pipeline"],
+      "difficulty": 3,
+      "prompt": "对比 CDC（Change Data Capture）和定时 SELECT 拉取方案的差异，说明 CDC 在数据完整性上的优势。",
+      "answer": "CDC（基于 Binlog）：\n- 延迟：毫秒级（Binlog 写入 → Debezium 读取 → Kafka → Flink）\n- 完整性：完整捕获 INSERT/UPDATE/DELETE，含变更前后值（before + after）\n- 对源库影响：读 Binlog 不消耗 MySQL 工作线程，几乎零侵入\n- Schema 变更：自动检测 DDL 并同步到 Schema Registry\n\n定时 SELECT（轮询）：\n- 延迟：平均半个轮询周期（如 5 秒轮询 → 平均 2.5 秒延迟）\n- 完整性缺陷：\n  1) 无法捕获 DELETE（除非加逻辑删除标志，污染业务表）\n  2) 中间状态丢失（5 秒内 UPDATE 3 次只能拿到最终值）\n  3) 高并发下时间窗口遗漏（同一秒插入 10 行，可能只拉到前 5 行）\n- 对源库影响：每次 SELECT 扫描 update_time 索引，高频轮询增加源库压力\n- Schema 变更：SELECT 失败需人工修改 SQL\n\nCDC 在数据完整性上的核心优势：Binlog 是数据库所有变更的权威日志，按顺序严格记录，不会遗漏任何变更（含中间状态和删除）。这是金融风控等场景必须用 CDC 的根本原因。",
+      "explanation": "CDC 是 L2 实时数据管道的核心技术，要求理解其相对于轮询的本质优势。"
+    },
+    {
+      "id": "L2-FLINK-002",
+      "type": "short_answer",
+      "knowledge": ["Flink", "backpressure"],
+      "difficulty": 3,
+      "prompt": "Flink 任务出现反压（Backpressure），如何从 Flink UI 定位反压源头？列举至少 3 种常见反压原因及解决方案。",
+      "answer": "定位反压源头方法：\nFlink UI → Job → 各算子显示反压状态（OK / LOW / HIGH）。关键原则：从下游往上游追踪——反压红色（HIGH）最严重的算子通常是「瓶颈点」而非「受害者」。因为下游处理慢导致上游被阻塞，所以最下游的 HIGH 反压算子才是根因。查看算子的 recordsIn/recordsOut、busyTimeMs、backPressuredTimeMs 指标，backPressuredTimeMs 高说明被下游阻塞，busyTimeMs 高说明自身处理慢。\n\n常见反压原因及解决方案：\n1) Sink 端逐条写入（如 ClickHouse 逐条 INSERT）：改为批量写入（JDBC batch insert，每 1000 条或 1 秒 flush 一次）\n2) 数据倾斜导致个别 Task 处理慢：对倾斜 Key 加盐打散，或增加并行度\n3) GC 频繁导致 Task 停顿：增大 TaskManager 内存，使用 G1GC，检查是否有大对象分配\n4) 外部调用超时（如 AsyncIO 查询 Redis/MySQL）：增加超时时间，使用异步批量查询，增加并发请求数\n5) 窗口聚合 State 过大导致 RocksDB 读慢：开启增量 Checkpoint，增加 RocksDB 内存（state.backend.rocksdb.memory.managed）",
+      "explanation": "反压排查是 L2 故障排查考核的高频场景，要求掌握从 UI 定位到解决方案的完整链路。"
+    },
+    {
+      "id": "L2-EXACTLY-ONCE-001",
+      "type": "short_answer",
+      "knowledge": ["Flink", "exactly-once"],
+      "difficulty": 4,
+      "prompt": "解释 Flink 端到端 Exactly-Once 语义的实现原理。为什么仅靠 Flink Checkpoint 不能保证端到端 Exactly-Once？",
+      "answer": "Flink 端到端 Exactly-Once 需要三个环节协同：\n\n1) Source 端（可重放）：Kafka Consumer 支持按 Offset 重新消费。Checkpoint 保存 Offset，故障恢复时从 Checkpoint 的 Offset 重新消费。\n\n2) 计算端（Checkpoint 机制）：基于 Chandy-Lamport 算法，通过 Barrier 对齐实现分布式快照。所有算子的 State 在 Barrier 到达时一致性地持久化，保证计算结果确定性。\n\n3) Sink 端（两阶段提交 2PC）：这是仅靠 Checkpoint 不够的关键原因。Checkpoint 只保证 Flink 内部 State 一致，但 Sink 已写入外部系统（如 Kafka/MySQL）的数据无法回滚。需要 TwoPhaseCommitSinkFunction：\n   - beginTransaction：开启事务\n   - invoke：数据写入外部系统（事务内，未提交）\n   - preCommit：Checkpoint barrier 到达时 flush 数据，准备提交\n   - commit：收到 notifyCheckpointComplete 回调后，正式提交事务\n   - abort：Checkpoint 失败时回滚事务\n\n为什么仅 Checkpoint 不够：\n假设 Sink 直接写入 Kafka（无事务），Checkpoint 成功后 Sink 继续写入，若随后故障恢复，Flink 从上一个 Checkpoint 重新消费，但已写入 Kafka 的数据无法撤回，导致重复。两阶段提交保证「Checkpoint 成功 ⟺ Sink 数据可见」，实现端到端一致性。",
+      "explanation": "端到端 Exactly-Once 是 L2 的核心难点，要求理解 Checkpoint 的局限和 2PC 的必要性。"
+    }
+  ]
+}

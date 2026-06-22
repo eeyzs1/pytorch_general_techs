@@ -26,17 +26,19 @@ L3阶段的核心目标是让学员具备**高级工程师的技术深度**—�
 
 | 周次 | 模块 | 核心任务 | 强制输出 |
 |------|------|----------|----------|
-| 第23周 | 论文精读(1) + Spark源码(1) | 完成GFS、MapReduce、BigTable三篇论文精读；阅读DataFrame API表层源码 | 3篇论文读书笔记 + 1篇DataFrame源码分析 |
-| 第24周 | 论文精读(2) + Spark源码(2) | 完成Dremel、RDD、Kafka三篇论文精读；深入Catalyst逻辑优化层 | 3篇论文读书笔记 + 1篇Catalyst优化Rule分析 |
-| 第25周 | 论文精读(3) + Flink/Kafka源码 | 完成Flink、Dynamo、Raft三篇论文精读；阅读Flink Checkpoint和Kafka Producer源码 | 3篇论文读书笔记 + Flink/Kafka源码分析各1篇 |
-| 第26周 | 论文精读(4) + 源码收尾 | 完成DataLakehouse、Photon、Spanner三篇论文精读；源码阅读收尾总结 | 3篇论文读书笔记 + 源码阅读总结报告 |
-| 第27-28周 | 项目10前半段 | 调优攻坚：倾斜解决 + Shuffle优化 + UDF优化 | 每步优化对比数据 + 分析报告 |
-| 第29-30周 | 项目10后半段 | 调优攻坚：内存GC调优 + Cache策略对比 + 最终报告 | 调优Checklist + 完整调优报告 |
-| 第31-32周 | 开源贡献任务 | 寻找Issue → 提交PR → Code Review → 合入 | PR链接 + 社区互动记录 |
-| 第33-35周 | 综合冲刺 | 调优报告完善 + 源码分析文章精选集 + 论文答辩准备 | 所有L3交付物整理 |
-| 第36周 | L3结业考核 | 源码问答 + 论文答辩 + 调优实战 + 交叉面试 | 考核成绩单 |
-| 补充模块 | MLOps与AI工程 | ML流水线+特征工程+LLM+MLOps平台 | 80h | MLOps平台、RAG助手、特征存储 |
-| 补充模块 | 云原生大数据 | K8s+Spark/Flink on K8s+迁移项目 | 60h | K8s部署、云原生迁移报告 |
+| 第25周 | 论文精读(1) + Spark源码(1) | 完成GFS、MapReduce、BigTable三篇论文精读；阅读DataFrame API表层源码 | 3篇论文读书笔记 + 1篇DataFrame源码分析 |
+| 第26周 | 论文精读(2) + Spark源码(2) | 完成Dremel、RDD、Kafka三篇论文精读；深入Catalyst逻辑优化层 | 3篇论文读书笔记 + 1篇Catalyst优化Rule分析 |
+| 第27周 | 论文精读(3) + Flink/Kafka源码 | 完成Flink、Dynamo、Raft三篇论文精读；阅读Flink Checkpoint和Kafka Producer源码 | 3篇论文读书笔记 + Flink/Kafka源码分析各1篇 |
+| 第28周 | 论文精读(4) + 源码收尾 | 完成DataLakehouse、Photon、Spanner三篇论文精读；源码阅读收尾总结 | 3篇论文读书笔记 + 源码阅读总结报告 |
+| 第29-30周 | 项目10前半段 | 调优攻坚：倾斜解决 + Shuffle优化 + UDF优化 | 每步优化对比数据 + 分析报告 |
+| 第31-32周 | 项目10后半段 | 调优攻坚：内存GC调优 + Cache策略对比 + 最终报告 | 调优Checklist + 完整调优报告 |
+| 第33-34周 | 开源贡献任务 | 寻找Issue → 提交PR → Code Review → 合入 | PR链接 + 社区互动记录 |
+| 第35-37周 | 综合冲刺 | 调优报告完善 + 源码分析文章精选集 + 论文答辩准备 | 所有L3交付物整理 |
+| 第38周 | L3结业考核 | 源码问答 + 论文答辩 + 调优实战 + 交叉面试 | 考核成绩单 |
+| 补充模块 | MLOps与AI工程（80h） | ML流水线+特征工程+LLM+MLOps平台 | MLOps平台、RAG助手、特征存储 |
+| 补充模块 | 云原生大数据（60h） | K8s+Spark/Flink on K8s+迁移项目 | K8s部署、云原生迁移报告 |
+
+> **周次说明**：L2 阶段主线为第17-24周，L3 阶段从第25周开始。历史目录名（如 `第23-26周_论文与源码`）保留不改，以周次表为准。
 
 ---
 

@@ -20,6 +20,7 @@ tiktoken>=0.5.0
 # 可视化与分析
 matplotlib>=3.7.0
 psutil>=5.9.0
+scipy>=1.10.0
 
 # Jupyter 环境
 jupyter>=1.0.0
@@ -31,3 +32,15 @@ ipywidgets>=8.0.0
 
 # 可选：llama.cpp Python绑定
 # llama-cpp-python>=0.2.0
+
+# 可选：MLX (仅 Apple Silicon macOS)
+# mlx>=0.0.6
+# mlx-lm>=0.0.6
+
+# 可选：端侧 RAG 嵌入与向量检索
+# sentence-transformers>=2.2.0
+# chromadb>=0.4.0
+# sqlite-vss>=0.1.0
+
+# 可选：Qualcomm AI Hub (骁龙平台)
+# qai-hub>=0.0.1

@@ -12,8 +12,33 @@
 
 - [评分 Rubrics 总览](rubrics/README.md)
 - [答案材料索引](answers/README.md)
-- [结构化题库](../assessments/questions/l0_sample.json)
+
+### 结构化题库（按阶段）
+
+- [L0 题库](../assessments/questions/l0_sample.json)（Python/SQL/Linux/Git）
+- [L1 题库](../assessments/questions/l1_sample.json)（HDFS/MapReduce/Hive/Spark）
+- [L2 题库](../assessments/questions/l2_sample.json)（Kafka/Flink/DDIA/数据湖仓）
+- [L3 题库](../assessments/questions/l3_sample.json)（源码/论文/调优）
+- [L4 题库](../assessments/questions/l4_sample.json)（系统设计/架构/FinOps）
+- [L5 题库](../assessments/questions/l5_sample.json)（技术战略/组织建设/商业翻译）
+
+### 项目评分表（按阶段）
+
 - [L0 项目评分表](../assessments/rubrics/l0-project-rubric.md)
+- [L1 项目评分表](../assessments/rubrics/l1-project-rubric.md)
+- [L2 项目评分表](../assessments/rubrics/l2-project-rubric.md)
+- [L3 项目评分表](../assessments/rubrics/l3-project-rubric.md)
+- [L4 项目评分表](../assessments/rubrics/l4-project-rubric.md)
+- [L5 项目评分表](../assessments/rubrics/l5-project-rubric.md)
+
+### 考试/项目验收配置
+
+- [L0 项目考试](../assessments/exams/l0_project_exam.json)
+- [L1 项目考试](../assessments/exams/l1_project_exam.json)
+- [L2 项目考试](../assessments/exams/l2_project_exam.json)
+- [L3 项目考试](../assessments/exams/l3_project_exam.json)
+- [L4 项目考试](../assessments/exams/l4_project_exam.json)
+- [L5 项目考试](../assessments/exams/l5_project_exam.json)
 
 ## 课堂运营建议
 

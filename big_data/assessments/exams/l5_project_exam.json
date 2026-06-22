@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "id": "L5-PROJECT-EXAM",
+  "stage": "L5",
+  "duration_minutes": 480,
+  "sections": [
+    {"name": "技术战略（年度规划+技术雷达）", "points": 30, "rubric": "assessments/rubrics/l5-project-rubric.md"},
+    {"name": "组织建设（360 评估+团队指标）", "points": 30, "rubric": "assessments/rubrics/l5-project-rubric.md"},
+    {"name": "商业翻译（述职+ROI 量化）", "points": 25, "source": "assessments/questions/l5_sample.json"},
+    {"name": "行业影响（外部输出+开源贡献）", "points": 15, "rubric": "assessments/rubrics/l5-project-rubric.md"}
+  ]
+}

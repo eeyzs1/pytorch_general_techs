@@ -8,6 +8,7 @@
   - [1.2 剪枝（Pruning）](#12-剪枝pruning)
   - [1.3 知识蒸馏（Knowledge Distillation）](#13-知识蒸馏knowledge-distillation)
   - [1.4 低秩分解（Low-Rank Factorization）](#14-低秩分解low-rank-factorization)
+  - [1.5 超低比特量化（Sub-2-bit Quantization）](#15-超低比特量化sub-2-bit-quantization)
 - [2 高效推理架构（Efficient Inference Architecture）](#2-高效推理架构efficient-inference-architecture)
   - [2.1 KV Cache 优化](#21-kv-cache-优化)
   - [2.2 注意力机制优化](#22-注意力机制优化)
@@ -36,7 +37,7 @@
 - [8 端侧训练与个性化（On-Device Training & Personalization）](#8-端侧训练与个性化on-device-training--personalization)
   - [8.1 参数高效微调（PEFT）](#81-参数高效微调peft)
   - [8.2 端侧训练优化](#82-端侧训练优化)
-  - [8.3 个性化与持续适应](#83-个性化与持续适应)
+  - [8.3 端侧评估与个性化](#83-端侧评估与个性化)
 - [9 端到端实战与故障排查（E2E Deployment & Troubleshooting）](#9-端到端实战与故障排查e2e-deployment--troubleshooting)
   - [9.1 端到端部署流水线](#91-端到端部署流水线)
   - [9.2 故障排查与调试方法](#92-故障排查与调试方法)
@@ -45,6 +46,8 @@
   - [10.2 国产开源模型端侧部署](#102-国产开源模型端侧部署)
 - [11 课后练习与思考题（Exercises）](#11-课后练习与思考题exercises)
 - [12 评估指标体系（Evaluation Metrics）](#12-评估指标体系evaluation-metrics)
+- [13 端侧模型选型（2026 主流小模型）](#13-端侧模型选型2026-主流小模型)
+- [14 端侧 Agent 与新范式（2026 前沿）](#14-端侧-agent-与新范式2026-前沿)
 - [技术选型决策树](#技术选型决策树)
 - [总结](#总结)
 
@@ -205,6 +208,29 @@
 - **低秩重参数化（LoRA-style Factorization）**
   - 原理：冻结原始权重W，添加低秩增量 ΔW = AB，其中A∈R^{m×r}, B∈R^{r×n}。推理时可将AB合并回W，无额外推理开销。虽主要用于微调，但其低秩思想可用于压缩。
 
+### 1.5 超低比特量化（Sub-2-bit Quantization）
+
+> **前沿趋势（2025-2026）**：传统量化（INT8/INT4）已接近成熟，2025 年起，**1.58-bit 和 2-bit 量化**成为端侧部署的新前沿，目标是将 7B 模型压缩至 1-2GB，使手机能流畅运行。
+
+#### 1.5.1 BitNet 1.58-bit（三值量化）
+
+- **核心思想**：权重仅取 {-1, 0, +1} 三个值，即 1.58 bit（log₂3 ≈ 1.585）。矩阵乘法退化为加减法，完全消除乘法运算。
+- **训练方法**：从预训练 FP16 模型出发，通过量化感知训练（QAT）逐步将权重收敛到三值。关键技巧包括 LayerNorm 后量化、权重中心化预处理。
+- **硬件收益**：MatMul 计算量降低 10x+，内存带宽降低 4-6x。联发科天玑 9500 已原生支持 1.58-bit 推理加速。
+- **精度表现**：BitNet-b1.58-3B 在 MMLU 上与 FP16 Llama-2-3B 持平，部分任务超越。
+
+#### 1.5.2 2-bit 产业级量化（HY-1.8B-2Bit）
+
+- **腾讯混元 HY-1.8B-2Bit**（2026.02）：首个产业级 2-bit 端侧大模型，1.8B 参数仅占 ~600MB 内存，可在主流手机上流畅运行。
+- **技术要点**：分组量化（group size=64）+ 非均匀量化码本 + 残差补偿。通过 2-bit QAT 保持精度，在 CMMLU/CEval 上接近 4-bit 基线。
+- **1.25-bit Sherry**：结合 3:4 结构化稀疏（每 4 个权重保留 3 个非零），等效 1.25-bit，进一步压缩。
+
+#### 1.5.3 QAT 成为标准实践
+
+- **趋势转变**：2025 年前，量化以训练后量化（PTQ）为主流（AWQ/GPTQ）。2026 年起，Google Gemma 4、BitNet 等模型**原生采用 QAT 训练**，量化不再是"后处理"而是"训练的一部分"。
+- **Gemma 4 的 INT4 QAT**：训练阶段即模拟 INT4 量化噪声，最终模型在 INT4 推理时精度损失 <1%，远优于 PTQ 方案。
+- **端侧部署启示**：未来应优先选择原生量化训练的模型（如 Gemma 4 INT4 版本），而非对 FP16 模型做 PTQ。
+
 ---
 
 ## 2 高效推理架构（Efficient Inference Architecture）
@@ -242,6 +268,13 @@
 - **跨层KV共享（Cross-Layer KV Sharing）**
   - 原理：相邻层的KV表示高度相似，可共享同一份KV Cache。如CLA（Cross-Layer Attention）、YOCO等架构，将KV Cache占用减半。
 
+#### 2.1.4 KV Cache 向量量化（TurboQuant, 2026）
+
+- **TurboQuant（Google, 2026.03）**
+  - 原理：结合 PolarQuant（极坐标量化）和 QJL（Quantized Johnson-Lindenstrauss 投影），对 KV Cache 做向量级量化压缩。不同于标量量化（逐元素量化），向量量化以组为单位映射到码本，信息保留率更高。
+  - 效果：KV Cache 压缩 **6 倍**，精度损失近乎为零（<0.5% PPL 增加），在 H100 上实现 8 倍推理加速。
+  - 端侧意义：长上下文场景（如端侧 RAG、长文档摘要）的 KV Cache 内存瓶颈被大幅缓解，使手机能处理 32K+ 上下文。
+
 ---
 
 ### 2.2 注意力机制优化
@@ -274,6 +307,13 @@
   - 原理：少量token具有全局注意力（如CLS token），其余使用局部注意力。如Longformer。
 - **稀疏注意力模式（Sparse Attention Patterns）**
   - 原理：按固定模式（如strided、fixed pattern）选择性地计算部分注意力对，跳过大部分注意力计算。
+
+#### 2.2.4 多头潜在注意力（MLA, Multi-head Latent Attention）
+
+- **MLA（DeepSeek 首创，DeepSeek-V2/V3 采用）**
+  - 原理：将 Key/Value 投影到低维**潜在空间**（latent space），缓存压缩后的潜在向量而非原始 KV。推理时从潜在向量解压恢复 KV。KV Cache 压缩 **4-8 倍**。
+  - 与 GQA/MQA 的区别：GQA/MQA 通过减少 KV 头数压缩（有精度损失），MLA 通过低秩投影压缩（近乎无损）。
+  - 端侧价值：长上下文场景下 KV Cache 内存占用大幅降低，且推理质量不受影响。DeepSeek-V3 的 128K 上下文在端侧部署成为可能。
 
 ---
 
@@ -310,6 +350,22 @@
 - **自适应深度推理（Adaptive Depth Inference）**
   - 原理：根据输入难度动态决定推理深度，简单输入浅层退出，复杂输入深层推理。
 
+#### 2.3.4 结构化输出与语法约束（Structured Output & Grammar Constrained Decoding）
+
+> **基本原理**：在端侧场景中，LLM 常用于 function calling、信息抽取、JSON 生成等结构化任务。语法约束解码（Grammar Constrained Decoding）在解码阶段强制输出符合预定义语法（JSON Schema、正则表达式、BNF 文法）的 token 序列，避免无效输出和重试，显著降低端侧推理成本。
+
+- **GBNF 文法约束（llama.cpp）**
+  - 原理：llama.cpp 支持 GBNF（GGML BNF）文法定义，在每步解码时将不符合文法的 token 概率置零，保证输出 100% 合规。常用于 JSON 生成、function calling 参数填充
+  - 优势：无需微调模型，零精度损失，端侧开销极小（<5% 延迟增加）
+  - 示例：定义 JSON Schema 文法 → llama.cpp 自动生成合规 JSON，无需 retry
+- **Outlines / Guidance 库**
+  - 原理：通过在 logits 层面施加约束（掩码非法 token），引导模型生成符合特定格式的输出。Outlines 将正则/JSON Schema 编译为 FSM（有限状态机），在每步解码时用 FSM 确定合法 token 集合
+  - 端侧适用性：Outlines 支持 llama.cpp 后端，可与端侧量化模型配合使用
+- **Function Calling 端侧实现**
+  - 原理：通过 grammar 约束模型输出 function name + arguments 的 JSON 结构，端侧解析后调用本地 API（如日历、通讯录、传感器）
+  - 挑战：端侧小模型的 function calling 能力弱于大模型，需结合 prompt engineering + grammar 约束 + few-shot 示例
+- **token 节省效果**：结构化输出避免了"生成→解析失败→重试"的循环，在 function calling 场景可节省 30-60% 的 token 消耗，对端侧推理延迟和功耗有直接改善
+
 ---
 
 ## 3 高效模型架构设计（Efficient Model Architecture）
@@ -324,6 +380,8 @@
   - 原理：通过精心设计训练数据（高质量、高多样性）和训练策略，使小参数量模型（1B-3B）达到甚至超越更大模型的性能。代表：Phi系列、Gemma-2B、MiniCPM。
 - **深度与宽度的最优权衡**
   - 原理：研究表明，在相同参数预算下，更深更窄的网络比浅更宽的网络更适合语言建模任务。如MobileLLM采用深而窄的设计。
+  - **MobileLLM 深度洞察（Meta, 2024-2025）**：在 sub-1B（<10亿参数）规模下，**架构比参数量更重要**。125M/350M 参数模型采用 30-42 层深而窄的设计（hidden_size=576-1024），在零样本下游任务上超越同参数量的浅而宽模型 5-15%。关键发现：小模型需要"深度"来构建层次化表征，大模型则受益于"宽度"。
+  - **共享注意力层（DeepSeek 风格）**：相邻若干层共享同一组注意力权重（仅 FFN 独立），在保持深层推理能力的同时减少参数量。DeepSeek-V2 采用此设计，端侧部署时只需加载一份注意力权重。
 - **权重共享（Weight Sharing）**
   - **嵌入共享（Embedding Sharing / Tied Embeddings）**：输入嵌入层和输出lm_head共享权重矩阵，减少参数量。如GPT-2、Llama-3等采用此设计。
   - **跨层参数共享（Cross-Layer Parameter Sharing）**：多层Transformer共享相同的权重参数（如ALBERT风格的共享注意力权重和FFN权重），参数量大幅减少但层数不变，保留深层推理能力。端侧部署时共享权重只需加载一份，内存占用显著降低。
@@ -425,7 +483,12 @@
   - 高通Hexagon：V68 ISA，4x128 INT8 MAC，4MB SRAM，75 TOPS (8 Elite)，原生INT4支持
   - 苹果Neural Engine：数据流架构，16x128 INT8 MAC，~8MB SRAM (M4)，38 TOPS，FP16优化最佳
   - 华为昇腾：达芬奇架构3D Cube，16x16x16 Cube，2-8MB SRAM，128 TOPS (310P)
-  - 联发科APU：Cadence DSP+自研加速，可配置MAC阵列，2-4MB SRAM，45 TOPS (9400)
+  - 联发科APU：Cadence DSP+自研加速，可配置MAC阵列，2-4MB SRAM，45 TOPS (9400)，天玑9500原生支持1.58-bit
+- **2026年2nm芯片世代更新**
+  - 骁龙8 Elite Gen 5（2025Q4）：3nm→2nm工艺，Hexagon V69，~60 TOPS (INT8)，原生INT4/1.58-bit加速
+  - Apple A20（2025Q4）：2nm工艺，ANE 35+ TOPS，统一内存带宽提升至120 GB/s
+  - 联发科天玑9500（2026Q1）：2nm工艺，~50 TOPS，首款原生支持BitNet 1.58-bit推理的移动芯片
+  - 华为昇腾910C（2025）：5nm工艺，256 TOPS (INT8)，面向端云协同场景
 - **NPU内存层次与数据流**
   - DRAM（4-16GB，30-120 GB/s）→ DMA异步传输 → SRAM（256KB-8MB，>1 TB/s）→ MAC寄存器（4-32KB，>10 TB/s）
   - 关键洞察：NPU性能瓶颈通常不在MAC阵列计算能力，而在DRAM→SRAM的数据搬运
@@ -541,6 +604,56 @@
 - **常见陷阱**：动态shape（NPU编译失败）、算子不兼容（分解/替换/自定义算子）、量化格式不兼容（使用目标框架自带量化工具）、内存泄漏（KV Cache释放）、热节流（功耗管理）、并发安全（运行时线程安全）
 - **CI/CD集成**：自动导出→自动量化→精度验证→性能基准→打包发布
 - **版本管理**：模型版本、框架版本、配置版本、A/B测试
+
+#### 5.2.15 MLX (Apple Silicon 原生框架)
+
+- **核心定位**：Apple 官方开源的机器学习框架，专为 Apple Silicon（M1-M4/M7-A18 Pro）统一内存架构设计，是 macOS/iOS 端侧 LLM 部署的事实标准
+- **统一内存优势**：MLX 直接利用 Apple Silicon 的统一内存架构（CPU/GPU/ANE 共享同一物理内存），无需 CPU↔GPU 数据拷贝。M2 Max 96GB 统一内存可加载 70B INT4 模型，这是同价位 GPU 无法实现的
+- **关键设计**：
+  - **惰性计算（Lazy Evaluation）**：MLX 采用类似 PyTorch 的 eager 接口，但内部构建计算图并惰性执行，支持自动算子融合
+  - **动态图 + 即时编译**：运行时通过 Metal Performance Shaders 生成优化的 GPU kernel，无需预编译
+  - **量化支持**：支持 INT4/INT8/FP16 混合精度量化，`mlx-lm` 库提供一键量化工具
+  - **模型格式**：使用 safetensors 存储权重，配置使用 JSON，无需专用二进制格式
+- **mlx-lm 工具链**：
+  - `mlx_lm.load()` → 加载 HuggingFace 模型并自动转换
+  - `mlx_lm.quantize()` → AWQ/RTN 量化
+  - `mlx_lm.generate()` → 流式生成，支持 KV Cache
+  - `mlx_lm.server` → OpenAI 兼容 API 服务
+- **vs Core ML**：Core ML 面向移动端 ANE 优化但 LLM 支持有限（State API 复杂）；MLX 面向 Apple Silicon GPU，LLM 生态更成熟（支持 Llama/Qwen/Mistral 等）。iOS 18.2+ 的 Apple Intelligence 部分功能基于 MLX 技术栈
+- **性能参考**：M4 Max 运行 Llama-3-8B INT4 约 40-50 tokens/s；M2 Ultra 运行 Llama-3-70B INT4 约 8-12 tokens/s
+
+#### 5.2.16 Qualcomm AI Hub
+
+- **核心定位**：高通官方的端侧 AI 模型分发与部署平台，简化 QNN（Qualcomm Neural Network）SDK 的使用复杂度
+- **核心功能**：
+  - **模型仓库**：提供预优化的模型库（LLM/CV/Audio），已针对骁龙平台预编译
+  - **一键部署**：`qai-hub` CLI 工具支持从 HuggingFace 模型到骁龙 NPU 部署的完整流程
+  - **云端编译**：在 Qualcomm 云端将模型编译为 QNN 图，避免本地安装 QNN SDK
+  - **设备管理**：支持 USB/WiFi 连接的真机调试和性能分析
+- **LLM 部署流程**：
+  1. `qai-hub get-model` → 从模型仓库获取预优化 LLM
+  2. `qai-hub submit-job` → 在云端编译为 QNN 图（指定目标芯片如 Snapdragon 8 Gen 3）
+  3. `qai-hub download-job` → 下载编译后的模型到设备
+  4. 通过 QNN Runtime 或 llama.cpp QNN 后端执行推理
+- **与 ExecuTorch 的关系**：ExecuTorch 的 QNN Delegate 底层调用 QNN SDK；AI Hub 提供更上层的封装（模型管理、云端编译、性能分析），但灵活性不如 ExecuTorch 直接编程
+- **适用场景**：快速原型验证（用预编译模型）、生产部署（用云端编译优化）、性能基准（用 AI Hub 的 profiling 工具）
+
+#### 5.2.17 框架对比总结（更新）
+
+| 框架 | 目标 | LLM支持 | NPU支持 | 量化 | 最佳场景 |
+|------|------|---------|---------|------|----------|
+| **llama.cpp/GGUF** | CPU通用 | ★★★★★ | ★ | Q2-Q8 K-Quant | CPU推理, 快速原型 |
+| **MLC-LLM** | CPU/GPU | ★★★★ | ★★ | q4f16_1 | GPU推理优化 |
+| **ExecuTorch** | CPU/NPU/GPU | ★★★ | ★★★★ | INT8/INT4 | PyTorch生态, 移动端多后端 |
+| **ONNX Runtime** | CPU/GPU/NPU | ★★★ | ★★★ | INT8 (QDQ) | 通用推理, NPU delegate |
+| **Core ML** | ANE/GPU/CPU | ★★★ | ★★★★★ | FP16/INT8 | iOS/macOS, ANE加速 |
+| **MLX** | Apple GPU | ★★★★★ | ★★ | INT4/INT8/FP16 | macOS Apple Silicon, 大模型 |
+| **Qualcomm AI Hub** | 骁龙NPU | ★★★ | ★★★★★ | INT4/INT8 | 骁龙平台快速部署 |
+| **NCNN** | ARM CPU | ★★ | ★ | INT8 | CV模型, ARM极致优化 |
+| **MNN** | CPU/GPU/NPU | ★★★ | ★★★ | INT8/INT4 | 移动端多模态 |
+| **CoreAI** (2026) | Apple全栈 | ★★★★★ | ★★★★★ | INT4/INT8/FP16 | iOS/macOS, 替代Core ML, 比MLX快2.47x |
+| **LiteRT-LM** (2026) | Android CPU/NPU | ★★★★ | ★★★★ | INT4/INT8 | TFLite演进版, 内存降30%+ |
+| **Ollama** | CPU/GPU | ★★★★★ | ★ | Q4_K_M等 | 极简部署, 一行命令运行模型 |
 
 ### 5.3 硬件感知优化
 
@@ -693,6 +806,14 @@
   - 原理：根据输入复杂度和端侧负载动态决定推理在端侧还是云端执行。简单请求端侧处理，复杂请求路由到云端。
 - **推测验证协同（Edge-Cloud Speculative Decoding）**
   - 原理：端侧小模型作为draft model生成候选token，云端大模型并行验证，减少云端计算量和通信轮次。
+- **端侧 RAG（On-Device Retrieval-Augmented Generation）**
+  - 原理：在端侧设备上构建轻量级检索增强生成管线，从本地知识库（文档、笔记、邮件等）检索相关片段，注入 LLM prompt 生成回答。全程数据不出端，兼顾隐私和个性化
+  - **端侧向量数据库**：使用 SQLite + sqlite-vss 或 ChromaDB 嵌入式模式存储文档向量，支持万级文档的毫秒级检索。向量维度通常压缩到 384-768（如 all-MiniLM-L6-v2 嵌入模型）
+  - **嵌入模型部署**：端侧部署轻量嵌入模型（如 MiniLM 23M 参数、BGE-small 33M 参数），FP16 约 50-70MB，INT8 约 25-35MB
+  - **分块策略**：端侧文档通常较短（笔记/邮件），采用 256-512 token 固定分块 + 50 token 重叠，避免跨块语义断裂
+  - **上下文管理**：端侧 LLM 上下文窗口有限（通常 2K-4K），需严格控制检索片段数量（top-2 到 top-5）和长度（每片段 200-300 token）
+  - **增量索引**：用户数据持续产生，需支持增量插入和索引更新。sqlite-vss 支持 INSERT 触发器自动更新向量索引
+  - **隐私优势**：所有检索和生成在端侧完成，用户数据不上传云端，满足 GDPR/CCPA 合规要求
 
 ### 7.2 多模态端侧部署
 
@@ -704,6 +825,10 @@
   - 原理：优化视觉特征和语言特征的融合方式，减少跨模态交互的计算开销。如使用更轻量的投影层、压缩视觉token数量。
 - **音频/语音模型端侧部署**
   - 原理：Whisper等语音模型的端侧量化与部署，流式处理优化，低延迟语音交互。
+- **多模态 Token 剪枝（Token Pruning, 2025-2026）**
+  - **视觉 Token 剪枝（IDPruner）**：视觉语言模型中，ViT 产生的视觉 token 数量庞大（如 576 个），但很多 token 对当前任务贡献低。IDPruner 借鉴最大边际相关性（MMR）算法，动态选择与文本 query 最相关的视觉 token 子集，将视觉 token 减少 50-70%，推理速度提升 1.5-2x，精度损失 <1%。
+  - **音频 Token 合并（Samp）**：将相邻的音频 token 合并为代表性 token，减少音频序列长度，适用于端侧 Whisper/音频 LLM 部署。
+  - **端侧意义**：多模态模型的核心瓶颈是视觉/音频 encoder 产生的 token 过多，token 剪枝使手机能流畅运行多模态推理。
 
 ### 7.3 隐私与安全
 
@@ -855,7 +980,7 @@ Chrome 126+ 直接内置Gemini Nano模型（约3B参数），通过Prompt API提
 - **梯度检查点（Gradient Checkpointing）**
   - 原理：前向传播时不保存中间激活值，仅保存关键检查点的输出，反向传播时从检查点重新计算所需激活。以约30%的额外计算换取60%+的内存节省，是端侧训练最关键的内存优化技术之一。
 
-### 8.3 个性化与持续适应
+### 8.3 端侧评估与个性化
 
 > **目的**：端侧模型需要持续适应用户的个性化需求，同时避免灾难性遗忘和隐私泄漏。
 
@@ -1154,6 +1279,16 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 1. 端侧NPU的Ridge Point（1000+ FLOP/B）远高于GPU（~150 FLOP/B），这对部署策略有何影响？
 2. 芯片的标称TOPS（峰值算力）和实际LLM推理性能之间为什么存在巨大差距？
 
+### 第6章 模型格式与序列化
+
+**动手题**：
+1. 将同一个PyTorch模型分别导出为ONNX、SafeTensors和TorchScript格式，对比文件大小、加载速度和跨平台兼容性
+2. 实现一个简单的模型版本管理器，支持版本号校验、哈希验证和A/B测试流量分配
+
+**思考题**：
+1. GGUF格式为什么能在端侧部署中成为事实标准？其mmap零拷贝加载的设计相比SafeTensors有何优劣？
+2. 在模型迭代频繁的生产环境中，如何设计模型版本管理策略来平衡存储成本和回滚效率？
+
 ### 第7章 端云协同
 
 **思考题**：
@@ -1169,6 +1304,32 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 1. 端侧微调带来个性化能力的同时，为什么可能导致灾难性遗忘？如何检测和防止？
 2. 联邦学习中"梯度"传输替代"数据"传输，差分隐私如何防止梯度泄漏用户信息？
 
+### 第9章 端到端实战与故障排查
+
+**动手题**：
+1. 按照第9.1节的标准流程，将一个1.5B模型从PyTorch导出到GGUF并在llama.cpp上运行，记录每一步的检查点验证结果
+2. 人为制造一个量化精度异常（如对敏感层使用过大group_size），使用逐层余弦相似度方法定位并修复问题
+
+**思考题**：
+1. 在端到端部署流水线中，量化、导出、编译三个阶段各有哪些常见的失败模式？如何建立自动化检测机制？
+2. NPU部署时CPU回退代价高昂，如何在编译期就预测和最小化回退算子数量？
+
+### 第10章 中国国产硬件生态
+
+**思考题**：
+1. 华为昇腾的OM模型是预编译格式（编译期固定shape），这与端侧LLM推理的动态序列长度需求如何协调？有哪些工程解决方案？
+2. 国产NPU（昇腾/寒武纪/地平线）在LLM算子支持度上与高通Hexagon存在差距，这对国产模型（如Qwen、DeepSeek）的端侧部署有何影响？如何弥补？
+
+### 第12章 评估指标体系
+
+**动手题**：
+1. 设计一个端侧部署的综合评估打分系统，为性能（TTFT/ITL/吞吐）、内存、功耗、精度四个维度分配权重，并对两个候选方案打分比较
+2. 实现一个自动化基准测试脚本，测量模型在不同输入长度（128/256/512/1024）下的TTFT和ITL，并绘制延迟-序列长度曲线
+
+**思考题**：
+1. 在交互式对话场景和后台批处理场景中，TTFT和吞吐量哪个更重要？如何根据场景调整评估指标的权重？
+2. 能效比（tokens/J）在电池供电设备上是关键指标，但测量它需要硬件功耗计。在没有专用硬件的情况下，如何通过软件手段估算能效比？
+
 ### 综合实战
 
 1. 独立完成一个完整的端侧部署项目：选择3B模型 → AWQ量化 → 导出GGUF → llama.cpp部署 → 基准测试 → 撰写部署报告
@@ -1179,7 +1340,7 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 
 > **目的**：系统化的评估指标是端侧部署技术选型和优化的基础。不同应用场景对精度、延迟、内存、功耗的优先级不同，需要综合评估。
 
-### 9.1 延迟指标
+### 12.1 延迟指标
 
 | 指标 | 定义 | 典型目标 |
 |------|------|---------|
@@ -1187,14 +1348,14 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 | **Token间延迟（ITL, Inter-Token Latency）** | 生成连续两个token之间的延迟，反映decode阶段效率 | 实时对话 < 50ms/token |
 | **端到端延迟（E2E Latency）** | 从输入发送到完整输出生成的总延迟 | 取决于输出长度和场景 |
 
-### 9.2 吞吐指标
+### 12.2 吞吐指标
 
 | 指标 | 定义 | 典型参考 |
 |------|------|---------|
 | **吞吐量（Throughput）** | 单位时间生成的token数（tokens/s），受batch size和序列长度影响 | 骁龙8 Gen3 INT4 7B模型约 10-20 tokens/s |
 | **并发请求数** | 同时处理的推理请求数量，反映服务能力 | 端侧通常1-4个并发 |
 
-### 9.3 资源指标
+### 12.3 资源指标
 
 | 指标 | 定义 | 典型参考 |
 |------|------|---------|
@@ -1203,7 +1364,7 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 | **功耗（Power）** | 推理过程中的芯片功耗 | 移动端NPU推理约 2-5W |
 | **能效比（Energy Efficiency）** | 每焦耳生成的token数（tokens/J），衡量能量利用效率 | NPU推理能效比远高于CPU/GPU |
 
-### 9.4 精度指标
+### 12.4 精度指标
 
 | 指标 | 定义 | 用途 |
 |------|------|------|
@@ -1211,7 +1372,7 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 | **下游任务准确率** | 在具体任务（MMLU、HumanEval等）上的表现 | 评估实际应用能力 |
 | **量化前后差异** | 量化模型与原始模型输出的KL散度或余弦相似度 | 量化算法选择的参考 |
 
-### 9.5 典型场景参考数据
+### 12.5 典型场景参考数据
 
 | 模型 | 量化 | 硬件平台 | 推理速度 | 内存占用 | Perplexity变化 |
 |------|------|---------|---------|---------|---------------|
@@ -1225,6 +1386,78 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 
 ---
 
+## 13 端侧模型选型（2026 主流小模型）
+
+> **目的**：2025-2026 年涌现了大量高质量小模型（SLM），选对模型是端侧部署成功的第一步。本章对比当前主流的端侧可用模型，提供选型参考。
+
+### 13.1 纯文本模型
+
+| 模型 | 参数量 | 量化后体积 | 上下文 | 特点 | 端侧推荐场景 |
+|------|--------|-----------|--------|------|-------------|
+| **Gemma 4 E2B** | 2B | ~1.2GB (INT4) | 8K | Google原生QAT训练，INT4精度极佳 | Android通用对话 |
+| **Gemma 4 E4B** | 4B | ~2.2GB (INT4) | 8K | "Agent原生"设计，工具调用强 | 端侧Agent/工具调用 |
+| **Phi-4** | 14B | ~7GB (INT4) | 16K | GPQA超越GPT-4o，推理能力强 | 高端设备复杂推理 |
+| **Qwen3-4B** | 4B | ~2.3GB (INT4) | 32K | 中文最强4B，支持长上下文 | 中文场景首选 |
+| **Qwen3-8B** | 8B | ~4.5GB (INT4) | 128K | 支持超长上下文+MLA | 长文档处理 |
+| **MiniCPM 3.0** | 4B | ~2.2GB (INT4) | 32K | 多模态支持，中文优秀 | 多模态端侧 |
+| **Llama 3.2 1B** | 1B | ~0.7GB (INT4) | 128K | 极轻量，低端设备可用 | 低端手机/手表 |
+| **Llama 3.2 3B** | 3B | ~1.7GB (INT4) | 128K | 生态最成熟，社区支持广 | 通用部署 |
+| **DeepSeek-Coder-V2-Lite** | 16B MoE(2.4B激活) | ~3GB (INT4) | 128K | 代码补全专精 | 端侧代码助手 |
+| **HY-1.8B-2Bit** | 1.8B | ~0.6GB (2-bit) | 4K | 2-bit量化，极致压缩 | 低端设备 |
+
+### 13.2 多模态模型
+
+| 模型 | 参数量 | 模态 | 特点 |
+|------|--------|------|------|
+| **Gemma 4 多模态版** | 4B | 文+图 | 首款手机可跑的多模态大模型 |
+| **MiniCPM-V 3.0** | 4B+ViT | 文+图 | 中文多模态优秀，OCR能力强 |
+| **Phi-3-Vision** | 4B+ViT | 文+图 | 文档理解强，适合办公场景 |
+
+### 13.3 选型决策建议
+
+- **中文场景**：Qwen3-4B（通用）/ MiniCPM 3.0（多模态）
+- **英文场景**：Gemma 4 E2B（轻量）/ Phi-4（高性能设备）
+- **代码补全**：DeepSeek-Coder-V2-Lite
+- **Agent/工具调用**：Gemma 4 E4B
+- **低端设备（<4GB可用内存）**：Llama 3.2 1B / HY-1.8B-2Bit
+- **长上下文（>32K）**：Qwen3-8B（128K + MLA）
+
+---
+
+## 14 端侧 Agent 与新范式（2026 前沿）
+
+> **趋势**：2026 年端侧 AI 从"单轮问答"进化为"多轮 Agent"——模型能自主调用工具、规划步骤、执行任务，全程在设备上完成，无需云端。
+
+### 14.1 端侧 Agent 架构
+
+- **核心能力**：Function Calling（工具调用）+ 多轮规划 + 状态管理
+- **端侧挑战**：
+  - **上下文管理**：Agent 多轮对话的 KV Cache 持续增长 → 需 TurboQuant/MLA 压缩
+  - **工具调用延迟**：每步需生成结构化 JSON → 需 GBNF 语法约束解码（见 2.3.4）
+  - **内存预算**：Agent 框架本身占用内存 → 需极小模型（<4B）
+- **代表模型**：Gemma 4 E4B（Agent 原生设计）、Qwen3（强 Function Calling）
+
+### 14.2 端侧 RAG 与 Agent 结合
+
+- **架构**：用户 Query → 端侧 RAG 检索知识 → Agent 规划 → 工具调用 → 生成回答
+- **全链路端侧**：向量检索（SQLite-VSS/ChromaDB）+ LLM 推理 + 工具执行，全程离线
+- **应用场景**：离线智能助手、隐私敏感的文档问答、车载语音 Agent
+
+### 14.3 联邦学习与端侧持续进化
+
+- **联邦学习（Federated Learning）**：多设备协同训练，梯度聚合在云端，原始数据不出端
+- **2026 进展**：Google 联邦学习框架支持 LLM 的 LoRA 参数联邦聚合，实现端侧模型持续个性化
+- **端侧 Agent 自进化**：Agent 在使用中积累经验（成功/失败的轨迹），通过端侧 LoRA 微调持续优化
+
+### 14.4 部署工具生态（2026 更新）
+
+- **Ollama**：一行命令运行模型（`ollama run gemma4`），支持模型融合、GPU 内存共享，端侧原型开发首选
+- **LM Studio**：图形界面管理模型，支持 GGUF/MLX 多格式，适合非技术用户
+- **Apple CoreAI**（WWDC 2026）：替代 Core ML 的统一 AI 推理框架，比 MLX 快 2.47x，iOS/macOS 开发者首选
+- **Google LiteRT-LM**：TFLite 演进版，2026.03 更新降内存 30%+，Android 端 LLM 部署官方方案
+
+---
+
 ## 技术选型决策树
 
 ```
@@ -1235,17 +1468,18 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 │   │   ├── W4A16：AWQ/GPTQ（GPU端侧）
 │   │   ├── W8A8：SmoothQuant（CPU/NPU端侧）
 │   │   ├── FP8：E4M3/E5M2（H100/RTX 4090+等新硬件）
-│   │   └── W4A4：QuIP#/AQLM（极致压缩）
+│   │   ├── W4A4：QuIP#/AQLM（极致压缩）
+│   │   └── 1.58-bit/2-bit：BitNet/HY-2Bit（2026前沿, 极致压缩）
 │   ├── 剪枝（结构化剪枝优先）
 │   └── 蒸馏（需要训练资源）
 │
 ├── 推理太慢？ → 推理优化 (第2章)
 │   ├── Prefill慢 → Flash Attention / 批量优化
 │   ├── Decode慢 → 投机解码 / 量化 / KV Cache优化
-│   └── 长序列慢 → 稀疏注意力 / SSM / 滑动窗口
+│   └── 长序列慢 → 稀疏注意力 / SSM / 滑动窗口 / MLA / TurboQuant
 │
 ├── 内存不够？ → 内存优化 (第4章)
-│   ├── KV Cache太大 → KV量化 / PagedAttention / 滑动窗口
+│   ├── KV Cache太大 → KV量化 / PagedAttention / 滑动窗口 / TurboQuant(6x压缩)
 │   ├── 权重太大 → 量化 + 权重按需加载
 │   └── 峰值内存高 → 激活重计算 / 内存复用
 │
@@ -1255,17 +1489,29 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 │   └── Adapter / Prefix Tuning
 │
 ├── 硬件适配？ → 部署框架选择 (第5章)
-│   ├── iOS → Core ML / MLC-LLM
-│   ├── Android (高通) → QNN / ExecuTorch / MNN
-│   ├── Android (联发科) → NeuroPilot / MNN
+│   ├── iOS/macOS → CoreAI(2026, 推荐) / MLX / Core ML
+│   ├── Android (高通) → QNN / ExecuTorch / MNN / LiteRT-LM
+│   ├── Android (联发科) → NeuroPilot / MNN / LiteRT-LM
 │   ├── 国产NPU (第10章)
 │   │   ├── 华为昇腾 → CANN / AMCT
 │   │   ├── 寒武纪 → MagicMind
 │   │   ├── 地平线 → HBDK
 │   │   └── 瑞芯微 → RKNN
-│   ├── 通用CPU → llama.cpp
+│   ├── 通用CPU → llama.cpp / Ollama(极简部署)
 │   ├── 浏览器端 → WebLLM / Transformers.js (第7.6节)
 │   └── NVIDIA GPU → TensorRT-LLM
+│
+├── 选什么模型？ → 模型选型 (第13章)
+│   ├── 中文场景 → Qwen3-4B / MiniCPM 3.0
+│   ├── 英文场景 → Gemma 4 E2B / Phi-4
+│   ├── 代码补全 → DeepSeek-Coder-V2-Lite
+│   ├── Agent/工具调用 → Gemma 4 E4B
+│   └── 低端设备 → Llama 3.2 1B / HY-1.8B-2Bit
+│
+├── 需要 Agent 能力？ → 端侧 Agent (第14章)
+│   ├── 工具调用 → GBNF语法约束 + Function Calling
+│   ├── 知识增强 → 端侧 RAG (第7.1节)
+│   └── 持续进化 → 联邦学习 + LoRA
 │
 ├── 部署出问题？ → 故障排查 (第9.2节)
 │   ├── OOM → 量化/小模型/KV管理
@@ -1338,9 +1584,18 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 | 7.1 | 端云协同推理 | [07_edge_cloud/7.1_edge_cloud_inference.ipynb](07_edge_cloud/7.1_edge_cloud_inference.ipynb) |
 | 7.2 | 多模态部署 | [07_edge_cloud/7.2_multimodal_deployment.ipynb](07_edge_cloud/7.2_multimodal_deployment.ipynb) |
 | 7.3 | 隐私安全 | [07_edge_cloud/7.3_privacy_security.ipynb](07_edge_cloud/7.3_privacy_security.ipynb) |
-| 7.4 | 端侧监控 | [07_edge_cloud/7.4_edge_monitoring.ipynb](07_edge_cloud/7.4_edge_monitoring.ipynb) |
+| 7.4 | 端侧推理服务 | [07_edge_cloud/7.4_edge_monitoring.ipynb](07_edge_cloud/7.4_edge_monitoring.ipynb) |
 | 8.1 | PEFT | [08_on_device_training/8.1_peft.ipynb](08_on_device_training/8.1_peft.ipynb) |
 | 8.2 | 训练优化 | [08_on_device_training/8.2_training_optimization.ipynb](08_on_device_training/8.2_training_optimization.ipynb) |
-| 8.3 | 端侧评估 | [08_on_device_training/8.3_on_device_eval.ipynb](08_on_device_training/8.3_on_device_eval.ipynb) |
+| 8.3 | 端侧评估与个性化 | [08_on_device_training/8.3_on_device_eval.ipynb](08_on_device_training/8.3_on_device_eval.ipynb) |
 | 9.1 | 端到端流水线 | [09_end_to_end/9.1_end_to_end_deployment.ipynb](09_end_to_end/9.1_end_to_end_deployment.ipynb) |
 | 9.2 | 故障排查 | [09_end_to_end/9.2_troubleshooting_debug.ipynb](09_end_to_end/9.2_troubleshooting_debug.ipynb) |
+| 10.1 | 国产NPU部署实践 | 见本文档第10章 |
+| 10.2 | 国产开源模型端侧部署 | 见本文档第10章 |
+| 11 | 课后练习与思考题 | [exercises_solutions.md](exercises_solutions.md) |
+| 12.1-12.5 | 评估指标体系 | 见本文档第12章 |
+| 13 | 端侧模型选型（2026） | 见本文档第13章 |
+| 14 | 端侧 Agent 与新范式 | 见本文档第14章 |
+| - | 综合实战项目 | [comprehensive_projects.md](comprehensive_projects.md) |
+| - | 硬件实操路线图 | [hardware_roadmap.md](hardware_roadmap.md) |
+| - | 趣味科普指南（非技术读者） | [fun_guide_for_everyone.md](fun_guide_for_everyone.md) |

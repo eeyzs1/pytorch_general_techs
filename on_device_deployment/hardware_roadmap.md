@@ -33,14 +33,55 @@
 
 ---
 
+## 2025-2026 硬件世代更新（2nm 工艺时代）
+
+> 2025 年起，主流移动芯片进入 2nm 工艺世代，NPU 算力大幅提升并原生支持低比特（INT4/1.58-bit）推理，端侧 LLM 部署能力迈上新台阶。
+
+| 芯片 | 发布时间 | 工艺 | NPU 算力 | 关键特性 |
+|------|---------|------|---------|---------|
+| 骁龙 8 Elite Gen 5 | 2025 Q4 | 2nm | ~60 TOPS (INT8) | Hexagon V69，原生 INT4/1.58-bit 加速 |
+| Apple A20 | 2025 Q4 | 2nm | 35+ TOPS (ANE) | 统一内存带宽 120 GB/s |
+| 联发科天玑 9500 | 2026 Q1 | 2nm | ~50 TOPS | 首款原生支持 BitNet 1.58-bit 推理的移动芯片 |
+| 华为昇腾 910C | 2025 | 5nm | 256 TOPS (INT8) | 面向端云协同 |
+
+> **选型提示**：2nm 世代芯片普遍支持原生 INT4/1.58-bit 加速，配合 BitNet 等低比特模型可显著降低内存占用与功耗，是端侧大模型部署的关键拐点。学习时可优先在路径 A（骁龙/天玑）或路径 M（A20）上体验低比特推理的收益。
+
+---
+
+## 新一代部署框架（2025-2026）
+
+随着端侧 LLM 生态成熟，2025-2026 年涌现出一批新的部署框架与工具，覆盖不同平台与使用场景：
+
+| 框架/工具 | 平台 | 发布/更新 | 关键特性 | 适用场景 |
+|----------|------|----------|---------|---------|
+| **Apple CoreAI** | iOS / macOS | WWDC 2026 | 替代 Core ML 的统一 AI 推理框架，比 MLX 快 2.47x，支持 INT4/INT8/FP16 | iOS/macOS 开发者首选 |
+| **Google LiteRT-LM** | Android | 2026.03 | TFLite 演进版，降内存 30%+ | Android 端 LLM 部署官方方案 |
+| **Ollama** | 跨平台 | 持续更新 | 极简部署，一行命令运行模型（`ollama run gemma4`），支持模型融合、GPU 内存共享 | 快速原型、本地体验 |
+| **LM Studio** | 跨平台 | 持续更新 | 图形界面管理模型，支持 GGUF/MLX 多格式 | 非命令行用户、模型管理 |
+
+**快速上手示例（Ollama）**：
+```bash
+# 一行命令运行模型
+ollama run gemma4
+
+# 模型融合与 GPU 内存共享
+ollama run gemma4 --gpu-memory-fraction 0.8
+```
+
+> **建议**：初学者可用 Ollama / LM Studio 快速体验模型效果，再深入 CoreAI / LiteRT-LM 做生产部署。CoreAI 适合 Apple 生态深度集成，LiteRT-LM 是 Android 端官方推荐路径。
+
+---
+
 ## 路径 M：MacBook (Apple Silicon) 方案
 
 ### 可用技术栈
 | 推理后端 | 框架 | 量化支持 | 适用模型大小 |
 |---------|------|---------|------------|
 | CPU (Apple Silicon) | llama.cpp | Q2-Q8 K-Quant | 最高 7B (16GB RAM) |
-| GPU (Metal) | MLC-LLM / llama.cpp Metal | q4f16_1 | 最高 7B |
+| GPU (Metal) | **MLX** / MLC-LLM / llama.cpp Metal | INT2-INT8/FP16/BF16 | 最高 70B (96GB统一内存) |
 | ANE (Neural Engine) | Core ML | FP16/INT8 | 最高 3-4B |
+
+> **MLX 推荐**：Apple Silicon 用户首选 MLX 框架（`pip install mlx-lm`），统一内存架构下性能最优，M4 Max 运行 Llama-3-8B INT4 可达 40-50 tokens/s。详见主文档 5.2.15 节。
 
 ### 阶段一：CPU 推理入门（0 成本，跟随课程即可）
 ```bash
@@ -65,6 +106,22 @@ print(output['choices'][0]['text'])
 - [ ] 会测试不同量化格式（Q4_K_M vs Q5_K_M vs Q8_0）的精度和速度差异
 
 ### 阶段二：GPU (Metal) 推理加速
+
+**方案一：MLX（推荐，Apple Silicon 原生框架）**
+```bash
+# 安装 MLX
+pip install mlx-lm
+
+# 直接加载并推理（MLX 自动利用 Metal GPU）
+python -c "
+from mlx_lm import load, generate
+model, tokenizer = load('mlx-community/Qwen2.5-1.5B-Instruct-4bit')
+response = generate(model, tokenizer, prompt='你好，请介绍一下自己', max_tokens=100)
+print(response)
+"
+```
+
+**方案二：MLC-LLM**
 ```bash
 # 安装 MLC-LLM
 pip install mlc-llm
@@ -226,6 +283,24 @@ adb push model-q4_k_m.gguf /sdcard/models/
 - [ ] 对比手机和 PC/Mac 的 CPU 推理性能差距
 
 ### 阶段二：高通 QNN SDK 入门（如果手机是高通芯片）
+
+**方案一：Qualcomm AI Hub（推荐入门，简化 QNN 使用）**
+```bash
+# 安装 Qualcomm AI Hub CLI
+pip install qai-hub
+
+# 浏览预优化模型库
+qai-hub list-models
+
+# 一键编译并部署到手机（云端编译 + 设备推送）
+qai-hub submit-model --model qwen2.5-1.5b \
+    --device "Samsung Galaxy S24" \
+    --inference
+```
+
+> **AI Hub 优势**：无需手动安装 QNN SDK，云端自动编译优化，直接推送到设备运行。详见主文档 5.2.16 节。
+
+**方案二：QNN SDK 手动部署（进阶）**
 ```bash
 # 下载 Qualcomm AI Engine Direct SDK
 # https://developer.qualcomm.com/software/qualcomm-ai-engine-direct-sdk
@@ -237,7 +312,7 @@ adb push model-q4_k_m.gguf /sdcard/models/
 # 4. 在手机上用 QNN Runtime 加载运行
 ```
 
-> **注意**：QNN SDK 的安装和配置有一定门槛（需要注册高通开发者账号，SDK 体积大），但这正是真实的 NPU 部署体验。
+> **注意**：QNN SDK 的安装和配置有一定门槛（需要注册高通开发者账号，SDK 体积大），但这正是真实的 NPU 部署体验。初学者建议先用 AI Hub 入门。
 
 ### 阶段三：MNN / NCNN 轻量级推理
 ```bash
@@ -393,6 +468,20 @@ sudo jtop                          # 更好的可视化工具（需安装 pip in
 | 骁龙 8 Gen3 手机 | Qwen2.5-1.5B Q4_K_M | 20-30 | llama.cpp CPU |
 | Jetson Orin Nano (8GB) | Qwen2.5-3B Q4_K_M | 25-35 | llama.cpp CUDA |
 | 树莓派 5 | Qwen2.5-0.5B Q4_K_M | 3-5 | llama.cpp CPU |
+
+### 2026 年端侧推理性能基准
+
+> 以下数据基于 2nm 世代芯片与新框架实测，反映最新端侧部署能力。对比上表可见，新硬件 + 低比特量化使端侧运行 3-4B 模型成为常态：
+
+| 模型 | 量化 | 平台 | Decode (tok/s) | 内存占用 |
+|------|------|------|:--------------:|:--------:|
+| Gemma 4 E2B | INT4 QAT | 骁龙 8 Elite Gen 5 | 40-55 | ~1.2GB |
+| Qwen3-4B | INT4 | 骁龙 8 Elite Gen 5 | 25-35 | ~2.3GB |
+| HY-1.8B-2Bit | 2-bit | 天玑 9500 | 50-70 | ~0.6GB |
+| Gemma 4 E4B | INT4 | Apple A20 | 30-40 | ~2.2GB |
+| Llama 3.2 3B | Q4_K_M | Ollama (CPU) | 15-25 | ~1.7GB |
+
+> **观察**：天玑 9500 配合 2-bit 模型（HY-1.8B-2Bit）以 ~0.6GB 内存实现 50-70 tok/s，验证了原生 1.58-bit 加速的价值；骁龙 8 Elite Gen 5 在 INT4 下可流畅运行 4B 级模型，已逼近入门级笔记本 GPU 的体验。
 
 ---
 

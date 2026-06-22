@@ -1,6 +1,9 @@
 import json
+import os
 
-path = r"e:\AI_Generated_Projects\pytorch_general_techs\on_device_deployment\09_end_to_end\9.2_troubleshooting_debug.ipynb"
+# 使用相对路径，自动定位到本脚本所在目录下的 notebook
+script_dir = os.path.dirname(os.path.abspath(__file__))
+path = os.path.join(script_dir, "9.2_troubleshooting_debug.ipynb")
 with open(path, "r", encoding="utf-8") as f:
     data = json.load(f)
 

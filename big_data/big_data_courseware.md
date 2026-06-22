@@ -2139,7 +2139,7 @@ def check_quality(df, rule):
 
 ---
 
-## 第23-26周：源码深潜 + 论文精读
+## 第25-28周：源码深潜 + 论文精读
 
 ### 论文精读清单（12篇，每周1-2篇）
 
@@ -3078,7 +3078,7 @@ models:
 
 ---
 
-## 第31+周：持续进化模块
+## 第59+周：持续进化模块
 
 ### 模块1：技术战略工作坊（每月1次）
 
@@ -3413,12 +3413,12 @@ Kubernetes环境:
 | 1 | The Google File System | 2003 | L1 | HDFS的设计原型 |
 | 2 | MapReduce: Simplified Data Processing | 2004 | L1 | 分布式计算的经典范式 |
 | 3 | Bigtable: A Distributed Storage System | 2006 | L1 | HBase/Cassandra的设计灵感 |
-| 4 | Dynamo: Amazon's Highly Available KV Store | 2007 | L2 | 最终一致性 + Gossip协议 |
-| 5 | Kafka: a Distributed Messaging System | 2011 | L2 | Kafka的原始设计论文 |
-| 6 | Resilient Distributed Datasets (Spark) | 2012 | L2 | RDD的起源与设计 |
-| 7 | Dremel: Interactive Analysis of Web-Scale Data | 2010 | L2 | Trino/Presto的列式存储思想 |
-| 8 | In Search of an Understandable Consensus Algorithm (Raft) | 2014 | L3 | 共识算法的科普性版本 |
-| 9 | Apache Flink®: Stream Processing at Scale | 若干 | L3 | Flink核心设计理念 |
+| 4 | Dremel: Interactive Analysis of Web-Scale Data | 2010 | L2 | Trino/Presto的列式存储思想 |
+| 5 | Resilient Distributed Datasets (Spark) | 2012 | L2 | RDD的起源与设计 |
+| 6 | Kafka: a Distributed Messaging System | 2011 | L2 | Kafka的原始设计论文 |
+| 7 | Apache Flink®: Stream Processing at Scale | 若干 | L3 | Flink核心设计理念 |
+| 8 | Dynamo: Amazon's Highly Available KV Store | 2007 | L3 | 最终一致性 + Gossip协议 |
+| 9 | In Search of an Understandable Consensus Algorithm (Raft) | 2014 | L3 | 共识算法的科普性版本 |
 | 10 | Data Lakehouse (CIDR) | 2021 | L3 | 湖仓一体架构的提出 |
 | 11 | Photon: A Fast Query Engine for Lakehouse Systems | 2022 | L4 | Databricks Native引擎 |
 | 12 | Spanner: Google's Globally-Distributed Database | 2012 | L4 | TrueTime与全球分布式事务 |
@@ -3431,21 +3431,21 @@ Kubernetes环境:
 周次    L级别    考核/里程碑
 ──────────────────────────────────────────────
  4      L0        Python爬虫 + SQL 50题 + Git绿点30天
- 6      L0结业    L0项目3个完成 + 综合笔试通过 → 升L1
+ 8      L0结业    L0项目3个完成 + 综合笔试通过 → 升L1
  8      L0补充    Docker容器化项目完成
-14      L1结业    离线数仓 + 用户画像 + Airflow → 升L2
+16      L1结业    离线数仓 + 用户画像 + Airflow → 升L2
 16      L1补充    OLAP引擎实操完成
-22      L2结业    实时管道 + DDIA读书笔记 → 升L3
+24      L2结业    实时管道 + DDIA读书笔记 → 升L3
 24      L2补充    数据湖仓迁移项目8.5完成
-26      L2补充    数据治理平台项目9.5完成
-26      L3中期    论文精读6篇 + 源码3000行
-32      L3结业    调优攻坚 + 开源PR → 升L4
-34      L3补充    MLOps流水线项目10.5完成
-36      L3补充    云原生迁移项目10.6完成
-38      L4中期    系统设计8题完成
-44      L4结业    架构方案通过评审团 → 升L5
-46      L4补充    dbt与现代数据栈模块完成
-52+     L5持续    年度述职 + 技术战略输出
+24      L2补充    数据治理平台项目9.5完成
+28      L3中期    论文精读6篇 + 源码3000行
+38      L3结业    调优攻坚 + 开源PR → 升L4
+38      L3补充    MLOps流水线项目10.5完成
+38      L3补充    云原生迁移项目10.6完成
+42      L4中期    系统设计8题完成
+58      L4结业    架构方案通过评审团 → 升L5
+58      L4补充    dbt与现代数据栈模块完成
+59+     L5持续    年度述职 + 技术战略输出
 ```
 
 ---

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "id": "L3-PROJECT-EXAM",
+  "stage": "L3",
+  "duration_minutes": 240,
+  "sections": [
+    {"name": "源码阅读（现场问答+代码走读）", "points": 25, "rubric": "assessments/rubrics/l3-project-rubric.md"},
+    {"name": "论文复述（PPT 答辩）", "points": 25, "rubric": "assessments/rubrics/l3-project-rubric.md"},
+    {"name": "性能调优（实战演示）", "points": 30, "rubric": "assessments/rubrics/l3-project-rubric.md"},
+    {"name": "技术深度（交叉面试）", "points": 20, "source": "assessments/questions/l3_sample.json"}
+  ]
+}

@@ -21,6 +21,8 @@
 13. [数据虚拟化与联邦](#13)
 14. [实时分析与决策](#14)
 15. [数据开发平台与工具](#15)
+16. [数据架构模式与范式](#16)
+17. [数据应用场景](#17)
 
 ---
 
@@ -189,6 +191,7 @@
 | 专用向量引擎 | Milvus | 基于ANN索引（IVF/HNSW/DiskANN等），将向量数据构建为索引结构，支持L2/内积/余弦相似度，存储-计算分离架构，支持十亿级向量检索 |
 | 轻量向量引擎 | Qdrant、Chroma | Qdrant基于HNSW索引，Rust实现，支持过滤+向量混合查询；Chroma面向AI应用，内置Embedding函数，开箱即用 |
 | 全托管向量服务 | Pinecone、Weaviate | Pinecone为全托管服务，自动管理索引和扩缩容；Weaviate支持向量+结构化混合搜索，内置多种向量化模块 |
+| 向量检索扩展 | pgvector、Redis Vector | pgvector为PostgreSQL扩展，支持IVFFlat/HNSW索引，适合已有PG基础设施的RAG场景；Redis Stack内置向量检索，支持实时低延迟向量查询 |
 
 ### 3.8 关系型数据库（MPP）
 
@@ -262,6 +265,7 @@
 | 嵌入式流处理 | Kafka Streams | 轻量级流处理库，无需独立集群，直接嵌入应用，基于Kafka Consumer/Producer实现，本地RocksDB存储状态，支持Exactly-Once |
 | 统一批流编程模型 | Apache Beam | 提供统一的批流编程API（Pipeline→PCollection→PTransform），编写一次代码即可在多种Runner（Flink/Spark/Dataflow）上运行，CNCF毕业项目，支持Event Time和Watermark语义 |
 | 原生流处理 | Apache Storm | 经典的流处理引擎，Tuple在Spout-Bolt拓扑中流动，保证At-Least-Once语义，Trident支持Exactly-Once |
+| 流式数据库 | RisingWave、Materialize | 基于SQL的流处理引擎，将物化视图增量维护与流处理结合，RisingWave使用PostgreSQL兼容协议，Materialize基于Differential Dataflow |
 
 ### 5.3 交互式计算
 
@@ -290,6 +294,7 @@
 |------|----------|----------|
 | 单机科学计算 | NumPy、Pandas | NumPy基于C/Fortran的N维数组，向量化运算避免Python循环；Pandas基于NumPy提供DataFrame抽象，支持索引、分组、透视等操作 |
 | 分布式科学计算 | Dask、Vaex、Ray | Dask将Pandas/NumPy任务图切分为子任务并行执行；Vaex使用内存映射和零拷贝技术处理超大数据集；Ray提供分布式任务调度框架 |
+| 列式内存格式 | Apache Arrow、Polars | Arrow定义跨语言零拷贝列式内存格式，消除进程间数据序列化开销；Polars基于Arrow内存格式，Rust实现，多线程并行查询，性能远超Pandas |
 
 ---
 
@@ -352,6 +357,7 @@
 |------|----------|----------|
 | 流式管道 | Kafka Connect + Debezium | Debezium捕获源端CDC事件，写入Kafka，Kafka Connect Sink将数据写入目标端，实现端到端低延迟数据管道 |
 | 批量管道 | AWS Glue、Azure Data Factory、Apache Spark | AWS Glue提供托管ETL服务，自动生成PySpark代码；Data Factory为Azure云原生数据集成服务，支持拖拽式数据管道和多种连接器；Spark通过DataFrame API编写批量ETL逻辑 |
+| Reverse ETL | Hightouch、Census | 将数仓中加工好的数据反向同步到业务系统（CRM/营销平台/广告平台），基于SQL查询定义数据同步规则，支持计划调度和Webhook触发 |
 
 ### 7.3 API集成
 
@@ -404,6 +410,7 @@
 | 企业级BI | Tableau、Power BI、FineBI | Tableau基于VizQL将拖拽操作转化为SQL查询，支持实时连接和Extract模式；Power BI基于DAX表达式和VertiPaq引擎，与Microsoft生态深度集成；FineBI国产BI，支持中国式复杂报表 |
 | 开源BI | Apache Superset、Metabase | Superset基于Flask+React，支持SQL Lab和可视化仪表盘，丰富的图表类型；Metabase面向非技术用户，自然语言查询（Question）自动生成SQL |
 | 嵌入式BI | Looker、Redash | Looker基于LookML定义数据模型，生成SQL查询，支持嵌入式分析；Redash以SQL查询为核心，支持多种数据源和告警 |
+| 语义层/Headless BI | Cube、dbt Semantic Layer | 统一定义业务指标（Metrics）的语义层，解耦指标定义与可视化工具，Cube提供语义层API服务，dbt Semantic Layer基于dbt模型定义指标 |
 
 ### 9.2 数据可视化
 
@@ -650,6 +657,35 @@
 
 ---
 
+## 16. 数据架构模式与范式
+
+**目的**：定义数据平台的组织方式、所有权模型和治理边界，是数据架构的顶层设计。
+
+| 分支 | 代表技术 | 基本原理 |
+|------|----------|----------|
+| 数据仓库范式 | Kimball维度建模、Inmon企业信息工厂 | 传统的集中式数据架构，数据按主题域组织，ETL加工后供BI分析 |
+| 数据湖范式 | 数据湖 | 以开放格式存储原始数据，支持多引擎读写，灵活但缺乏事务保证和治理 |
+| 湖仓一体范式 | Lakehouse | 在数据湖之上增加元数据层实现ACID事务，融合数据湖灵活性和数据仓库性能 |
+| 数据网格范式 | Data Mesh | 去中心化的数据架构，按业务域组织数据产品，每个域自治管理数据，联邦治理平台保证互操作 |
+| 数据联邦范式 | Data Fabric | 通过元数据驱动的自动化层连接所有数据源，提供统一访问接口，强调AI驱动的数据集成 |
+
+---
+
+## 17. 数据应用场景
+
+**目的**：将大数据技术落地到具体业务场景，实现数据驱动的业务决策和运营优化。
+
+| 分支 | 代表技术 | 基本原理 |
+|------|----------|----------|
+| A/B测试与实验平台 | 增长分析 | 通过随机分组实验验证产品变更的因果效应，平台管理实验配置、流量分配、指标计算和显著性检验 |
+| 用户行为分析 | 漏斗/留存/路径分析 | 基于用户事件流构建漏斗转化、留存矩阵和路径图，使用ClickHouse/Doris等OLAP引擎实现秒级查询 |
+| 增长分析 | LTV/CAC/归因分析 | 计算用户生命周期价值(LTV)和获客成本(CAC)，多触点归因模型（首次/末次/线性/数据驱动）分配转化贡献 |
+| AIOps智能运维 | 异常检测/根因分析 | 基于ML的运维数据异常检测，时序异常发现+日志聚类+根因定位，支撑故障自愈 |
+| 数据资产化 | 数据目录/估值/交易 | 将数据作为资产管理，建立数据目录、质量评分、使用计量和估值模型，支撑数据要素市场化 |
+| 数据合规 | GDPR/数据安全法/CCPA | 数据分类分级、敏感数据识别、合规审计、数据主体权利响应（删除/导出），隐私计算保障合规 |
+
+---
+
 ## 附录：大数据技术全景架构图（文字版）
 
 ```
@@ -709,6 +745,12 @@
 │  │ Jupyter │ DBeaver │ DVC │ dbt │ LakeFS │ DuckDB │ MLflow   │     │
 │  └──────────────────────────────────────────────────────────────────┘     │
 │                                                                           │
+│  ┌──────────────────────────────────┐  ┌──────────────────────────────┐  │
+│  │      数据架构模式与范式            │  │      数据应用场景              │  │
+│  │  数据仓库 │ 数据湖 │ 湖仓一体     │  │  A/B测试 │ 用户行为分析       │  │
+│  │  数据网格 │ 数据联邦             │  │  增长分析 │ AIOps │ 数据资产化  │  │
+│  └──────────────────────────────────┘  └──────────────────────────────┘  │
+│                                                                           │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -726,3 +768,7 @@
 | 数据治理 | DataHub + Great Expectations + Ranger + OpenLineage | 元数据+质量+安全+血缘全覆盖 |
 | 云原生大数据 | K8s + Spark on K8s + Flink on K8s + MinIO + Iceberg | 容器化部署，弹性伸缩 |
 | 本地分析/边缘 | DuckDB + Parquet + Iceberg | 零依赖嵌入式分析，单机处理TB级数据 |
+| 数据网格 | 按域组织数据产品 + DataHub/Gravitino + dbt + Airflow | 去中心化治理，域自治 |
+| 流式数据库 | RisingWave/Materialize + Kafka + PostgreSQL协议 | SQL驱动的实时物化视图 |
+| Reverse ETL | Hightouch/Census + Snowflake + Salesforce | 数仓到业务系统的反向同步 |
+| 语义层 | Cube/dbt Semantic Layer + 任意BI工具 | 指标统一定义，多工具复用 |

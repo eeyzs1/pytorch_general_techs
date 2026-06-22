@@ -1,30 +1,34 @@
 # 大模型机器学习产业级技术全景
 
-本项目系统性地覆盖了大语言模型（LLM）从数据到部署的全生命周期技术栈，包含 18 个技术模块、70+ 个可运行的 Jupyter Notebook 代码示例。
+本项目系统性地覆盖了大语言模型（LLM）从数据到部署的全生命周期技术栈，包含 18 个技术模块、98 个可运行的 Jupyter Notebook 代码示例。
+
+📖 **文档导航**：
+- [大模型机器学习技术全景.md](大模型机器学习技术全景.md) — 技术参考文档（适合有技术背景的读者）
+- [趣味科普：AI训练技术给非技术人员的通关指南.md](趣味科普：AI训练技术给非技术人员的通关指南.md) — 趣味科普文档（适合零基础读者，用"养孩子"的比喻讲解所有技术）
 
 ## 项目结构
 
 ```
 ml_train/
 ├── 00_foundations/             # 前置基础（深度学习训练核心）
-├── 01_data_engineering/        # 数据工程（采集/清洗/配比/标注/管道工程）
+├── 01_data_engineering/        # 数据工程（采集/清洗/配比/标注/管道/Tokenizer/数据增强）
 ├── 02_learning_paradigms/      # 学习范式（14种范式）
-├── 03_architecture_design/     # 架构设计（Transformer/MoE/注意力/扩散LLM）
-├── 04_pretraining/             # 预训练（目标/策略/稳定性）
+├── 03_architecture_design/     # 架构设计（Transformer/MoE/注意力/扩散LLM/世界模型/神经符号）
+├── 04_pretraining/             # 预训练（目标/策略/稳定性/缩放定律）
 ├── 05_distributed_training/    # 分布式训练（DP/TP/PP/3D并行）
 ├── 06_fine_tuning/             # 微调（全参数/PEFT/指令微调）
-├── 07_alignment_training/      # 对齐训练（RLHF/DPO/GRPO/安全对齐）
+├── 07_alignment_training/      # 对齐训练（RLHF/DPO/迭代DPO/GRPO/安全对齐）
 ├── 08_model_compression/       # 模型压缩（量化/剪枝/蒸馏/低秩）
-├── 09_inference_optimization/  # 推理优化（KV Cache/解码/编译/Test-Time Compute）
-├── 10_long_context/            # 长上下文处理
+├── 09_inference_optimization/  # 推理优化（KV Cache/解码/Medusa/Eagle/结构化输出/前缀缓存/多LoRA）
+├── 10_long_context/            # 长上下文处理（PI/NTK/YaRN/ALiBi）
 ├── 11_rag/                     # 检索增强生成（RAG）
 ├── 12_agent/                   # 智能体（工具/规划/记忆/多智能体/MCP）
 ├── 13_multimodal/              # 多模态（视觉/音频/视频/对齐）
-├── 14_prompt_engineering/      # 提示工程（Zero-shot/Few-shot/CoT）
-├── 15_evaluation/              # 评估与基准
-├── 16_security_robustness/     # 安全与鲁棒性
+├── 14_prompt_engineering/      # 提示工程（Zero-shot/Few-shot/CoT/DSPy）
+├── 15_evaluation/              # 评估与基准（语言/推理/污染检测/Arena竞技场）
+├── 16_security_robustness/     # 安全与鲁棒性（攻击/防御/隐私/模型水印）
 ├── 17_continual_learning/      # 持续学习与适应
-├── 18_mlops/                   # MLOps与模型部署
+├── 18_mlops/                   # MLOps（Serving/实验追踪/监控/CI-CD/端侧部署/绿色AI）
 └── utils/                      # 共享工具模块
 ```
 
@@ -64,7 +68,7 @@ python3 scripts/validate_notebooks.py
 
 ### 推荐学习路径
 
-1. **前置基础**：[00_foundations/00_deep_learning_basics.ipynb](00_foundations/00_deep_learning_basics.ipynb) — 深度学习训练核心基础（反向传播、优化器、学习率调度、正则化、归一化、梯度管理、混合精度）
+1. **前置基础**：[00_foundations/00_deep_learning_basics.ipynb](00_foundations/00_deep_learning_basics.ipynb) — 深度学习训练核心基础（反向传播与自动微分、优化器对比、学习率调度、正则化与归一化）
 2. **架构入门**：[03_architecture_design/01_overall_architecture.ipynb](03_architecture_design/01_overall_architecture.ipynb) — Transformer 架构设计
 3. **学习范式**：[02_learning_paradigms/01_supervised_learning.ipynb](02_learning_paradigms/01_supervised_learning.ipynb) — 监督学习
 4. **数据工程**：[01_data_engineering/01_data_collection.ipynb](01_data_engineering/01_data_collection.ipynb) — 数据采集与处理
@@ -90,16 +94,18 @@ python3 scripts/validate_notebooks.py
 | 模块 | 技术覆盖 |
 |------|---------|
 | 前置基础 | 反向传播、AdamW、学习率调度、正则化、RMSNorm/LayerNorm、混合精度、梯度裁剪 |
-| 数据工程 | 网页爬取、质量过滤、去重、PII去除、数据配比、合成数据、管道工程化 |
+| 数据工程 | 网页爬取、质量过滤（分类器筛选）、去重、PII去除、数据配比、合成数据、管道工程化、Tokenizer训练、数据增强（回译/Self-Instruct/Evol-Instruct/Magpie） |
 | 学习范式 | 监督/自监督/无监督/半监督/强化/迁移/元/多任务/联邦/对比/课程/主动/在线学习 |
-| 架构设计 | Decoder-Only/Encoder-Only/Encoder-Decoder、MHA/MQA/GQA/MLA、RoPE、SwiGLU、MoE、Diffusion LLM |
-| 预训练 | CLM/MLM、学习率调度、混合精度、梯度裁剪/Loss Spike处理 |
-| 分布式训练 | DDP/FSDP/ZeRO、张量/流水线/序列并行、3D并行、通信优化 |
+| 架构设计 | Decoder-Only/Encoder-Only/Encoder-Decoder、MHA/MQA/GQA/MLA、RoPE、SwiGLU、MoE、Diffusion LLM、世界模型、神经符号AI |
+| 预训练 | CLM/MLM、Multi-Token Prediction、学习率调度、混合精度、梯度裁剪/Loss Spike处理、Kaplan/Chinchilla缩放定律、数据退火/中期训练 |
+| 分布式训练 | DDP/FSDP/ZeRO、张量/流水线/序列并行、3D并行、通信优化、训练容错与弹性训练 |
 | 微调 | LoRA/QLoRA/Adapter/Prefix/Prompt/P-Tuning v2/IA³/DoRA |
-| 对齐训练 | RLHF(P+R+PPO)、DPO/IPO/KTO/ORPO/SimPO、GRPO、RLAIF/Constitutional AI |
+| 对齐训练 | RLHF(P+R+PPO)、DPO/IPO/KTO/ORPO/SimPO/CPO/迭代DPO/在线DPO、GRPO、Self-Rewarding LM、RLAIF/Constitutional AI |
 | 模型压缩 | GPTQ/AWQ/SmoothQuant/QAT、结构化/非结构化/层剪枝、知识蒸馏 |
-| 推理优化 | PagedAttention、MQA/GQA/MLA、Continuous Batching、投机解码/Medusa/Eagle、Test-Time Compute |
-| Agent | 函数调用/代码执行、ReAct/ToT/Plan-and-Solve、多智能体协作、MCP协议 |
-| MLOps | 模型Serving(vLLM/TGI/Triton)、负载均衡、模型注册、成本优化 |
-| 安全 | 提示注入/越狱/GCG、FGSM/PGD、后门攻击/数据投毒/成员推断 |
+| 推理优化 | PagedAttention、MQA/GQA/MLA、Continuous Batching、投机解码/Medusa/Eagle/Lookahead、Test-Time Compute、结构化输出、前缀缓存、多LoRA服务 |
+| 长上下文 | 位置插值PI、NTK-aware RoPE、YaRN、ALiBi、滑动窗口、Attention Sink/StreamingLLM、提示压缩 |
+| Agent | 函数调用/代码执行、ReAct/ToT/Plan-and-Solve、多智能体协作、MCP协议、Computer Use智能体 |
+| 评估 | 语言/推理/代码评估、LLM-as-Judge、数据污染检测、Arena竞技场/Elo评分 |
+| 安全 | 提示注入/越狱/GCG、FGSM/PGD、后门攻击/数据投毒/成员推断、模型水印、模型供应链安全 |
+| MLOps | 模型Serving(vLLM/TGI/Triton)、实验追踪、监控与可观测性、CI/CD与A/B测试、端侧部署、绿色AI |
 | 工具库 | RMSNorm、DropPath、SwiGLU、RotaryPositionalEmbedding、梯度裁剪 |

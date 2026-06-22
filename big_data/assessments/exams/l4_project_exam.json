@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "id": "L4-PROJECT-EXAM",
+  "stage": "L4",
+  "duration_minutes": 600,
+  "sections": [
+    {"name": "系统设计面试（白板设计）", "points": 30, "source": "assessments/questions/l4_sample.json"},
+    {"name": "架构方案答辩（PPT 汇报）", "points": 30, "rubric": "assessments/rubrics/l4-project-rubric.md"},
+    {"name": "成本优化评估（FinOps）", "points": 25, "rubric": "assessments/rubrics/l4-project-rubric.md"},
+    {"name": "Mentor 成果评估", "points": 15, "rubric": "assessments/rubrics/l4-project-rubric.md"}
+  ]
+}

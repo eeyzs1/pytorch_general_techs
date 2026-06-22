@@ -58,6 +58,7 @@ python3 scripts/check_links.py
 python3 scripts/check_placeholders.py
 python3 scripts/check_curriculum_refs.py
 python3 scripts/check_project_catalog.py
+python3 scripts/validate_assessments.py
 ```
 
 ## 文档站预览

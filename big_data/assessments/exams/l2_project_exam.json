@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "id": "L2-PROJECT-EXAM",
+  "stage": "L2",
+  "duration_minutes": 480,
+  "sections": [
+    {"name": "Kafka 调优（现场实操）", "points": 20, "rubric": "assessments/rubrics/l2-project-rubric.md"},
+    {"name": "Flink 开发（现场编码）", "points": 20, "rubric": "assessments/rubrics/l2-project-rubric.md"},
+    {"name": "故障排查（模拟演练）", "points": 20, "rubric": "assessments/rubrics/l2-project-rubric.md"},
+    {"name": "架构讲解与原理问答", "points": 20, "source": "assessments/questions/l2_sample.json"},
+    {"name": "DDIA 答辩（PPT+问答）", "points": 20, "rubric": "assessments/rubrics/l2-project-rubric.md"}
+  ]
+}

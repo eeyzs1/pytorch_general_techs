@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "stage": "L1",
+  "questions": [
+    {
+      "id": "L1-HDFS-001",
+      "type": "single_choice",
+      "knowledge": ["HDFS", "architecture"],
+      "difficulty": 2,
+      "prompt": "HDFS 3.x 中默认的 Block 大小是多少？为什么选择这个大小？",
+      "options": ["64MB，为了减少内存占用", "128MB，平衡寻址开销与顺序读吞吐", "256MB，最大化磁盘利用率", "1GB，减少 NameNode 元数据压力"],
+      "answer": "128MB，平衡寻址开销与顺序读吞吐",
+      "explanation": "128MB 是 HDFS 2.x 之后的默认值。块过小会导致 NameNode 元数据膨胀和大量磁盘寻道；块过大会降低并行度并增加任务失败重试成本。128MB 在大多数场景下能保证顺序读时间远大于寻址时间。"
+    },
+    {
+      "id": "L1-HDFS-002",
+      "type": "single_choice",
+      "knowledge": ["HDFS", "replication"],
+      "difficulty": 3,
+      "prompt": "HDFS 默认三副本放置策略中，第二个副本放在哪里？设计理由是什么？",
+      "options": ["与第一个副本同机架，减少跨机架网络开销", "与第一个副本不同机架，提供机架级容错", "随机放置，由 DataNode 决定", "与客户端同节点，降低写入延迟"],
+      "answer": "与第一个副本不同机架，提供机架级容错",
+      "explanation": "副本2放在不同机架是为了机架级容错——整个机架故障（如交换机宕机）时数据仍可用。副本3再放回副本2所在机架的另一节点，兼顾容错与跨机架带宽。这是 Rack Awareness 策略的核心。"
+    },
+    {
+      "id": "L1-MR-001",
+      "type": "single_choice",
+      "knowledge": ["MapReduce", "shuffle"],
+      "difficulty": 2,
+      "prompt": "以下哪个 Spark 算子会触发 Shuffle 操作？",
+      "options": ["map", "filter", "reduceByKey", "flatMap"],
+      "answer": "reduceByKey",
+      "explanation": "map/filter/flatMap 属于窄依赖（Narrow Dependency），数据在原分区处理无需重分布。reduceByKey 需要按 Key 聚合，相同 Key 的数据必须从多个分区汇聚到同一分区，因此触发 Shuffle（宽依赖）。"
+    },
+    {
+      "id": "L1-SPARK-001",
+      "type": "short_answer",
+      "knowledge": ["Spark", "RDD"],
+      "difficulty": 3,
+      "prompt": "列出 Spark RDD 的五大特性，并解释为什么宽依赖会触发 Stage 划分。",
+      "answer": "五大特性：1) 分区列表（Partition List）；2) 每个分区的计算函数（Compute Function）；3) 依赖关系列表（Dependencies）；4) 可选的 Key 分区器（Partitioner，仅对 KV RDD）；5) 可选的分区优先位置列表（Preferred Locations，实现移动计算而非移动数据）。\n\n宽依赖（ShuffleDependency）触发 Stage 划分的原因：宽依赖意味着父 RDD 的一个分区会被子 RDD 的多个分区消费，无法在父分区计算完成后流水线传递给子分区，必须等待所有父分区完成并经过 Shuffle 重分布。因此 DAGScheduler 以宽依赖为边界切分 Stage，每个 Stage 内部都是窄依赖，可以流水线执行（Pipeline）。",
+      "explanation": "考察对 RDD 模型和 DAG 调度的本质理解。窄依赖允许流水线，宽依赖必须等待 Shuffle，这是 Stage 划分的根本依据。"
+    },
+    {
+      "id": "L1-SPARK-002",
+      "type": "short_answer",
+      "knowledge": ["Spark", "optimization"],
+      "difficulty": 3,
+      "prompt": "对比 reduceByKey 和 groupByKey 的执行差异，并说明为什么 groupByKey 容易导致 OOM。",
+      "answer": "reduceByKey：在 Shuffle 前先在 Map 端做本地预聚合（Combine），相同 Key 的值在发送前已被合并，Shuffle 数据量大幅减少。\n\ngroupByKey：不进行 Map 端预聚合，所有相同 Key 的值原样通过网络 Shuffle 到 Reduce 端，再在 Reduce 端分组。\n\nOOM 原因：当某个 Key 的数据量很大（数据倾斜）时，groupByKey 会在 Reduce 端将该 Key 的所有值保留在内存中（作为 Iterable），极易撑爆 Executor 内存。而 reduceByKey 由于预聚合，到达 Reduce 端的数据量已大幅减少。\n\n结论：能用 reduceByKey 的场景绝不用 groupByKey。",
+      "explanation": "这是 Spark 调优的经典考点，体现对 Shuffle 机制和内存管理的理解。"
+    },
+    {
+      "id": "L1-HIVE-001",
+      "type": "single_choice",
+      "knowledge": ["Hive", "table"],
+      "difficulty": 2,
+      "prompt": "在 Hive 中删除外部表（External Table）时，会发生什么？",
+      "options": ["元数据和 HDFS 数据都被删除", "只删除元数据，HDFS 数据保留", "只删除 HDFS 数据，元数据保留", "什么都不删除"],
+      "answer": "只删除元数据，HDFS 数据保留",
+      "explanation": "外部表的 LOCATION 指向的 HDFS 数据不由 Hive 托管，DROP TABLE 只删除 Metastore 中的元数据。这是外部表与内部表（Managed Table）的核心区别——内部表 DROP 会同时删除元数据和数据。ODS 层常使用外部表保留原始数据。"
+    },
+    {
+      "id": "L1-HIVE-002",
+      "type": "short_answer",
+      "knowledge": ["Hive", "optimization"],
+      "difficulty": 3,
+      "prompt": "解释数据倾斜的原因，并给出至少 3 种解决方案及其适用场景。",
+      "answer": "数据倾斜原因：Shuffle 时某些 Key 的数据量远超其他 Key，导致个别 Task 处理时间极长（可能是其他 Task 的 100 倍），成为整个作业瓶颈。根本原因是业务数据天然分布不均（如热门商品、头部用户）。\n\n解决方案：\n1) 加盐打散（Salting）：给倾斜 Key 加随机前缀分散到多个 Task，聚合后再去盐二次聚合。适用：groupBy + agg 场景。代价：需要两次聚合。\n2) Broadcast Join：将小表广播到每个 Executor 内存，大表直接 Map 端 Join，完全避免 Shuffle。适用：小表 Join 大表（小表 < 100MB）。限制：小表必须能放入内存。\n3) AQE（Spark 3.0+）：开启 spark.sql.adaptive.skewJoin.enabled，运行时自动检测倾斜分区并拆分。适用：Spark 3.0+ 且使用 SortMergeJoin。优势：零代码改动。\n4) 过滤倾斜 Key 单独处理：将热点 Key 数据分离，单独用 Broadcast Join 处理，其余正常 Join 后 Union。适用：倾斜 Key 可枚举且数量少。",
+      "explanation": "数据倾斜是 L1 阶段最重要的调优知识点，要求能诊断问题并给出多种方案及权衡。"
+    }
+  ]
+}
