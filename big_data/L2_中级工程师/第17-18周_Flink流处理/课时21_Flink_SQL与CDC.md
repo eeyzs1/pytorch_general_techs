@@ -265,7 +265,7 @@ docker exec -it flink-jobmanager ./bin/sql-client.sh embedded
 
 ## 四、CDC (Change Data Capture)
 
-### 3.1 CDC原理
+### 4.1 CDC原理
 
 ```
 CDC = 实时捕获数据库的变更数据
@@ -284,7 +284,7 @@ Binlog Event类型:
   - DELETE → RowKind.-D
 ```
 
-### 3.2 CDC Connector配置详解
+### 4.2 CDC Connector配置详解
 
 ```sql
 -- MySQL CDC Connector核心参数
@@ -321,7 +321,7 @@ CREATE TABLE mysql_source (
 );
 ```
 
-### 3.3 CDC启动模式选择
+### 4.3 CDC启动模式选择
 
 ```
 Initial模式 (最常用):
@@ -354,9 +354,9 @@ Timestamp模式 (指定时间点恢复):
 
 ---
 
-## 四、完整Flink SQL CDC代码
+## 五、完整Flink SQL CDC代码
 
-### 4.1 实时同步：MySQL → Kafka
+### 5.1 实时同步：MySQL → Kafka
 
 ```sql
 -- ============================================================
@@ -421,7 +421,7 @@ SELECT
 FROM mysql_orders;
 ```
 
-### 4.2 实时宽表构建：CDC + Kafka Join
+### 5.2 实时宽表构建：CDC + Kafka Join
 
 ```sql
 -- ============================================================
@@ -543,7 +543,7 @@ LEFT JOIN cdc_products AS p
     ON o.product_id = p.product_id;
 ```
 
-### 4.3 实时聚合写入ClickHouse
+### 5.3 实时聚合写入ClickHouse
 
 ```sql
 -- ============================================================
@@ -618,7 +618,7 @@ GROUP BY
     city;
 ```
 
-### 4.4 异常检测：实时风控
+### 5.4 异常检测：实时风控
 
 ```sql
 -- ============================================================
@@ -695,9 +695,9 @@ WHERE amount > 10000;
 
 ---
 
-## 五、时态表Join
+## 六、时态表Join
 
-### 5.1 概念
+### 6.1 概念
 
 ```
 时态表(Temporal Table): 记录数据随时间变化的表
@@ -715,7 +715,7 @@ WHERE amount > 10000;
     → 正确：价格上升前的订单用旧价格，上升后用新价格
 ```
 
-### 5.2 时态表Join代码
+### 6.2 时态表Join代码
 
 ```sql
 -- ============================================================
@@ -760,9 +760,9 @@ WHERE o.status = 'completed';
 
 ---
 
-## 六、多流Join构建实时宽表
+## 七、多流Join构建实时宽表
 
-### 6.1 Join类型对比
+### 7.1 Join类型对比
 
 | Join类型 | 语法 | 适用场景 | 状态要求 |
 |----------|------|----------|----------|
@@ -771,7 +771,7 @@ WHERE o.status = 'completed';
 | Temporal Join | `A JOIN B FOR SYSTEM_TIME AS OF A.time` | 关联维度表的时态版本 | B是Changelog Stream |
 | Lookup Join | `A JOIN B FOR SYSTEM_TIME AS OF A.proctime` | 关联外部数据库（维表） | B是外部系统 |
 
-### 6.2 Interval Join
+### 7.2 Interval Join
 
 ```sql
 -- ============================================================
@@ -820,7 +820,7 @@ JOIN cdc_payments p
 WHERE o.status = 'completed';
 ```
 
-### 6.3 Lookup Join（维表关联）
+### 7.3 Lookup Join（维表关联）
 
 ```sql
 -- ============================================================
@@ -883,9 +883,9 @@ LEFT JOIN dim_users
 
 ---
 
-## 七、Flink SQL Job提交
+## 八、Flink SQL Job提交
 
-### 7.1 SQL Client提交
+### 8.1 SQL Client提交
 
 ```bash
 # 启动SQL Client
@@ -902,7 +902,7 @@ Flink SQL> SOURCE /path/to/cdc_job.sql;
 ./bin/sql-client.sh embedded -f /path/to/cdc_job.sql
 ```
 
-### 7.2 通过Java提交SQL Job
+### 8.2 通过Java提交SQL Job
 
 ```java
 import org.apache.flink.table.api.EnvironmentSettings;
@@ -946,7 +946,7 @@ public class FlinkSQLJobSubmitter {
 }
 ```
 
-### 7.3 Python提交Flink SQL
+### 8.3 Python提交Flink SQL
 
 ```python
 """
@@ -1006,9 +1006,9 @@ if __name__ == '__main__':
 
 ---
 
-## 八、CDC生产最佳实践
+## 九、CDC生产最佳实践
 
-### 8.1 Server ID规划
+### 9.1 Server ID规划
 
 ```yaml
 重要: 每个CDC Job必须有唯一的Server ID
@@ -1025,7 +1025,7 @@ if __name__ == '__main__':
   - Server ID 1-1000 通常保留给真正的MySQL Slave
 ```
 
-### 8.2 全量快照优化
+### 9.2 全量快照优化
 
 ```sql
 -- 大表全量快照优化参数
@@ -1043,7 +1043,7 @@ CREATE TABLE mysql_source (...) WITH (
 );
 ```
 
-### 8.3 监控与告警
+### 9.3 监控与告警
 
 ```yaml
 CDC Job监控指标:
@@ -1067,9 +1067,9 @@ CDC Job监控指标:
 
 ---
 
-## 九、完整MySQL→Flink CDC→Kafka→ClickHouse端到端管道
+## 十、完整MySQL→Flink CDC→Kafka→ClickHouse端到端管道
 
-### 9.1 管道架构
+### 10.1 管道架构
 
 ```
 MySQL (Binlog) → Flink CDC Source → Kafka (Upsert) → Flink SQL → ClickHouse
@@ -1079,7 +1079,7 @@ MySQL (Binlog) → Flink CDC Source → Kafka (Upsert) → Flink SQL → ClickHo
   products表        全量+增量         多下游消费        维表Join       报表展示
 ```
 
-### 9.2 完整SQL脚本（cdc_pipeline.sql）
+### 10.2 完整SQL脚本（cdc_pipeline.sql）
 
 ```sql
 SET 'execution.checkpointing.interval' = '60s';
@@ -1260,7 +1260,7 @@ GROUP BY
     city;
 ```
 
-### 9.3 数据验证脚本
+### 10.3 数据验证脚本
 
 ```bash
 echo "=== MySQL数据 ==="
@@ -1289,7 +1289,7 @@ docker exec -it clickhouse clickhouse-client --query \
 
 ---
 
-## 十、课堂练习（45分钟）
+## 十一、课堂练习（45分钟）
 
 ### 练习1：搭建Flink SQL CDC环境（10分钟）
 
@@ -1395,7 +1395,7 @@ docker exec -it clickhouse clickhouse-client --query \
 
 ---
 
-## 十一、课后作业
+## 十二、课后作业
 
 ### 必做
 
@@ -1514,7 +1514,7 @@ echo "=== 验证完成 ==="
 
 ---
 
-## 十、参考资料
+## 十三、参考资料
 
 - [Flink CDC Connectors](https://ververica.github.io/flink-cdc-connectors/)
 - [Flink SQL Documentation](https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/overview/)

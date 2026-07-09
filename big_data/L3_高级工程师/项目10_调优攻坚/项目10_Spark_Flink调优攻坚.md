@@ -159,8 +159,9 @@ spark.conf.set("spark.sql.autoBroadcastJoinThreshold",
 spark.conf.set("spark.sql.adaptive.enabled", "true")
 spark.conf.set("spark.sql.adaptive.coalescePartitions.enabled", "true")
 spark.conf.set("spark.sql.adaptive.skewJoin.enabled", "true")
-spark.conf.set("spark.sql.adaptive.skewJoin.skewedPartitionFactor", "5")  // 超过中位数5倍视为倾斜
-spark.conf.set("spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes", "256MB")  // 至少256MB
+// 以下两个参数如使用默认值(5/256MB)可不设置；此处调大阈值以减少误判，仅对更严重的倾斜生效
+spark.conf.set("spark.sql.adaptive.skewJoin.skewedPartitionFactor", "10")  // 默认5，此处调为10倍
+spark.conf.set("spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes", "512MB")  // 默认256MB，此处调为512MB
 ```
 
 **验证AQE是否生效**：
@@ -295,13 +296,17 @@ spark.sparkContext.addSparkListener(new SparkListener() {
 **UDF效率对比测试**：
 ```scala
 // 场景：将字符串转换为大写并去除空格
-// 方案A：Python UDF
-val pythonUpper = udf((s: String) => s.trim.toUpperCase)
-val resultA = df.withColumn("clean", pythonUpper($"text"))
+// 方案A：Scala UDF（JVM内执行）
+val scalaUpper = udf((s: String) => s.trim.toUpperCase)
+val resultA = df.withColumn("clean", scalaUpper($"text"))
 
-// 方案B：Pandas UDF（向量化）
-val pandasUpper = pandas_udf((s: pd.Series) => s.str.strip().str.upper(), StringType)
-val resultB = df.withColumn("clean", pandasUpper($"text"))
+// 方案B：Pandas UDF（向量化）— 注意：pandas_udf 是 PySpark API，Scala 中不存在
+// 如需 Pandas UDF，必须使用 PySpark（Python）实现，示例（Python）：
+//   from pyspark.sql.functions import pandas_udf
+//   @pandas_udf(StringType())
+//   def pandas_upper(s: pd.Series) -> pd.Series:
+//       return s.str.strip().str.upper()
+//   result_b = df.withColumn("clean", pandas_upper(col("text")))
 
 // 方案C：内置函数
 val resultC = df.withColumn("clean", upper(trim($"text")))
@@ -335,7 +340,7 @@ val resultC = df.withColumn("clean", upper(trim($"text")))
 **当必须使用UDF时的选择**：
 
 ```scala
-// Python UDF（逐行处理）— 最慢
+// Scala UDF（逐行处理，JVM内执行）— 较慢
 val slowUDF = udf((x: Int) => {
   Thread.sleep(1)  // 模拟复杂处理
   x * 2
@@ -343,9 +348,14 @@ val slowUDF = udf((x: Int) => {
 // 处理100万行需要: 100万 × 1ms = 1000秒！
 
 // Pandas UDF（向量化处理）— 快10-100倍
-val fastUDF = pandas_udf((x: pd.Series) => {
-  x * 2  // Pandas的向量化操作，一次处理一批
-}, IntegerType)
+// ⚠️ 注意：pandas_udf 是 PySpark(Python) API，Scala 中不存在。
+//    如需 Pandas UDF 的向量化加速能力，必须改用 PySpark 实现：
+//    from pyspark.sql.functions import pandas_udf
+//    from pyspark.sql.types import IntegerType
+//    @pandas_udf(IntegerType())
+//    def fast_udf(x: pd.Series) -> pd.Series:
+//        return x * 2  # Pandas 的向量化操作，一次处理一批
+//    result = df.withColumn("doubled", fast_udf(col("x")))
 // 处理100万行需要: 每批10000行 × 100批 × ~2ms = ~200ms
 ```
 
@@ -378,12 +388,17 @@ val fastUDF = pandas_udf((x: pd.Series) => {
 **启用GC日志**：
 ```bash
 # spark-submit时添加
+# ⚠️ 注意：以下 -XX:+PrintGCDetails 等参数仅适用于 JDK 8
+#    JDK 9+ 已移除这些参数，改用 -Xlog 统一日志框架（见下方 JDK 11+ 写法）
 --conf "spark.executor.extraJavaOptions=-XX:+PrintGCDetails 
   -XX:+PrintGCDateStamps 
   -Xloggc:/tmp/gc-executor-%p.log 
   -XX:+UseGCLogFileRotation 
   -XX:NumberOfGCLogFiles=10 
   -XX:GCLogFileSize=10M"
+
+# ===== JDK 11+ 等效写法（使用 -Xlog 统一日志框架）=====
+# --conf "spark.executor.extraJavaOptions=-Xlog:gc*:file=/tmp/gc-executor-%p.log:time,uptime:filecount=10,filesize=10M"
 ```
 
 **GCViewer分析**：
@@ -400,7 +415,7 @@ val fastUDF = pandas_udf((x: pd.Series) => {
 **对比G1GC和ParallelGC**：
 
 ```scala
-// 方案A：ParallelGC（Spark默认）
+// 方案A：ParallelGC（JDK 8默认，Spark 3.0+推荐G1GC）
 --conf "spark.executor.extraJavaOptions=-XX:+UseParallelGC 
   -XX:ParallelGCThreads=4"
 
@@ -549,7 +564,7 @@ Checkpoint:
 // 默认Java序列化 vs Kryo序列化
 spark.conf.set("spark.serializer", 
   "org.apache.spark.serializer.KryoSerializer")
-spark.conf.set("spark.kryo.registrationRequired", "true")  // 严格模式
+spark.conf.set("spark.kryo.registrationRequired", "false")  // 生产环境建议false，否则需注册所有类
 
 // 注册常用类
 spark.conf.set("spark.kryo.classesToRegister",

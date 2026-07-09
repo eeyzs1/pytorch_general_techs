@@ -51,7 +51,7 @@ Day 4: 写读书笔记（强制输出）
 
 #### 章节核心要点总结
 
-DDIA第1章建立了全书的核心框架：衡量一个数据系统的三个维度——可靠性、可扩展性、可维护性。可靠性意味着系统在面临硬件故障、软件错误、人为失误时仍能正常工作。书中提出的关键洞察是：**故障（Fault）不等于失效（Failure）**。设计良好的系统应该能容忍故障，而不是试图完全避免故障。可扩展性描述的是系统负载增长时如何保持性能——书中区分了"垂直扩展"（升级单机）和"水平扩展"（增加节点），并指出对于数据密集型系统，水平扩展几乎是必然选择。可维护性则包含三个子维度：可运维性（易于运维团队保持系统正常运行）、简单性（降低复杂度使新工程师容易理解）、可演化性（容易对系统进行修改以适应新需求）。书中利用Twitter时间线从"简单方式"到"扇出方式"再到"混合方式"的演进，展示了负载特征变化如何驱动架构演进。这一章最关键的启示是：**没有完美的架构，只有适应当前负载特征的架构**。在实际工作中，我们常常过早优化——在负载特征尚不明确时就设计了复杂的分布式架构。DDIA教我们的第一课就是：先明确你的负载参数（吞吐量、响应时间分布、读写比例），再选择对应的架构模式。
+DDIA第1章建立了全书的核心框架：衡量一个数据系统的三个维度——可靠性、可扩展性、可维护性。可靠性意味着系统在面临硬件故障、软件错误、人为失误时仍能正常工作。书中提出的关键洞察是：**故障（Fault）不等于失效（Failure）**。设计良好的系统应该能容忍故障，而不是试图完全避免故障。可扩展性描述的是系统负载增长时如何保持性能——书中区分了"垂直扩展"（升级单机）和"水平扩展"（增加节点），并指出对于数据密集型系统，水平扩展在数据量极大时是常见选择，但垂直扩展在许多场景仍具优势。可维护性则包含三个子维度：可运维性（易于运维团队保持系统正常运行）、简单性（降低复杂度使新工程师容易理解）、可演化性（容易对系统进行修改以适应新需求）。书中利用Twitter时间线从"简单方式"到"扇出方式"再到"混合方式"的演进，展示了负载特征变化如何驱动架构演进。这一章最关键的启示是：**没有完美的架构，只有适应当前负载特征的架构**。在实际工作中，我们常常过早优化——在负载特征尚不明确时就设计了复杂的分布式架构。DDIA教我们的第一课就是：先明确你的负载参数（吞吐量、响应时间分布、读写比例），再选择对应的架构模式。
 
 #### 讨论题目
 
@@ -206,13 +206,13 @@ GROUP BY u.name;
   └────────────────────────────────────────────────────┘
 
 与技术的映射:
-  - Kafka的存储 = LSM-Tree思想（顺序追加 + 分段）
+  - Kafka的存储 = 追加式日志（Append-Only Log）+ 分段（Segment）+ 稀疏索引。与LSM-Tree有"顺序写入"的哲学相似，但不是LSM-Tree（无MemTable/Compaction/Bloom Filter）
   - Flink RocksDB StateBackend = LSM-Tree
   - HBase = LSM-Tree
   - MySQL InnoDB = B-Tree
 
 讨论题:
-  1. 为什么Kafka选择LSM-Tree风格的存储，而不是B-Tree？
+  1. 为什么Kafka选择追加式日志风格的存储，而不是B-Tree？
   2. RocksDB的Compaction有哪些策略？各有什么Trade-Off？
   3. 如果让你设计一个时序数据库，你会选LSM-Tree还是B-Tree？为什么？
 ```
@@ -234,7 +234,7 @@ DDIA第3章是全书技术含量最高的章节之一。它从最基础的哈希
 
 | 书中概念 | 对应技术 | 详细映射分析 |
 |----------|----------|-------------|
-| LSM-Tree MemTable + SSTable | Kafka Broker存储 | Kafka的Log Segment = SSTable；Page Cache = MemTable；Index文件 = 稀疏索引；顺序追加 = LSM-Tree写入哲学 |
+| LSM-Tree MemTable + SSTable | Kafka Broker存储 | Kafka的Log Segment ≈ SSTable（类比，非等价）；Page Cache ≈ MemTable（类比，性质不同）；Index文件 = 稀疏索引；顺序追加 = LSM-Tree写入哲学 |
 | LSM-Tree Compaction | HBase Compaction | HBase的Minor Compaction（合并少量HFile）= Size-Tiered；Major Compaction（合并所有HFile）= 全量合并 |
 | B-Tree页缓存 | MySQL InnoDB Buffer Pool | Buffer Pool = 页缓存在内存中的实现；LRU淘汰策略；脏页刷盘 |
 | SSTable + Bloom Filter | HBase HFile | 每个HFile = 一个SSTable；Bloom Filter在HFile Trailer中；读路径：BlockCache → Bloom Filter → HFile Scan |
@@ -404,7 +404,7 @@ curl -X POST http://localhost:8081/compatibility/subjects/orders-value/versions/
       同步: 所有Follower确认后才返回 → 强一致，慢
       异步: Leader写入就返回 → 最终一致，快
     
-    代表: MySQL主从、Kafka ISR、Raft
+    代表: MySQL主从、Kafka ISR（注: Raft是共识算法，使用多数派Quorum，非全同步复制）
 
   Multi-Leader Replication (多主):
     多数据中心: 
@@ -417,7 +417,7 @@ curl -X POST http://localhost:8081/compatibility/subjects/orders-value/versions/
     代表: DynamoDB, Cassandra
 
 与技术的映射:
-  - Kafka ISR = Leader-Based + Quorum
+  - Kafka ISR = Leader-Based + ISR全员确认（acks=all时，非Quorum）
   - MySQL主从 = Leader-Based
   - HDFS = 管道式多副本写入
 
@@ -429,7 +429,7 @@ curl -X POST http://localhost:8081/compatibility/subjects/orders-value/versions/
 
 #### 章节核心要点总结（扩充）
 
-DDIA第5章是关于分布式系统最根本话题——数据的冗余存储。复制的目的包括：提高可用性（节点故障时数据仍可访问）、分散读负载（多个副本可服务读请求）、地理分布的延迟优化（就近读取）。三大复制策略中，Leader-Based Replication是最主流的模式：一个Leader处理所有写入，将变更日志同步给Follower；Follower只处理读请求。这种模式的"单写入点"特性避免了写入冲突，代价是写入吞吐受限于Leader单机能力。同步复制的语义是"写入在所有Follower确认后才对客户端可见"，这提供了最强的一致性保证但牺牲了写入延迟和可用性（任何一个Follower故障都会阻塞所有写入）。**"同步复制是不切实际的"正是DDIA的核心判断**——因此实际系统通常使用"半同步复制"（semi-synchronous）：一个Follower同步，其余异步。Kafka的ISR（In-Sync Replica）机制正是这一思想的体现：只有"跟得上"Leader的副本才被视为ISR成员；写入只要被所有ISR确认即视为成功；落后太多的副本被踢出ISR，不影响写入延迟。Multi-Leader Replication通常用于多数据中心场景：每个数据中心有各自的Leader，数据中心间异步同步。其最大挑战是"写入冲突"——两个数据中心同时对同一记录写入不同值时如何解决？书中介绍了LWW（Last Write Wins，依赖时间戳但时间戳不可靠）、CRDT（Conflict-free Replicated Data Types，数学上保证最终收敛）、以及"应用层冲突解决"（最灵活但也最复杂）。Leaderless Replication（Dynamo风格）让客户端直接向多个副本写入，通过Quorum（W + R > N）保证读写之间有重叠，从而读取到最新值。其魅力在于"无单点"——无需Leader选举，但代价是更复杂的读写协调和"最终一致性"语义。
+DDIA第5章是关于分布式系统最根本话题——数据的冗余存储。复制的目的包括：提高可用性（节点故障时数据仍可访问）、分散读负载（多个副本可服务读请求）、地理分布的延迟优化（就近读取）。三大复制策略中，Leader-Based Replication是最主流的模式：一个Leader处理所有写入，将变更日志同步给Follower；Follower只处理读请求。这种模式的"单写入点"特性避免了写入冲突，代价是写入吞吐受限于Leader单机能力。同步复制的语义是"写入在所有Follower确认后才对客户端可见"，这提供了最强的一致性保证但牺牲了写入延迟和可用性（任何一个Follower故障都会阻塞所有写入）。**"同步复制是不切实际的"正是DDIA的核心判断**——因此实际系统通常使用"半同步复制"（semi-synchronous）：一个Follower同步，其余异步。Kafka的ISR（In-Sync Replica）机制是这一思想的变体，但更严格：acks=all时要求所有ISR成员确认，而非仅一个Follower；只有"跟得上"Leader的副本才被视为ISR成员；落后太多的副本被踢出ISR，不影响写入延迟。Multi-Leader Replication通常用于多数据中心场景：每个数据中心有各自的Leader，数据中心间异步同步。其最大挑战是"写入冲突"——两个数据中心同时对同一记录写入不同值时如何解决？书中介绍了LWW（Last Write Wins，依赖时间戳但时间戳不可靠）、CRDT（Conflict-free Replicated Data Types，数学上保证最终收敛）、以及"应用层冲突解决"（最灵活但也最复杂）。Leaderless Replication（Dynamo风格）让客户端直接向多个副本写入，通过Quorum（W + R > N）保证读写之间有重叠，从而读取到最新值。其魅力在于"无单点"——无需Leader选举，但代价是更复杂的读写协调和"最终一致性"语义。
 
 #### 讨论题目（扩充）
 
@@ -445,8 +445,8 @@ DDIA第5章是关于分布式系统最根本话题——数据的冗余存储。
 | 书中概念 | 对应技术 | 详细映射分析 |
 |----------|----------|-------------|
 | Leader-Based Replication | Kafka Partition Leader | 每个Partition一个Leader，Follower通过FetchRequest拉取数据；ISR列表由Controller维护 |
-| 同步 vs 异步复制 | Kafka acks配置 | acks=0（不等待）= 异步；acks=1（Leader确认）= 半异步；acks=all（ISR确认）= 半同步 |
-| 读修复 + 反熵 | Cassandra Hinted Handoff + Read Repair | Hinted Handoff处理短暂节点故障；Read Repair在读取时修复不一致 |
+| 同步 vs 异步复制 | Kafka acks配置 | acks=0（不等待）= 异步；acks=1（Leader确认即返回，非标准"半同步"术语）；acks=all（ISR确认）= 半同步 |
+| 读修复 + 反熵 + Hinted Handoff | Cassandra三种修复机制 | 读修复(读取时修复) + 反熵(后台Merkle Tree比对修复, nodetool repair) + Hinted Handoff(暂存写入提示) |
 | Quorum | Elasticsearch写一致性 | wait_for_active_shards控制最少写入成功的分片数 |
 | 变更日志复制 | MySQL Binlog → Kafka CDC | Debezium读取Binlog（MySQL Leader的变更日志）= 复制日志 |
 | 多主冲突解决 | Flink多流JOIN时迟到数据处理 | 两条流的数据到达时间不一致 → Side Output处理冲突数据 |
@@ -636,13 +636,14 @@ df.repartitionByRange(100, "order_date") \
     读未提交(Read Uncommitted) → 脏读
     读已提交(Read Committed) → 不可重复读
     可重复读(Repeatable Read) → 幻读
+    注: SQL标准允许幻读，但DDIA指出主流数据库（PostgreSQL/MySQL InnoDB/Oracle）的"可重复读"实际实现快照隔离，能防止幻读但仍允许写偏斜
     可序列化(Serializable) → 最严格
 
   MVCC(多版本并发控制):
     每条数据维护多个版本
     读操作不阻塞写操作
     写操作不阻塞读操作
-    代表: PostgreSQL, MySQL InnoDB, HBase
+    代表: PostgreSQL, MySQL InnoDB（注: HBase的Cell Versioning是数据模型层的多版本，与MVCC并发控制概念不同）
 
   快照隔离(Snapshot Isolation):
     事务能看到的是事务开始时的一致性快照
@@ -662,7 +663,7 @@ df.repartitionByRange(100, "order_date") \
 
 #### 章节核心要点总结（扩充）
 
-DDIA第7章是全书最微妙也最易被误解的章节。事务的本质是"将多条操作简化为一"——让应用开发者不用处理各种并发异常。ACID中，最常被讨论的是"Isolation"（隔离性），因为它直接决定了并发性能。书中用生动的例子描述了各种隔离级别下的异常现象：脏读（读到未提交的数据）、不可重复读（同一事务中两次读同一行得到不同值）、幻读（同一事务两次范围查询得到不同结果集）、写偏斜（Write Skew，两个事务分别读取并修改不同行，但逻辑上违反约束）。MVCC是实现快照隔离的通用技术：每次写入创建数据的新版本而非覆盖旧版本；旧版本保留直到没有事务需要读取它；垃圾回收机制负责清理过期的旧版本。快照隔离的"读不阻塞写、写不阻塞读"特性使其成为生产系统中最广泛使用的隔离级别。但快照隔离不能防止写偏斜——这是需要可序列化（Serializable）才能解决的复杂场景。可序列化的实现方式包括：真串行执行（最简单，但受限于单核性能，Redis采用）、两阶段锁定（2PL，读写相互阻塞，性能很差）、可序列化快照隔离（SSI，在快照隔离基础上增加冲突检测，PostgreSQL 9.1+采用）。DDIA的重点启示是：**对大多数应用来说，快照隔离已经足够**；只有在涉及跨行约束（如预订会议室、转移账户余额）时才需要可序列化。事务的另一维度是Durability（持久性）：在单机数据库中通过WAL+fsync保证，在分布式系统中则复杂得多——需要协调多节点的提交。
+DDIA第7章是全书最微妙也最易被误解的章节。事务的本质是"将多条操作简化为一"——让应用开发者不用处理各种并发异常。ACID中，最常被讨论的是"Isolation"（隔离性），因为它直接决定了并发性能。书中用生动的例子描述了各种隔离级别下的异常现象：脏读（读到未提交的数据）、不可重复读（同一事务中两次读同一行得到不同值）、幻读（同一事务两次范围查询得到不同结果集）、写偏斜（Write Skew，两个事务分别读取并修改不同行，但逻辑上违反约束）。MVCC是实现快照隔离的通用技术：每次写入创建数据的新版本而非覆盖旧版本；旧版本保留直到没有事务需要读取它；垃圾回收机制负责清理过期的旧版本。快照隔离的"读不阻塞写、写不阻塞读"特性使其成为生产系统中最广泛使用的隔离级别。但快照隔离不能防止写偏斜——这是需要可序列化（Serializable）才能解决的复杂场景。可序列化的实现方式包括：真串行执行（最简单，但受限于单核性能，Redis采用）、两阶段锁定（2PL，读-写互斥、写-写互斥，但读-读不互斥，性能较差）、可序列化快照隔离（SSI，在快照隔离基础上增加冲突检测，PostgreSQL 9.1+采用）。DDIA的重点启示是：**对大多数应用来说，快照隔离已经足够**；只有在涉及跨行约束（如预订会议室、转移账户余额）时才需要可序列化。事务的另一维度是Durability（持久性）：在单机数据库中通过WAL+fsync保证，在分布式系统中则复杂得多——需要协调多节点的提交。
 
 #### 讨论题目（扩充）
 
@@ -681,7 +682,7 @@ DDIA第7章是全书最微妙也最易被误解的章节。事务的本质是"�
 | MVCC | HBase Cell Versioning | 每个Cell保存多个版本（按时间戳），读取时可指定版本数 |
 | 快照隔离 | Flink Checkpoint | Checkpoint = 分布式快照；Barrier对齐 = 一致性快照的时间点 |
 | 2PC | Kafka Exactly-Once | Kafka事务协调器 + 两阶段提交 → EOS语义 |
-| 写偏斜 | Flink State并发更新 | 多个Subtask同时更新Keyed State时使用Checkpoint保证一致性 |
+| 写偏斜 | 无直接对应 | Flink Keyed State保证同一Key由同一Subtask串行处理，不存在并发更新问题 |
 | WAL | Kafka Segment Log / Flink RocksDB WAL | 先写日志再应用变更 → 崩溃恢复保证持久性 |
 
 #### 代码/配置示例
@@ -813,7 +814,7 @@ DDIA第8章是全书最"悲观"但最务实的章节——它系统性地揭示�
 | 不可靠时钟 | Flink Watermark | 不依赖系统时钟，通过数据自带的时间戳 + 最大乱序容忍延迟来推进事件时间 |
 | 部分失效 | Flink Task心跳 + Watchdog | TaskManager定期向JobManager发送心跳；连续超时判定为失效，触发Failover |
 | 超时检测 | ZooKeeper Session | 客户端和ZK服务器间的Session有超时时间；ZK靠此检测客户端是否存活 |
-| Quorum | Kafka Controller选举 | Controller选举通过ZK临时节点 + Watch机制；只有获得多数ZK认可的节点才能成为Controller |
+| 分布式锁 | Kafka Controller选举 | Controller选举通过ZK临时节点实现(首个成功创建节点的Broker成为Controller)，非Quorum投票 |
 | 拜占庭故障 | Hadoop Checksum校验 | HDFS对每个Block存储CRC32校验和；DataNode在读取时校验，检测数据损坏 |
 
 #### 代码/配置示例
@@ -1502,11 +1503,11 @@ AS SELECT * FROM orders_queue;
 |------|-------------|----------|
 | 《数据库系统概念》 | DDIA的"预备知识" | 如果想补数据库理论基础，选读 |
 | 《分布式系统原理与范型》 | DDIA的"姊妹篇" | 如果想补分布式理论，选读 |
-| 《Streaming Systems》 | DDIA Ch11的"加长版" | 如果想深入流处理，必读；作者之一就是DDIA作者Martin Kleppmann |
+| 《Streaming Systems》 | DDIA Ch11的"加长版" | 如果想深入流处理，必读；作者是Google工程师Tyler Akidau等（非DDIA作者Martin Kleppmann） |
 | 《Kafka权威指南》 | DDIA Ch5/6的"实战版" | L2阶段必读 |
 | 《基于Apache Flink的流处理》 | DDIA Ch11的"实战版" | L2阶段必读 |
 | 《数据库系统内幕》 | DDIA Ch3的"加长版" | 如果想深入存储引擎，必读 |
 | 《高性能MySQL》 | DDIA Ch7的"MySQL视角" | 如果想深入理解InnoDB事务和MVCC |
-| 《数据密集型应用的系统设计》原著 | 反复精读 | 英文第1版免费在线：dataintensive.net |
+| 《数据密集型应用的系统设计》原著 | 反复精读 | 作者官网dataintensive.net提供书目和参考文献，全书需通过O'Reilly等渠道购买 |
 | 《Designing Distributed Systems》 | DDIA的Kubernetes视角 | Brendan Burns著，云原生的分布式模式 |
 | 《Cloud Native Data Pipelines》 | DDIA的工程化落地 | 如何在Kubernetes上构建数据管道 |

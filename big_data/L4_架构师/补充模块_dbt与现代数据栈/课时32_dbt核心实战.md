@@ -704,7 +704,7 @@ user_summary AS (
         SUM(CASE WHEN payment_amount IS NOT NULL THEN payment_amount ELSE 0 END) AS total_payment_amount,
         MIN(order_date) AS first_order_date,
         MAX(order_date) AS last_order_date,
-        DATE_DIFF(MAX(order_date), MIN(order_date), DAY) AS order_day_span,
+        DATE_DIFF('day', MIN(order_date), MAX(order_date)) AS order_day_span,
         COUNT(DISTINCT order_date) AS active_days,
         CASE
             WHEN COUNT(*) = 0 THEN '无订单'
@@ -766,8 +766,7 @@ models/marts/finance/fct_orders.sql:
 
 {{ config(
     materialized='table',
-    partition_by={'field': 'order_date', 'data_type': 'date'},
-    cluster_by=['user_id', 'order_status']
+    partition_by='order_date'
 ) }}
 
 WITH enriched AS (
@@ -922,7 +921,7 @@ retention AS (
         fo.user_id,
         fo.cohort_date,
         ua.order_date,
-        DATE_DIFF(ua.order_date, fo.cohort_date, DAY) AS day_diff
+        DATE_DIFF('day', fo.cohort_date, ua.order_date) AS day_diff
     FROM user_first_order fo
     INNER JOIN user_activity ua ON fo.user_id = ua.user_id
 ),
@@ -1051,7 +1050,7 @@ WITH source AS (
 filtered AS (
     SELECT * FROM source
     {% if is_incremental() %}
-    WHERE order_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)
+    WHERE order_date >= CURRENT_DATE - INTERVAL 3 DAY
     {% endif %}
 )
 
@@ -1105,7 +1104,7 @@ products AS (
 filtered_orders AS (
     SELECT * FROM orders
     {% if is_incremental() %}
-    WHERE order_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+    WHERE order_date >= CURRENT_DATE - INTERVAL 1 DAY
     {% endif %}
 ),
 
@@ -1153,7 +1152,7 @@ WITH payments AS (
     WHERE payment_amount IS NOT NULL
       AND payment_amount > 0
     {% if is_incremental() %}
-      AND order_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)
+      AND order_date >= CURRENT_DATE - INTERVAL 7 DAY
     {% endif %}
 )
 
@@ -1331,7 +1330,7 @@ macros/date_spine.sql:
     WITH RECURSIVE dates AS (
         SELECT {{ start_date }} AS date_value
         UNION ALL
-        SELECT DATE_ADD(date_value, INTERVAL 1 {{ datepart }})
+        SELECT date_value + INTERVAL 1 {{ datepart }}
         FROM dates
         WHERE date_value < {{ end_date }}
     )
@@ -1346,7 +1345,7 @@ macros/incremental_filter.sql:
 
 {% macro incremental_filter(date_column, lookback_days=3) %}
     {% if is_incremental() %}
-    WHERE {{ date_column }} >= DATE_SUB(CURRENT_DATE(), INTERVAL {{ lookback_days }} DAY)
+    WHERE {{ date_column }} >= CURRENT_DATE - INTERVAL {{ lookback_days }} DAY
     {% endif %}
 {% endmacro %}
 ```
@@ -1387,7 +1386,7 @@ retention AS (
         fo.user_id,
         fo.cohort_date,
         ua.order_date,
-        DATE_DIFF(ua.order_date, fo.cohort_date, DAY) AS day_diff
+        DATE_DIFF('day', fo.cohort_date, ua.order_date) AS day_diff
     FROM user_first_order fo
     INNER JOIN user_activity ua ON fo.user_id = ua.user_id
 ),
@@ -1521,7 +1520,6 @@ snapshots/snap_users.sql:
         target_schema='snapshots',
         strategy='timestamp',
         updated_at='updated_at',
-        check_cols=['user_name', 'email', 'user_gender', 'user_province', 'user_city'],
         unique_key='user_id',
         invalidate_hard_deletes=True
     )
@@ -1581,7 +1579,6 @@ dbt Cloud + Airflow集成:
 ```python
 from airflow import DAG
 from airflow.operators.bash import BashOperator
-from airflow.providers.amazon.aws.operators.s3 import S3CreateBucketOperator
 from datetime import datetime, timedelta
 
 default_args = {
@@ -1675,7 +1672,8 @@ pip install dbt-duckdb
 
 mkdir -p ~/dbt_lab && cd ~/dbt_lab
 
-dbt init ecommerce_lab --adapter duckdb
+dbt init ecommerce_lab
+# 已安装dbt-duckdb，交互式提示中选择duckdb适配器
 
 cd ecommerce_lab
 ```

@@ -566,7 +566,7 @@ env.execute("Checkpointed PyFlink Job")
 
 ## 七、灾备演练
 
-### 6.1 演练目标
+### 7.1 演练目标
 
 ```
 通过手动注入故障，验证Flink的容错能力：
@@ -576,7 +576,7 @@ env.execute("Checkpointed PyFlink Job")
   4. 端到端延迟增加了多少？
 ```
 
-### 6.2 演练步骤
+### 7.2 演练步骤
 
 ```bash
 #!/bin/bash
@@ -683,7 +683,7 @@ else
 fi
 ```
 
-### 6.3 演练记录模板
+### 7.3 演练记录模板
 
 ```markdown
 # Flink灾备演练报告
@@ -722,9 +722,9 @@ fi
 
 ---
 
-## 七、Checkpoint调优
+## 八、Checkpoint调优
 
-### 7.1 关键参数调优矩阵
+### 8.1 关键参数调优矩阵
 
 | 参数 | 默认值 | 建议值 | 说明 |
 |------|--------|--------|------|
@@ -737,7 +737,7 @@ fi
 | state.backend.rocksdb.writebuffer.size | 64MB | 128-256MB | 大状态加大写入缓冲 |
 | state.backend.rocksdb.thread.num | 1 | 4 | 提升RocksDB并行写能力 |
 
-### 7.2 Flink SQL Checkpoint配置
+### 8.2 Flink SQL Checkpoint配置
 
 ```sql
 -- Flink SQL中配置Checkpoint（SET语句）
@@ -754,7 +754,7 @@ SET 'state.checkpoints.dir' = 'hdfs://namenode:9000/flink/checkpoints';
 SET 'state.savepoints.dir' = 'hdfs://namenode:9000/flink/savepoints';
 ```
 
-### 7.3 监控指标
+### 8.3 监控指标
 
 ```yaml
 需要监控的Checkpoint指标:
@@ -776,9 +776,9 @@ SET 'state.savepoints.dir' = 'hdfs://namenode:9000/flink/savepoints';
 
 ---
 
-## 八、常见问题排查
+## 九、常见问题排查
 
-### 8.1 Checkpoint超时
+### 9.1 Checkpoint超时
 
 ```
 现象: Checkpoint一直处于IN_PROGRESS状态，最终超时失败
@@ -797,7 +797,7 @@ SET 'state.savepoints.dir' = 'hdfs://namenode:9000/flink/savepoints';
     解决: 开启非对齐Checkpoint
 ```
 
-### 8.2 状态恢复慢
+### 9.2 状态恢复慢
 
 ```
 现象: Job从Checkpoint恢复需要很长时间
@@ -815,7 +815,7 @@ SET 'state.savepoints.dir' = 'hdfs://namenode:9000/flink/savepoints';
 
 ---
 
-## 十六、课堂练习（45分钟）
+## 十、课堂练习（45分钟）
 
 ### 练习1：配置Checkpoint并观察（15分钟）
 
@@ -930,12 +930,12 @@ SET 'state.checkpoints.dir' = 'file:///tmp/flink-lab-rocksdb-cp';
 
 ---
 
-## 十七、课后作业
+## 十一、课后作业
 
 ### 必做
 
 1. **Checkpoint配置实验**：分别使用HashMapStateBackend和RocksDBStateBackend，状态大小100MB+，对比Checkpoint耗时和恢复耗时
-2. **灾备演练**：执行本课时第6节的完整演练流程，输出演练报告（使用模板）
+2. **灾备演练**：执行本课时第7节的完整演练流程，输出演练报告（使用模板）
 3. **增量Checkpoint**：配置RocksDB增量快照，对比全量快照的存储空间节省
 
 ### 选做
@@ -1128,18 +1128,9 @@ curl -s "http://localhost:8081/jobs/${JOB_ID}/checkpoints" >> hw-dr-report.txt
 
 ---
 
-## 十、参考资料
+## 十二、Checkpoint Barrier对齐详细时间线图解
 
-- [Apache Flink Checkpointing](https://nightlies.apache.org/flink/flink-docs-stable/docs/ops/state/checkpoints/)
-- [Flink State Backends](https://nightlies.apache.org/flink/flink-docs-stable/docs/ops/state/state_backends/)
-- [Flink Savepoints](https://nightlies.apache.org/flink/flink-docs-stable/docs/ops/state/savepoints/)
-- [Chandy, K.M. and Lamport, L., Distributed Snapshots (1985)](https://lamport.azurewebsites.net/pubs/chandy.pdf)
-
----
-
-## 十一、Checkpoint Barrier对齐详细时间线图解
-
-### 11.1 单上游通道对齐（最简单场景）
+### 12.1 单上游通道对齐（最简单场景）
 
 ```
 场景: Source(1分区) → Map(并行度1) → Sink(并行度1)
@@ -1188,7 +1179,7 @@ T=6ms     JobManager CheckpointCoordinator:
           └──────────────────────────────────────────┘
 ```
 
-### 11.2 多上游通道对齐（实际生产场景）
+### 12.2 多上游通道对齐（实际生产场景）
 
 ```
 场景: Source(2分区) → KeyBy → AggregationFunction(并行度1)
@@ -1302,7 +1293,7 @@ T=36ms  对齐完成，恢复正常处理
   - 对齐期间处理Channel-2的数据: E5-E10 (6条)
   - 对齐期间Channel-1积压: E4, E5 (2条，对齐结束后立即处理)
 
-### 11.3 非对齐Checkpoint（Unaligned Checkpoint）详细时间线
+### 12.3 非对齐Checkpoint（Unaligned Checkpoint）详细时间线
 
 ```
 场景: 同上，但启用了非对齐Checkpoint
@@ -1343,7 +1334,7 @@ Checkpoint耗时      变长 (反压时)               稳定
 生产建议            低反压、状态大的场景         高反压、延迟敏感场景
 ```
 
-### 11.4 Barrier对齐对反压的影响量化分析
+### 12.4 Barrier对齐对反压的影响量化分析
 
 ```
 实验条件:
@@ -1377,9 +1368,9 @@ curl -s http://localhost:8081/jobs/${JOB_ID}/vertices/${VERTEX_ID}/backpressure
 
 ---
 
-## 十二、RocksDB增量Checkpoint的SST文件级别详解
+## 十三、RocksDB增量Checkpoint的SST文件级别详解
 
-### 12.1 RocksDB LSM-Tree存储架构
+### 13.1 RocksDB LSM-Tree存储架构
 
 ```
 RocksDB 数据存储层次:
@@ -1419,7 +1410,7 @@ RocksDB 数据存储层次:
        更深的Level，每层大小是上一层的10倍
 ```
 
-### 12.2 SST文件内部结构
+### 13.2 SST文件内部结构
 
 ```
 SST (Sorted String Table) 文件二进制布局:
@@ -1479,7 +1470,7 @@ SST (Sorted String Table) 文件二进制布局:
   - 读写放大比: ~10x (写1KB → 最终读~10KB including compaction)
 ```
 
-### 12.3 RocksDB增量Checkpoint工作流程
+### 13.3 RocksDB增量Checkpoint工作流程
 
 ```
 为什么增量Checkpoint比全量快?
@@ -1531,7 +1522,7 @@ SST (Sorted String Table) 文件二进制布局:
   │   }                                                          │
   └─────────────────────────────────────────────────────────────┘
 
-### 12.4 Compaction策略对增量Checkpoint的影响
+### 13.4 Compaction策略对增量Checkpoint的影响
 
 Level Compaction (默认):
   优点: 读放大低，空间放大可接受
@@ -1557,7 +1548,7 @@ state.backend.rocksdb.thread.num: 4  // 后台Compaction线程数
 state.backend.rocksdb.predefined-options: SPINNING_DISK_OPTIMIZED_HIGH_MEM
 ```
 
-### 12.5 增量Checkpoint存储空间分析
+### 13.5 增量Checkpoint存储空间分析
 
 ```
 5分钟间隔, 50GB状态, 运行24小时的存储占用分析:
@@ -1582,9 +1573,9 @@ state.checkpoints.num-retained: 3
 
 ---
 
-## 十三、Savepoint格式的内部结构分析
+## 十四、Savepoint格式的内部结构分析
 
-### 13.1 Savepoint目录结构
+### 14.1 Savepoint目录结构
 
 ```
 Savepoint根目录结构:
@@ -1616,7 +1607,7 @@ Savepoint根目录结构:
 └── ... (每个并行度一个子目录)
 ```
 
-### 13.2 _metadata 文件内部结构
+### 14.2 _metadata 文件内部结构
 
 ```
 Savepoint _metadata 是Flink内部的MasterState序列化格式
@@ -1673,7 +1664,7 @@ Savepoint _metadata 是Flink内部的MasterState序列化格式
 └──────────────────────────────────────────────────────────┘
 ```
 
-### 13.3 Savepoint vs Checkpoint 内部格式差异
+### 14.3 Savepoint vs Checkpoint 内部格式差异
 
 ```
 维度              Checkpoint                  Savepoint
@@ -1694,7 +1685,7 @@ RocksDB文件       引用共享目录                 独立复制所有SST文�
   4. 确保Savepoint不依赖任何Checkpoint共享目录
 ```
 
-### 13.4 跨版本兼容性机制
+### 14.4 跨版本兼容性机制
 
 ```
 Savepoint跨版本恢复的兼容性保障:
@@ -1727,9 +1718,9 @@ Savepoint跨版本恢复的兼容性保障:
 
 ---
 
-## 十四、完整灾备演练操作手册
+## 十五、完整灾备演练操作手册
 
-### 14.1 演练全景架构
+### 15.1 演练全景架构
 
 ```
 演练环境拓扑:
@@ -1768,7 +1759,7 @@ Savepoint跨版本恢复的兼容性保障:
    └───────────────────────────────────┘
 ```
 
-### 14.2 完整自动化灾备演练脚本
+### 15.2 完整自动化灾备演练脚本
 
 ```bash
 #!/bin/bash
@@ -2089,7 +2080,7 @@ EOF
 info "完整日志: $LOG_FILE"
 ```
 
-### 14.3 灾备演练检查清单
+### 15.3 灾备演练检查清单
 
 ```markdown
 # Flink灾备演练检查清单
@@ -2125,7 +2116,7 @@ info "完整日志: $LOG_FILE"
 - [ ] 写入演练报告
 ```
 
-### 14.4 预期恢复时间 (RTO) 估算公式
+### 15.4 预期恢复时间 (RTO) 估算公式
 
 ```
 RTO (Recovery Time Objective) 预估:
@@ -2160,9 +2151,9 @@ RTO = TM重启时间 + 状态下载时间 + 状态重建时间 + 追数据时间
 
 ---
 
-## 十五、Checkpoint耗时与状态大小关系量化分析
+## 十六、Checkpoint耗时与状态大小关系量化分析
 
-### 15.1 实验设计
+### 16.1 实验设计
 
 ```
 目标: 量化分析Checkpoint耗时与状态大小的关系
@@ -2179,7 +2170,7 @@ RTO = TM重启时间 + 状态下载时间 + 状态重建时间 + 追数据时间
   - 异步部分耗时 (async_duration)
 ```
 
-### 15.2 量化分析结果
+### 16.2 量化分析结果
 
 ```
 === RocksDB增量Checkpoint 耗时分解 (SSD环境) ===
@@ -2233,7 +2224,7 @@ S3            65s       90s                   云原生, 延迟高
 4. RocksDB增量Checkpoint具有明显优势，建议生产默认开启
 ```
 
-### 15.3 Checkpoint耗时预测模型
+### 16.3 Checkpoint耗时预测模型
 
 ```
 经验公式:
@@ -2280,7 +2271,7 @@ T_checkpoint = T_alignment + T_snapshot + T_upload
       会出现 "Checkpoint追赶" 问题, 导致连续Checkpoint积压!
 ```
 
-### 15.4 Checkpoint性能监控与告警
+### 16.4 Checkpoint性能监控与告警
 
 ```yaml
 # Prometheus告警规则 - Flink Checkpoint
@@ -2332,3 +2323,12 @@ groups:
         annotations:
           summary: "Flink Checkpoint状态大小1小时内增长超过50%"
 ```
+
+---
+
+## 十七、参考资料
+
+- [Apache Flink Checkpointing](https://nightlies.apache.org/flink/flink-docs-stable/docs/ops/state/checkpoints/)
+- [Flink State Backends](https://nightlies.apache.org/flink/flink-docs-stable/docs/ops/state/state_backends/)
+- [Flink Savepoints](https://nightlies.apache.org/flink/flink-docs-stable/docs/ops/state/savepoints/)
+- [Chandy, K.M. and Lamport, L., Distributed Snapshots (1985)](https://lamport.azurewebsites.net/pubs/chandy.pdf)

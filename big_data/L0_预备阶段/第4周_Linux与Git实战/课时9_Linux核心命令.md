@@ -258,7 +258,8 @@ awk '{print $1}' access.log | sort | uniq -c | sort -rn | head -10
 
 # 5. 统计每分钟的QPS（请求量）
 # Nginx日志时间格式: [15/Jan/2024:10:30:00 +0800]
-awk '{print substr($4,2,17)}' access.log | uniq -c
+# 注意: uniq只能合并相邻相同行，必须先sort
+awk '{print substr($4,2,17)}' access.log | sort | uniq -c
 
 # 6. 计算平均响应时间
 awk '{sum+=$NF; count++} END {print sum/count}' access.log
@@ -267,7 +268,7 @@ awk '{sum+=$NF; count++} END {print sum/count}' access.log
 awk '{sum+=$10} END {printf "%.2f GB\n", sum/1024/1024/1024}' access.log
 
 # 8. 统计各时段的请求量
-awk '{print substr($4,14,3)":00"}' access.log | sort | uniq -c | sort -n
+awk '{print substr($4,14,2)":00"}' access.log | sort | uniq -c | sort -n
 
 # 9. 找出产生404的URL
 awk '$9 == 404 {print $7}' access.log | sort | uniq -c | sort -rn
@@ -428,7 +429,7 @@ awk '{print $1}' access.log | sort | uniq -c | sort -rn | head -10
 
 # ========== 任务3：每分钟QPS变化趋势 ==========
 echo "=== 每分钟QPS ==="
-awk '{print substr($4,2,17)}' access.log | uniq -c
+awk '{print substr($4,2,17)}' access.log | sort | uniq -c
 
 # ========== 任务4：找出所有慢请求（响应时间>1秒）==========
 echo "=== 慢请求 ==="

@@ -69,6 +69,7 @@ for p in "${PARTITIONS[@]}"; do
         batch.size=65536 \
         linger.ms=5 \
         compression.type=lz4 \
+        enable.idempotence=false \
       --print-metrics 2>&1)
     
     # 3. 提取关键指标
@@ -154,6 +155,9 @@ BASELINE_CONFIG = {
     'compression.type': 'lz4',
     'buffer.memory': 33554432,  # 32MB
     'retries': 0,
+    # Kafka 3.0+ 默认 enable.idempotence=true，此时强制要求 acks=all、retries>0、max.in.flight≤5
+    # 本基线使用 acks=1 + retries=0，必须显式关闭幂等性，否则 Producer 将无法启动
+    'enable.idempotence': False,
 }
 
 TOPIC = 'perf-test-producer'
@@ -322,6 +326,8 @@ high-throughput:
   compression.type: lz4
   buffer.memory: 67108864     # 64MB
   max.in.flight.requests.per.connection: 5
+  # acks=1 与 Kafka 3.0+ 默认的 enable.idempotence=true 不兼容，需显式关闭
+  enable.idempotence: false
 
 # 低延迟配置（适合交易数据、实时告警）
 low-latency:
@@ -331,16 +337,19 @@ low-latency:
   compression.type: snappy
   buffer.memory: 33554432     # 32MB
   max.in.flight.requests.per.connection: 5
+  # acks=1 与 Kafka 3.0+ 默认的 enable.idempotence=true 不兼容，需显式关闭
+  enable.idempotence: false
 
 # 高可靠配置（适合金融、订单数据）
 high-reliability:
   acks: all
-  batch.size: 65536           # 64KB
+  batch.size: 131072          # 128KB（与3.5节综合最优配置保持一致）
   linger.ms: 5
   compression.type: lz4
   buffer.memory: 67108864     # 64MB
   enable.idempotence: true
-  max.in.flight.requests.per.connection: 5
+  # 高可靠场景 max.in.flight 应为 1，避免未确认请求乱序导致重复/丢消息风险
+  max.in.flight.requests.per.connection: 1
   retries: 2147483647         # Integer.MAX_VALUE
 
 # 折中最优配置（推荐大多数场景使用）
@@ -352,6 +361,8 @@ balanced:
   buffer.memory: 67108864     # 64MB
   retries: 3
   max.in.flight.requests.per.connection: 5
+  # acks=1 与 Kafka 3.0+ 默认的 enable.idempotence=true 不兼容，需显式关闭
+  enable.idempotence: false
 ```
 
 ---
@@ -712,7 +723,7 @@ kill $PROD_PID 2>/dev/null
 
 ---
 
-## 九、完整240参数组合Python实验脚本（正交实验法）
+## 九、完整840参数组合Python实验脚本（正交实验法）
 
 ### 9.1 全因子实验设计
 
@@ -736,7 +747,7 @@ kill $PROD_PID 2>/dev/null
 #!/usr/bin/env python3
 """
 kafka_full_benchmark.py
-Kafka Producer 240+参数组合正交实验 — 完整自动化脚本
+Kafka Producer 840参数组合正交实验 — 完整自动化脚本
 
 功能:
   1. 全因子正交实验 (840个有效组合)
@@ -1539,11 +1550,12 @@ for t in $(seq 5 5 60); do
     kafka-topics.sh --describe --topic "$TOPIC" --bootstrap-server "$BOOTSTRAP" 2>/dev/null \
         | grep -E "Isr:" | tee -a "$RESULTS"
     
-    # 检查所有ISR是否恢复 (3副本)
-    ALL_ISR_OK=$(kafka-topics.sh --describe --topic "$TOPIC" \
+    # 检查所有ISR是否恢复 (3副本，broker 2 重新加入 ISR)
+    # 统计仍缺少 broker 2 的分区数（ISR 仅剩 1,3 或 3,1）
+    NOT_RECOVERED=$(kafka-topics.sh --describe --topic "$TOPIC" \
         --bootstrap-server "$BOOTSTRAP" 2>/dev/null \
-        | grep "Isr:" | grep -v "Isr: 1,3" | grep -v "Isr: 3,1" | wc -l)
-    if [ "$ALL_ISR_OK" -eq 0 ]; then
+        | grep "Isr:" | grep "Isr: 1,3\|Isr: 3,1" | wc -l)
+    if [ "$NOT_RECOVERED" -eq 0 ]; then
         FULL_RECOVER_TIME=$(( $(date +%s) - RECOVER_TIME ))
         log "  ✓ ISR全部恢复! 恢复耗时: ${FULL_RECOVER_TIME}s"
         break
@@ -1901,7 +1913,7 @@ for t in $(seq 5 5 120); do
         --bootstrap-server "$BOOTSTRAP" 2>/dev/null | grep "Leader:" | wc -l)
     FULL_ISR=$(kafka-topics.sh --describe --topic "$TOPIC" \
         --bootstrap-server "$BOOTSTRAP" 2>/dev/null \
-        | grep "Isr:" | grep -c "Isr:.*,.*,.*," || true)
+        | grep "Isr:" | grep -c "Isr:.*,.*," || true)
     
     log "  T+${t}s: ISR完整分区=$FULL_ISR/$TOTAL"
     
@@ -1992,6 +2004,7 @@ kafka-producer-perf-test.sh \
         acks=1 \
         compression.type=lz4 \
         linger.ms=5 \
+        enable.idempotence=false \
     > "${LOG_DIR}/producer-fast.log" 2>&1 &
 PRODUCER_PID=$!
 
@@ -2314,7 +2327,7 @@ KAFKA_JVM_PERFORMANCE_OPTS="
 
 ### 5.2 关键发现
 
-1. **Leader切换时间**: 3-5秒（由 `unclean.leader.election.enable=false` 和 `controlled.shutdown` 控制）
+1. **Leader切换时间**: 3-5秒（主要由 ZooKeeper 会话超时检测 `zookeeper.session.timeout.ms`、Controller 选举与分区状态机切换决定；`unclean.leader.election.enable=false` 仅控制是否允许非ISR副本成为Leader，避免数据丢失，不直接决定切换时长）
 2. **ISR恢复时间**: 45-90秒（取决于分区数量和副本同步速度）
 3. **Producer重试行为**: acks=all时自动重试，对业务无感知（需配合 `enable.idempotence=true`）
 4. **Consumer影响**: Rebalance耗时与分区数和Consumer数量成正比
@@ -2331,7 +2344,7 @@ KAFKA_JVM_PERFORMANCE_OPTS="
 | batch.size | 512KB | 32KB | 128KB | 256KB |
 | linger.ms | 20 | 2 | 5 | 10 |
 | compression | lz4 | snappy | lz4 | lz4 |
-| buffer.memory | 256MB | 64MB | 128MB | 64MB |
+| buffer.memory | 256MB | 64MB | 64MB | 32MB |
 | partitions | 15 | 6 | 10 | 8 |
 | replication | 2 | 3 | 3 | 2 |
 | min.insync.replicas | 1 | 2 | 2 | 1 |
@@ -2509,6 +2522,9 @@ socket.receive.buffer.bytes=102400
 socket.request.max.bytes=104857600
 
 # 日志存储 — 快速刷新
+# ⚠️ 注意：频繁fsync会增加延迟（磁盘fsync通常耗时ms级，反而推高P99）
+#    低延迟场景应使用 replication（多副本）代替 fsync 来保证持久性，
+#    将 log.flush.interval.* 调大或交由操作系统页缓存回写，可显著降低尾延迟
 log.dirs=/data/kafka-logs
 num.partitions=6
 default.replication.factor=3
@@ -2524,6 +2540,8 @@ replica.fetch.max.bytes=2097152
 replica.fetch.wait.max.ms=300
 replica.lag.time.max.ms=10000
 min.insync.replicas=2
+# ⚠️ 注意：min.insync.replicas 仅在 acks=all 时生效；本配置 Producer 使用 acks=1，
+#    该设置不会生效。若需强一致，请将 Producer 的 acks 改为 all。
 
 # ========== Producer配置 ==========
 acks=1
@@ -2553,6 +2571,7 @@ partition.assignment.strategy=\
 
 # ========== Topic配置 ==========
 min.insync.replicas=2
+# ⚠️ 注意：min.insync.replicas 仅在 Producer acks=all 时生效；本配置 acks=1 时该设置无效
 unclean.leader.election.enable=false
 segment.bytes=268435456
 compression.type=snappy
@@ -2586,7 +2605,7 @@ compression.type=snappy
 # net.core.wmem_max=16777216
 # net.ipv4.tcp_rmem=4096 87380 16777216
 # net.ipv4.tcp_wmem=4096 65536 16777216
-# net.ipv4.tcp_low_latency=1
+# net.ipv4.tcp_low_latency=1 (已废弃，Linux内核3.6+移除，请勿使用)
 # net.core.busy_read=50
 # net.core.busy_poll=50
 # fs.file-max=655360
@@ -2629,6 +2648,8 @@ replica.fetch.max.bytes=5242880
 replica.fetch.wait.max.ms=500
 replica.lag.time.max.ms=30000
 min.insync.replicas=2
+# ⚠️ 注意：min.insync.replicas 仅在 acks=all 时生效；本配置 Producer 使用 acks=1，
+#    该设置不会生效。若需强一致，请将 Producer 的 acks 改为 all。
 
 # ZooKeeper
 zookeeper.connect=zk-1:2181,zk-2:2181,zk-3:2181
@@ -2664,6 +2685,7 @@ partition.assignment.strategy=\
 
 # ========== Topic配置 ==========
 min.insync.replicas=2
+# ⚠️ 注意：min.insync.replicas 仅在 Producer acks=all 时生效；本配置 acks=1 时该设置无效
 unclean.leader.election.enable=false
 segment.bytes=536870912
 compression.type=producer

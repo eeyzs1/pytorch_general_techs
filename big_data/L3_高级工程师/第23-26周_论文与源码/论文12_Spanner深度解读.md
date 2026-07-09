@@ -413,7 +413,7 @@ Spanner的并发控制:
 ```
 Spanner的Schema变更(独特设计):
 
-  挑道: 全球分布式 → Schema变更需同步
+  挑战: 全球分布式 → Schema变更需同步
   传统: 停服变更 → 不可接受
 
   Spanner的方案: 基于时间戳的Schema变更

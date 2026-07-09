@@ -62,7 +62,7 @@
 - 地址分布：各城市分布合理
 - 用户年龄分布：18-60岁，正态分布
 
-**Pythong生成脚本要求**：
+**Python生成脚本要求**：
 - 使用批量INSERT提高导入效率
 - 正确处理外键依赖顺序
 - 输出文件大小预估
@@ -1654,8 +1654,9 @@ CATEGORY_NAMES = [
     ("数码配件", "手机数码"), ("电脑办公", "手机数码")
 ]
 
+# 状态分布: 已完成>已发货>已支付>待支付>已取消>已退款
 STATUSES = ["pending", "paid", "shipped", "completed", "cancelled", "refunded"]
-STATUS_WEIGHTS = [0.05, 0.08, 0.20, 0.45, 0.15, 0.07]
+STATUS_WEIGHTS = [0.10, 0.12, 0.20, 0.45, 0.08, 0.05]
 PAYMENT_METHODS = ["wechat", "alipay", "credit_card", "debit_card", "cod"]
 PAYMENT_WEIGHTS = [0.35, 0.30, 0.15, 0.10, 0.10]
 ACTION_TYPES = ["view", "cart", "wish", "buy", "search", "compare"]
@@ -1682,9 +1683,14 @@ def weighted_choice(choices_with_weights):
 
 
 def random_date_weighted():
-    """生成带周末权重的随机日期（周末概率更高）"""
-    day_offset = random.randint(0, TOTAL_DAYS)
-    return START_DATE + datetime.timedelta(days=day_offset)
+    """生成随机日期（周末流量比工作日高约20%）"""
+    while True:
+        day_offset = random.randint(0, TOTAL_DAYS)
+        date = START_DATE + datetime.timedelta(days=day_offset)
+        is_weekend = date.weekday() >= 5  # 周六=5, 周日=6
+        # 周末100%接受，工作日80%接受，使周末单日概率约为工作日的1.25倍
+        if is_weekend or random.random() < 0.8:
+            return date
 
 
 def random_datetime(day):
@@ -1830,12 +1836,9 @@ def generate_orders(users_data, num=NUM_ORDERS):
 
 
 def generate_order_items(orders_data, products_data, num=NUM_ORDER_ITEMS):
-    """生成订单明细，确保每个已完成订单有1-5个商品"""
+    """生成订单明细，每个订单包含1-5个商品"""
     items = []
     products_list = [(p[0], p[3]) for p in products_data]  # (product_id, price)
-
-    # 筛选完成的订单
-    completed_orders = [o for o in orders_data if o[5] in ('paid', 'shipped', 'completed')]
 
     item_id = 0
     order_item_map = defaultdict(list)

@@ -152,7 +152,7 @@ from airflow.operators.email import EmailOperator
 from airflow.providers.apache.hive.operators.hive import HiveOperator
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from airflow.sensors.filesystem import FileSensor
-from airflow.sensors.hive_partition_sensor import HivePartitionSensor
+from airflow.providers.apache.hive.sensors.hive_partition import HivePartitionSensor
 from airflow.utils.trigger_rule import TriggerRule
 
 # DAG默认参数
@@ -180,8 +180,8 @@ dag = DAG(
     sla_miss_callback=None,          # SLA未达标的回调函数
 )
 
-YESTERDAY = '{{ macros.ds_add(ds, -1) }}'  # Airflow模板变量: 昨天日期
-YESTERDAY_SHORT = '{{ macros.ds_add(ds, -1) | replace("-", "") }}'
+DATA_DATE = '{{ ds }}'  # 数据日期（即昨天的日期）
+DATA_DATE_SHORT = '{{ ds | replace("-", "") }}'  # 数据日期(无分隔符)
 
 # ============================================================
 # 阶段1: 数据采集 (并行执行)
@@ -199,7 +199,7 @@ with dag:
             --connect jdbc:mysql://mysql:3306/ecommerce \\
             --username root --password root123 \\
             --table user_info \\
-            --target-dir /data/ods/user_info/{YESTERDAY}/ \\
+            --target-dir /data/ods/user_info/{DATA_DATE}/ \\
             --delete-target-dir \\
             --num-mappers 4
         """,
@@ -214,7 +214,7 @@ with dag:
             --connect jdbc:mysql://mysql:3306/ecommerce \\
             --username root --password root123 \\
             --table order_info \\
-            --target-dir /data/ods/order_info/{YESTERDAY}/ \\
+            --target-dir /data/ods/order_info/{DATA_DATE}/ \\
             --delete-target-dir \\
             --num-mappers 4
         """,
@@ -229,17 +229,32 @@ with dag:
             --connect jdbc:mysql://mysql:3306/ecommerce \\
             --username root --password root123 \\
             --table sku_info \\
-            --target-dir /data/ods/sku_info/{YESTERDAY}/ \\
+            --target-dir /data/ods/sku_info/{DATA_DATE}/ \\
             --delete-target-dir \\
             --num-mappers 4
         """,
         dag=dag,
     )
 
-    # 生成用户行为日志
+    # Sqoop抽取订单明细表
+    extract_mysql_order_detail = BashOperator(
+        task_id='extract_mysql_order_detail',
+        bash_command=f"""
+        sqoop import \\
+            --connect jdbc:mysql://mysql:3306/ecommerce \\
+            --username root --password root123 \\
+            --table order_detail \\
+            --target-dir /data/ods/order_detail/{DATA_DATE}/ \\
+            --delete-target-dir \\
+            --num-mappers 4
+        """,
+        dag=dag,
+    )
+
+    # 生成用户行为日志（写入HDFS后由load_ods_user_log加载分区）
     generate_user_log = PythonOperator(
         task_id='generate_user_log',
-        python_callable=lambda: print(f"生成 {YESTERDAY} 的用户行为日志"),
+        python_callable=lambda: print(f"生成 {DATA_DATE} 的用户行为日志"),
         dag=dag,
     )
 
@@ -251,8 +266,8 @@ with dag:
         task_id='load_ods_users',
         hql=f"""
         ALTER TABLE ods.ods_user_info ADD IF NOT EXISTS 
-        PARTITION (dt='{YESTERDAY}') 
-        LOCATION '/data/ods/user_info/{YESTERDAY}/'
+        PARTITION (dt='{DATA_DATE}') 
+        LOCATION '/data/ods/user_info/{DATA_DATE}/'
         """,
         dag=dag,
     )
@@ -261,8 +276,8 @@ with dag:
         task_id='load_ods_orders',
         hql=f"""
         ALTER TABLE ods.ods_order_info ADD IF NOT EXISTS 
-        PARTITION (dt='{YESTERDAY}') 
-        LOCATION '/data/ods/order_info/{YESTERDAY}/'
+        PARTITION (dt='{DATA_DATE}') 
+        LOCATION '/data/ods/order_info/{DATA_DATE}/'
         """,
         dag=dag,
     )
@@ -270,9 +285,30 @@ with dag:
     load_ods_skus = HiveOperator(
         task_id='load_ods_skus',
         hql=f"""
-        ALTER TABLE ods.ods_sku_info ADD IF NOT EXISTS 
-        PARTITION (dt='{YESTERDAY}') 
-        LOCATION '/data/ods/sku_info/{YESTERDAY}/'
+        ALTER TABLE ods.ods_sku_info ADD IF NOT EXISTS
+        PARTITION (dt='{DATA_DATE}')
+        LOCATION '/data/ods/sku_info/{DATA_DATE}/'
+        """,
+        dag=dag,
+    )
+
+    load_ods_order_detail = HiveOperator(
+        task_id='load_ods_order_detail',
+        hql=f"""
+        ALTER TABLE ods.ods_order_detail ADD IF NOT EXISTS
+        PARTITION (dt='{DATA_DATE}')
+        LOCATION '/data/ods/order_detail/{DATA_DATE}/'
+        """,
+        dag=dag,
+    )
+
+    # 用户行为日志写入HDFS后加载ODS分区
+    load_ods_user_log = HiveOperator(
+        task_id='load_ods_user_log',
+        hql=f"""
+        ALTER TABLE ods.ods_user_log ADD IF NOT EXISTS
+        PARTITION (dt='{DATA_DATE}')
+        LOCATION '/data/ods/user_log/{DATA_DATE}/'
         """,
         dag=dag,
     )
@@ -281,7 +317,7 @@ with dag:
     check_ods_users_ready = HivePartitionSensor(
         task_id='check_ods_users_ready',
         table='ods.ods_user_info',
-        partition=f"dt='{YESTERDAY}'",
+        partition=f"dt='{DATA_DATE}'",
         poke_interval=60,
         timeout=600,
         dag=dag,
@@ -297,7 +333,7 @@ with dag:
     dwd_order_detail = SparkSubmitOperator(
         task_id='dwd_order_detail',
         application='/opt/airflow/dags/etl/dwd_etl.py',
-        application_args=['--table', 'dwd_order_detail', '--date', YESTERDAY],
+        application_args=['--table', 'dwd_order_detail', '--date', DATA_DATE],
         conn_id='spark_default',
         conf={
             'spark.executor.memory': '4g',
@@ -310,7 +346,7 @@ with dag:
     dwd_user_log = SparkSubmitOperator(
         task_id='dwd_user_log',
         application='/opt/airflow/dags/etl/dwd_etl.py',
-        application_args=['--table', 'dwd_user_log', '--date', YESTERDAY],
+        application_args=['--table', 'dwd_user_log', '--date', DATA_DATE],
         conn_id='spark_default',
         dag=dag,
     )
@@ -318,7 +354,7 @@ with dag:
     dwd_user_register = SparkSubmitOperator(
         task_id='dwd_user_register',
         application='/opt/airflow/dags/etl/dwd_etl.py',
-        application_args=['--table', 'dwd_user_register', '--date', YESTERDAY],
+        application_args=['--table', 'dwd_user_register', '--date', DATA_DATE],
         conn_id='spark_default',
         dag=dag,
     )
@@ -333,18 +369,31 @@ with dag:
     dws_user_action = HiveOperator(
         task_id='dws_user_action_day',
         hql=f"""
-        INSERT OVERWRITE TABLE dws.dws_user_action_day PARTITION (dt='{YESTERDAY}')
-        SELECT user_id,
-            SUM(CASE WHEN behavior='pv' THEN 1 ELSE 0 END) as pv_count,
-            SUM(CASE WHEN behavior='cart' THEN 1 ELSE 0 END) as cart_count,
-            SUM(CASE WHEN behavior='fav' THEN 1 ELSE 0 END) as fav_count,
-            SUM(CASE WHEN behavior='buy' THEN 1 ELSE 0 END) as buy_count,
+        INSERT OVERWRITE TABLE dws.dws_user_action_day PARTITION (dt='{DATA_DATE}')
+        -- is_new_user 需关联历史数据判断：通过 LEFT ANTI JOIN 检查用户是否在之前分区数据中出现过
+        -- new_users 为当天分区中、历史数据(dt < 当天)里从未出现过的用户
+        WITH new_users AS (
+            SELECT DISTINCT t.user_id
+            FROM dwd.dwd_user_log t
+            LEFT ANTI JOIN (
+                SELECT DISTINCT user_id
+                FROM dwd.dwd_user_log
+                WHERE dt < '{DATA_DATE}'
+            ) h ON t.user_id = h.user_id
+            WHERE t.dt = '{DATA_DATE}'
+        )
+        SELECT t.user_id,
+            SUM(CASE WHEN t.behavior='pv' THEN 1 ELSE 0 END) as pv_count,
+            SUM(CASE WHEN t.behavior='cart' THEN 1 ELSE 0 END) as cart_count,
+            SUM(CASE WHEN t.behavior='fav' THEN 1 ELSE 0 END) as fav_count,
+            SUM(CASE WHEN t.behavior='buy' THEN 1 ELSE 0 END) as buy_count,
             COUNT(*) as total_actions,
-            COUNT(DISTINCT behavior_hour) as active_hours,
-            CASE WHEN MIN(behavior_date)='{YESTERDAY}' THEN 1 ELSE 0 END as is_new_user
-        FROM dwd.dwd_user_log
-        WHERE dt='{YESTERDAY}'
-        GROUP BY user_id
+            COUNT(DISTINCT t.behavior_hour) as active_hours,
+            CASE WHEN n.user_id IS NOT NULL THEN 1 ELSE 0 END as is_new_user
+        FROM dwd.dwd_user_log t
+        LEFT JOIN new_users n ON t.user_id = n.user_id
+        WHERE t.dt='{DATA_DATE}'
+        GROUP BY t.user_id, CASE WHEN n.user_id IS NOT NULL THEN 1 ELSE 0 END
         """,
         dag=dag,
     )
@@ -352,17 +401,28 @@ with dag:
     dws_sku_action = HiveOperator(
         task_id='dws_sku_action_day',
         hql=f"""
-        INSERT OVERWRITE TABLE dws.dws_sku_action_day PARTITION (dt='{YESTERDAY}')
-        SELECT sku_id, MAX(category_id), SUM(CASE WHEN behavior='pv' THEN 1 ELSE 0 END),
-               SUM(CASE WHEN behavior='cart' THEN 1 ELSE 0 END),
-               SUM(CASE WHEN behavior='fav' THEN 1 ELSE 0 END),
-               SUM(CASE WHEN behavior='buy' THEN 1 ELSE 0 END),
-               0, 0,
-               COUNT(DISTINCT CASE WHEN behavior='buy' THEN user_id END),
-               ROUND(SUM(CASE WHEN behavior='buy' THEN 1 ELSE 0 END)*1.0/
-                     NULLIF(SUM(CASE WHEN behavior='cart' THEN 1 ELSE 0 END),0),4)
-        FROM dwd.dwd_user_log WHERE dt='{YESTERDAY}'
-        GROUP BY sku_id
+        INSERT OVERWRITE TABLE dws.dws_sku_action_day PARTITION (dt='{DATA_DATE}')
+        -- order_count/order_amount需从dwd_order_detail获取(LEFT JOIN避免丢失无订单SKU)
+        SELECT ul.sku_id, MAX(ul.category_id),
+               SUM(CASE WHEN ul.behavior='pv' THEN 1 ELSE 0 END),
+               SUM(CASE WHEN ul.behavior='cart' THEN 1 ELSE 0 END),
+               SUM(CASE WHEN ul.behavior='fav' THEN 1 ELSE 0 END),
+               SUM(CASE WHEN ul.behavior='buy' THEN 1 ELSE 0 END),
+               COALESCE(MAX(od.order_count), 0),
+               COALESCE(MAX(od.order_amount), 0),
+               COUNT(DISTINCT CASE WHEN ul.behavior='buy' THEN ul.user_id END),
+               ROUND(SUM(CASE WHEN ul.behavior='buy' THEN 1 ELSE 0 END)*1.0/
+                     NULLIF(SUM(CASE WHEN ul.behavior='cart' THEN 1 ELSE 0 END),0),4)
+        FROM dwd.dwd_user_log ul
+        LEFT JOIN (
+            SELECT sku_id,
+                   COUNT(DISTINCT order_id) AS order_count,
+                   SUM(order_price * sku_num) AS order_amount
+            FROM dwd.dwd_order_detail WHERE dt='{DATA_DATE}'
+            GROUP BY sku_id
+        ) od ON ul.sku_id = od.sku_id
+        WHERE ul.dt='{DATA_DATE}'
+        GROUP BY ul.sku_id
         """,
         dag=dag,
     )
@@ -370,12 +430,25 @@ with dag:
     dws_trade_day = HiveOperator(
         task_id='dws_trade_user_order_day',
         hql=f"""
-        INSERT OVERWRITE TABLE dws.dws_trade_user_order_day PARTITION (dt='{YESTERDAY}')
-        SELECT user_id, COUNT(DISTINCT order_id), SUM(total_amount),
-               SUM(payment_amount), SUM(sku_num),
-               SUM(CASE WHEN order_status='已取消' THEN 1 ELSE 0 END),
-               SUM(CASE WHEN order_status='已退款' THEN 1 ELSE 0 END)
-        FROM dwd.dwd_order_detail WHERE dt='{YESTERDAY}'
+        INSERT OVERWRITE TABLE dws.dws_trade_user_order_day PARTITION (dt='{DATA_DATE}')
+        -- dwd_order_detail每行是一条明细，一个订单N条明细
+        -- 先按order_id聚合(MAX去重订单级字段)，再按user_id汇总
+        SELECT user_id,
+               COUNT(DISTINCT order_id) AS order_count,
+               SUM(order_amount) AS order_amount,
+               SUM(payment_amount) AS payment_amount,
+               SUM(sku_count) AS sku_count,
+               SUM(CASE WHEN order_status='已取消' THEN 1 ELSE 0 END) AS cancel_count,
+               SUM(CASE WHEN order_status='已退款' THEN 1 ELSE 0 END) AS refund_count
+        FROM (
+            SELECT order_id, user_id,
+                   MAX(total_amount) AS order_amount,
+                   MAX(payment_amount) AS payment_amount,
+                   SUM(sku_num) AS sku_count,
+                   MAX(order_status) AS order_status
+            FROM dwd.dwd_order_detail WHERE dt='{DATA_DATE}'
+            GROUP BY order_id, user_id
+        ) t
         GROUP BY user_id
         """,
         dag=dag,
@@ -391,7 +464,7 @@ with dag:
     ads_user_retention = HiveOperator(
         task_id='ads_user_retention',
         hql=f"""INSERT OVERWRITE TABLE ads.ads_user_retention_day 
-                PARTITION (dt='{YESTERDAY}')
+                PARTITION (dt='{DATA_DATE}')
                 SELECT ... """,
         dag=dag,
     )
@@ -399,7 +472,7 @@ with dag:
     ads_trade_stats = HiveOperator(
         task_id='ads_trade_stats',
         hql=f"""INSERT OVERWRITE TABLE ads.ads_trade_stats_day 
-                PARTITION (dt='{YESTERDAY}')
+                PARTITION (dt='{DATA_DATE}')
                 SELECT ... """,
         dag=dag,
     )
@@ -407,7 +480,7 @@ with dag:
     ads_conversion_funnel = HiveOperator(
         task_id='ads_conversion_funnel',
         hql=f"""INSERT OVERWRITE TABLE ads.ads_user_action_conversion 
-                PARTITION (dt='{YESTERDAY}')
+                PARTITION (dt='{DATA_DATE}')
                 SELECT ... """,
         dag=dag,
     )
@@ -437,7 +510,6 @@ with dag:
     dq_check = PythonOperator(
         task_id='dq_check_all',
         python_callable=check_data_quality,
-        provide_context=True,
         dag=dag,
     )
 
@@ -448,9 +520,9 @@ with dag:
     send_email = EmailOperator(
         task_id='send_report',
         to=['data-team@example.com', 'manager@example.com'],
-        subject=f'数仓ETL日报 - {YESTERDAY}',
+        subject=f'数仓ETL日报 - {DATA_DATE}',
         html_content=f"""
-        <h2>数仓ETL日报 - {YESTERDAY}</h2>
+        <h2>数仓ETL日报 - {DATA_DATE}</h2>
         <p>所有ETL任务已完成，数据质量检查通过。</p>
         <p>请查看Airflow Web UI获取详细信息。</p>
         """,
@@ -465,15 +537,19 @@ with dag:
     # ============================================================
 
     # 阶段1: 采集阶段并行
-    start >> [extract_mysql_users, extract_mysql_orders, extract_mysql_skus, generate_user_log]
+    start >> [extract_mysql_users, extract_mysql_orders, extract_mysql_skus,
+              extract_mysql_order_detail, generate_user_log]
 
     # 阶段2: ODS加载
     extract_mysql_users >> load_ods_users >> check_ods_users_ready
     extract_mysql_orders >> load_ods_orders
     extract_mysql_skus >> load_ods_skus
+    extract_mysql_order_detail >> load_ods_order_detail
+    generate_user_log >> load_ods_user_log
 
     # ODS全部就绪
-    [check_ods_users_ready, load_ods_orders, load_ods_skus, generate_user_log] >> ods_all_ready
+    [check_ods_users_ready, load_ods_orders, load_ods_skus,
+     load_ods_order_detail, load_ods_user_log] >> ods_all_ready
 
     # 阶段3: DWD处理
     ods_all_ready >> [dwd_order_detail, dwd_user_log, dwd_user_register] >> dwd_all_ready
@@ -624,8 +700,8 @@ airflow tasks list ecommerce_daily_etl
 # 查看某次运行的详细信息
 airflow dags state ecommerce_daily_etl 2024-01-15
 
-# 查看失败的任务
-airflow tasks failed-dag-run ecommerce_daily_etl 2024-01-15
+# 查看失败的DAG运行
+airflow dags list-runs -d ecommerce_daily_etl --state failed
 
 # 清除失败任务状态（准备重跑）
 airflow tasks clear \

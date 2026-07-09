@@ -376,26 +376,22 @@ STORED AS ORC
 TBLPROPERTIES ('orc.compress'='ZLIB', 'orc.bloom.filter.columns'='user_id');
 
 -- 实验对比SQL
--- 1. 存储空间对比
-SELECT 
-    'parquet' as format_type,
-    SUM(size) / 1024 / 1024 AS size_mb
-FROM (
-    SELECT 
-        SUM(PARQUET_FILE_SIZE) as size
-    FROM data_parquet
-);
+-- 1. 存储空间对比（Hive无法通过SELECT获取文件大小，需用HDFS命令或DESCRIBE FORMATTED）
+-- 方法A: HDFS命令查看目录大小
+-- hdfs dfs -du -s -h /warehouse/data_parquet
+-- hdfs dfs -du -s -h /warehouse/data_orc
+-- 方法B: DESCRIBE FORMATTED 查看 totalSize 属性
+DESCRIBE FORMATTED data_parquet;
+DESCRIBE FORMATTED data_orc;
 
--- 2. 查询性能对比（需分别执行并计时）
-SELECT category_id, COUNT(*), SUM(amount)
+-- 2. 查询性能对比（需分别执行并计时，使用表中实际存在的字段）
+SELECT event, COUNT(*), SUM(amount)
 FROM data_parquet
-WHERE dt = '2024-01-01'
-GROUP BY category_id;
+GROUP BY event;
 -- VS
-SELECT category_id, COUNT(*), SUM(amount)
+SELECT event, COUNT(*), SUM(amount)
 FROM data_orc
-WHERE dt = '2024-01-01'
-GROUP BY category_id;
+GROUP BY event;
 ```
 
 **实际对比数据（参考）：**
@@ -484,11 +480,12 @@ FROM orders_staging
 WHERE dt = '2024-01-02';
 
 -- 5. 多分区插入
+-- 注意: 静态分区插入时SELECT不能包含分区列dt，需显式列出非分区列
 FROM orders_staging
 INSERT OVERWRITE TABLE orders PARTITION (dt='2024-01-01')
-SELECT * WHERE dt='2024-01-01' AND status='completed'
+SELECT order_id, user_id, product_id, amount, status, create_time WHERE dt='2024-01-01' AND status='completed'
 INSERT OVERWRITE TABLE orders PARTITION (dt='2024-01-02')
-SELECT * WHERE dt='2024-01-02' AND status='completed';
+SELECT order_id, user_id, product_id, amount, status, create_time WHERE dt='2024-01-02' AND status='completed';
 
 
 -- ============================================
@@ -552,29 +549,30 @@ ORDER BY dt;
 -- 第五部分：复杂查询实战
 -- ============================================
 
--- 查询1: 用户行为漏斗分析（浏览→加购→下单→支付）
+-- 查询1: 用户行为漏斗分析（浏览→收藏→加购→下单）
+-- 行为类型与建表COMMENT一致: pv/fav/cart/buy
 WITH behavior_funnel AS (
     SELECT 
         user_id,
         SUM(CASE WHEN behavior = 'pv' THEN 1 ELSE 0 END) as pv_count,
+        SUM(CASE WHEN behavior = 'fav' THEN 1 ELSE 0 END) as fav_count,
         SUM(CASE WHEN behavior = 'cart' THEN 1 ELSE 0 END) as cart_count,
-        SUM(CASE WHEN behavior = 'buy' THEN 1 ELSE 0 END) as buy_count,
-        SUM(CASE WHEN behavior = 'pay' THEN 1 ELSE 0 END) as pay_count
+        SUM(CASE WHEN behavior = 'buy' THEN 1 ELSE 0 END) as buy_count
     FROM user_behavior
     WHERE dt = '2024-01-01'
     GROUP BY user_id
 )
 SELECT 
     COUNT(DISTINCT CASE WHEN pv_count > 0 THEN user_id END) as pv_users,
+    COUNT(DISTINCT CASE WHEN fav_count > 0 THEN user_id END) as fav_users,
     COUNT(DISTINCT CASE WHEN cart_count > 0 THEN user_id END) as cart_users,
     COUNT(DISTINCT CASE WHEN buy_count > 0 THEN user_id END) as buy_users,
-    COUNT(DISTINCT CASE WHEN pay_count > 0 THEN user_id END) as pay_users,
+    ROUND(COUNT(DISTINCT CASE WHEN fav_count > 0 THEN user_id END) * 100.0 
+          / COUNT(DISTINCT CASE WHEN pv_count > 0 THEN user_id END), 2) as pv_to_fav_rate,
     ROUND(COUNT(DISTINCT CASE WHEN cart_count > 0 THEN user_id END) * 100.0 
-          / COUNT(DISTINCT CASE WHEN pv_count > 0 THEN user_id END), 2) as pv_to_cart_rate,
+          / COUNT(DISTINCT CASE WHEN fav_count > 0 THEN user_id END), 2) as fav_to_cart_rate,
     ROUND(COUNT(DISTINCT CASE WHEN buy_count > 0 THEN user_id END) * 100.0 
-          / COUNT(DISTINCT CASE WHEN cart_count > 0 THEN user_id END), 2) as cart_to_buy_rate,
-    ROUND(COUNT(DISTINCT CASE WHEN pay_count > 0 THEN user_id END) * 100.0 
-          / COUNT(DISTINCT CASE WHEN buy_count > 0 THEN user_id END), 2) as buy_to_pay_rate
+          / COUNT(DISTINCT CASE WHEN cart_count > 0 THEN user_id END), 2) as cart_to_buy_rate
 FROM behavior_funnel;
 
 -- 查询2: 商品关联分析（被一起购买的商品对）

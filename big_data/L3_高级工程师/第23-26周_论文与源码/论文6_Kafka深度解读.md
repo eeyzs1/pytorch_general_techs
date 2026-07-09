@@ -354,7 +354,7 @@ Leader故障恢复时的日志截断:
   Socket缓冲区 → 网卡            [4. DMA拷贝]
 
   4次拷贝, 2次系统调用(read, write)
-  2次用户态/内核态切换
+  4次上下文切换(read进+出, write进+出)
 ```
 
 ### 5.2 sendfile的2次拷贝
@@ -367,7 +367,7 @@ Leader故障恢复时的日志截断:
   
   2次拷贝(都是DMA, 不占CPU)
   1次系统调用(sendfile)
-  0次用户态/内核态切换(数据不经过用户空间)
+  2次上下文切换(sendfile进+出, 数据不经过用户空间)
 
 Kafka的零拷贝:
   Consumer请求消息 → Broker调用FileChannel.transferTo()

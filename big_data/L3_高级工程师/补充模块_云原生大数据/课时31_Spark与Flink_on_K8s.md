@@ -125,7 +125,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN pip3 install --no-cache-dir \
     pyspark==3.5.0 \
-    iceberg-py==0.7.0
+    pyiceberg==0.7.0
 
 ADD https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-spark-runtime-3.5_2.12/1.5.0/iceberg-spark-runtime-3.5_2.12-1.5.0.jar /opt/spark/jars/
 ADD https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar /opt/spark/jars/
@@ -1304,8 +1304,8 @@ spark-submit \
   --conf spark.executor.cores=1 \
   --conf spark.executor.memory=1g \
   --conf spark.executor.instances=2 \
-  --conf spark.kubernetes.file.upload.path=s3a://spark-jobs \
-  local:///opt/spark/examples/jars/spark-examples_2.12-3.5.0.jar 100
+  --conf spark.kubernetes.driver.volumes.configMap.wordcount-script.mount.path=/opt/spark/scripts \
+  local:///opt/spark/scripts/wordcount.py
 
 kubectl get pods -n bigdata -l spark-app-name=spark-wordcount
 ```

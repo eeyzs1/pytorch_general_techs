@@ -122,12 +122,12 @@ class Dataset[T] private[sql](
     Dataset.ofRows(sparkSession, logicalPlan)
   }
 
-  // ========== lazy val queryExecution ==========
-  // ★ 关键: 直到第一个 Action(count/collect/show) 被调用
+  // ========== queryExecution 说明 ==========
+  // ★ 注意: queryExecution 在本类头中作为构造参数注入(见上 @DeveloperApi @Unstable val queryExecution)
+  //   Spark 3.5 中 queryExecution 已改为构造参数(由 Dataset.ofRows 创建时传入), 不再是 lazy val
+  //   但其执行仍是惰性的: 直到第一个 Action(count/collect/show) 被调用
   //   才会通过 queryExecution 触发 Analysis→Optimization→Planning→Execution
-  @transient lazy val queryExecution: QueryExecution = {
-    sparkSession.sessionState.executePlan(logicalPlan)
-  }
+  //   (注: 早期版本中 queryExecution 曾声明为 lazy val, 现已移除, 此处不再重复定义)
 }
 ```
 
@@ -303,16 +303,17 @@ object PushDownPredicates extends Rule[LogicalPlan] with PredicateHelper {
     // ★ 核心: transform 递归遍历整棵 LogicalPlan 树
     //   对每个节点, 尝试应用模式匹配
     
-    // 情况1: Filter 上面有 Join
+    // 情况1: Filter 上面有 Join —— 由 PushPredicateThroughJoin 规则负责(非PushDownPredicates)
     case filter @ Filter(condition, join @ Join(left, right, _, _, _)) =>
       // 拆分 condition 为:
       //   能下推到左表的, 能下推到右表的, 两个都不能下推的
-      val (leftPredicates, rightPredicates, remaining) = 
+      // 注: partition() 返回二元组(Tuple2), 不能用三元组解构, 需分两步处理
+      val (leftPredicates, rest) =
         splitConjunctivePredicates(condition)          // 拆分AND连接的多个条件
           .partition(_.references.subsetOf(left.outputSet))  // 属于左表?
-      
-      val (rightOnly, commonPredicates) = 
-        remaining.partition(_.references.subsetOf(right.outputSet))
+
+      val (rightOnly, commonPredicates) =
+        rest.partition(_.references.subsetOf(right.outputSet))
       
       // 构建下推后的树:
       // 原树: Filter(cond, Join(left, right, joinCond))
@@ -481,23 +482,16 @@ case class BroadcastHashJoinExec(
       case BuildRight => (left, right)
     }
     
-    // Step 2: 从build侧收集数据 → 构建HashTable
-    val buildSideRDD = buildPlan.execute()
-    // ★ 注意: buildPlan.execute() 在Driver端执行!
-    //   build侧的RDD被collect()到Driver → 序列化 → broadcast
-    
-    val broadcastRelation = {
-      val buildRows = buildSideRDD.collect()  // ★ Driver端collect
-      // 构建 HashedRelation (HashMap<JoinKey, Row>)
-      val hashedRelation = HashedRelation(
-        buildRows.iterator, 
-        buildKeys,
-        sizeEstimate = buildRows.length * 100)  // 估算大小
-      
-      // ★ Broadcast变量 → 每个Executor缓存一份(减少网络传输)
-      val broadcastHashed = sparkContext.broadcast(hashedRelation)
-      broadcastHashed
-    }
+    // Step 2: 从build侧构建HashedRelation并广播
+    // ★ 注意: buildPlan.executeBroadcast[HashedRelation]() 在Executor端构建HashedRelation，
+    //   通过TorrentBroadcast分发(并非在Driver端collect后再broadcast)。
+    //   build侧RDD在Executor上执行，结果构造为HashedRelation后由BroadcastManager分发，
+    //   每个Executor缓存一份本地副本，避免Driver成为单点瓶颈。
+    val broadcastRelation = buildPlan.executeBroadcast[HashedRelation]()
+
+    // 注: 真实实现中 HashedRelation 的构建发生在 BroadcastHashJoinExec 的
+    //   LongHashedRelation / UnsafeHashedRelation 等工厂方法里(运行在Executor端Task中)，
+    //   此处仅为示意，不再展示 collect() 到 Driver 的写法(那是错误描述)。
     
     // Step 3: stream侧在每个Executor上创建HashJoin迭代器
     streamedPlan.execute().mapPartitions { streamIter =>
@@ -559,7 +553,9 @@ case class SortMergeJoinExec(
     left: SparkPlan,
     right: SparkPlan,
     isSkewJoin: Boolean = false)
-  extends BinaryExecNode with HashJoin with CodegenSupport {
+  extends BinaryExecNode with CodegenSupport {
+  // ★ 注意: SortMergeJoinExec 不继承 HashJoin trait!
+  //   SMJ 使用自己的 SortMergeJoinScanner 做排序合并扫描, 与 BHJ 的 HashJoin(probe HashedRelation) 是不同实现。
 
   protected override def doExecute(): RDD[InternalRow] = {
     // Step 1: 左右两表都执行Shuffle + Sort
@@ -711,14 +707,15 @@ WholeStageCodegen (代码生成):
 ```
 sql/core/src/main/scala/org/apache/spark/sql/execution/adaptive/AdaptiveSparkPlanExec.scala
 sql/core/src/main/scala/org/apache/spark/sql/execution/adaptive/OptimizeSkewedJoin.scala
-sql/core/src/main/scala/org/apache/spark/sql/execution/adaptive/OptimizeShuffleWithLocalRead.scala
+sql/core/src/main/scala/org/apache/spark/sql/execution/adaptive/CoalesceShufflePartitions.scala
+sql/core/src/main/scala/org/apache/spark/sql/execution/adaptive/DynamicJoinSelection.scala
 ```
 
 ### 9.2 AQE的三大优化
 
 ```scala
 // ========== 优化1: 动态合并Shuffle分区 ==========
-object OptimizeShuffleWithLocalRead {
+object CoalesceShufflePartitions {
   
   def apply(plan: SparkPlan): SparkPlan = {
     // 问题: spark.sql.shuffle.partitions = 200 (默认)
@@ -743,7 +740,7 @@ object OptimizeShuffleWithLocalRead {
 }
 
 // ========== 优化2: 动态切换Join策略 ==========
-object OptimizeJoinStrategy {
+object DynamicJoinSelection {
   
   def optimize(plan: SparkPlan): SparkPlan = {
     // 问题: 编译时不知道表的实际大小
@@ -809,8 +806,11 @@ object OptimizeSkewedJoin {
 ```scala
 // 方式1: explain()
 df.explain()           // 只显示物理计划
-df.explain(true)       // 显示: 解析后的逻辑计划 + 优化后的逻辑计划 + 物理计划
-df.explain("extended") // 显示: 所有4个阶段 + 代码生成细节
+df.explain(true)       // 等价于 explain("extended"): 显示4个阶段
+                       //   Parsed Logical Plan(未解析) + Analyzed Logical Plan(解析后)
+                       //   + Optimized Logical Plan(优化后) + Physical Plan(物理计划)
+df.explain("extended") // 同上, 显示全部4个阶段(注意: 不显示代码生成细节)
+df.explain("codegen")  // 单独查看代码生成细节(生成的Java源码)
 
 // 方式2: 通过QueryExecution访问
 df.queryExecution.logical        // 未解析的逻辑计划
@@ -824,7 +824,7 @@ df.queryExecution.executedPlan   // 准备执行的物理计划(经过preparatio
 
 ```scala
 // 方法1: DEBUG级别日志
-spark.conf.set("org.apache.spark.sql.execution.debug", "true")
+spark.conf.set("spark.sql.execution.debug", true)
 
 // 方法2: 直接打印
 df.queryExecution.debug.codegen()
@@ -886,12 +886,12 @@ SELECT /*+ SHUFFLE_HASH(l) */ * FROM l JOIN s ... -- 强制ShuffleHash
 | 2 | **RuleExecutor** | Strategy / Template Method | 规则应用引擎(FixedPoint/Once) |
 | 3 | **PushDownPredicates** | Visitor (transform模式) | 谓词下推优化 |
 | 4 | **ColumnPruning** | Visitor (transformUp) | 列剪裁优化 |
-| 5 | **Optimizer** | Composite (Batch+Rule聚合) | 所有优化规则的编排器 |
-| 6 | **SparkStrategies** | Strategy (模式匹配) | LogicPlan→SparkPlan转换 |
-| 7 | **BroadcastHashJoinExec** | Command (doExecute模式) | 广播Hash Join物理执行 |
-| 8 | **SortMergeJoinExec** | Command (doExecute模式) | 排序合并Join物理执行 |
-| 9 | **WholeStageCodegenExec** | Decorator (包装子计划) | 运行时代码生成 |
-| 10 | **AdaptiveSparkPlanExec** | Proxy (代理原计划) | 运行时动态优化 |
+| 5 | **BroadcastHashJoinExec** | Command (doExecute模式) | 广播Hash Join物理执行 |
+| 6 | **SortMergeJoinExec** | Command (doExecute模式) | 排序合并Join物理执行 |
+| 7 | **WholeStageCodegenExec** | Decorator (包装子计划) | 运行时代码生成 |
+| 8 | **AdaptiveSparkPlanExec** | Proxy (代理原计划) | 运行时动态优化(AQE) |
+
+> 注: Optimizer 与 SparkStrategies 未单独成章(分别归入类2 RuleExecutor 体系与物理计划转换环节), 故未列入上表编号。
 
 ---
 

@@ -513,11 +513,11 @@ spark.sql("""
 
 **AQE的三大优化**：
 
-1. **动态合并Shuffle分区**（`OptimizeShuffleWithLocalRead`）
+1. **动态合并Shuffle分区**（`CoalesceShufflePartitions`）
    - 运行时发现某个Stage的输出只有10MB，自动合并为更少的Task
    - 避免200个Task每个只处理50KB数据的浪费
 
-2. **动态切换Join策略**（`OptimizeJoinStrategy`）
+2. **动态切换Join策略**（`DynamicJoinSelection`）
    - 运行前认为是SortMergeJoin，运行时发现右侧表只有5MB
    - 自动切换为BroadcastJoin！
 

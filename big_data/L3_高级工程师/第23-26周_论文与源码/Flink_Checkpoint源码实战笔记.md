@@ -579,7 +579,6 @@ public abstract class TwoPhaseCommitSinkFunction<IN, TXN, CONTEXT>
     // ========== 事务状态 ==========
     private transient TransactionHolder<TXN> currentTransaction;  // 当前事务
     private final List<TransactionHolder<TXN>> pendingCommitTransactions; // 待提交
-    private final Set<TransactionHolder<TXN>> pendingCommitFromPrevCp;     // 上个CP待提交
 
     // ========== Phase 1: beginTransaction() ==========
     // 在收到每个数据之前调用, 或在上一个事务提交后调用
@@ -597,13 +596,12 @@ public abstract class TwoPhaseCommitSinkFunction<IN, TXN, CONTEXT>
     // Checkpoint失败时调用: 回滚事务
     protected abstract void abort(TXN transaction);
 
-    // ========== invoke() - 处理每条数据 ==========
-    @Override
-    public void invoke(IN value, Context context) throws Exception {
-        // 每条数据通过当前事务写入
-        currentTransaction = ensureTransaction();
-        currentTransaction.process(value);  // 写入Kafka事务中的一条消息
-    }
+    // ========== invoke() - 处理每条数据(由子类实现) ==========
+    // 注: TwoPhaseCommitSinkFunction 自身实现 SinkFunction.invoke 来管理事务生命周期,
+    //     并定义下面的抽象 invoke(transaction, value, context) 由子类实现具体写入逻辑。
+    //     TransactionHolder 没有 process() 方法; 真实写入由子类在 invoke 中完成
+    //     (例如 Kafka 两阶段提交 sink 在此调用 producer.send 写入事务)。
+    protected abstract void invoke(TXN transaction, IN value, Context context) throws Exception;
 
     // ========== snapshotState() - Checkpoint时调用 ==========
     @Override
@@ -611,7 +609,7 @@ public abstract class TwoPhaseCommitSinkFunction<IN, TXN, CONTEXT>
         // Step 1: 预提交当前事务
         //   Kafka: producer.flush() + producer.preCommit()
         //   作用: 刷新所有缓冲数据, 标记事务为"待提交"
-        preCommit(currentTransaction.handle);
+        preCommit(currentTransaction.transaction);
         
         // Step 2: 将当前事务移到 pendingCommitTransactions
         pendingCommitTransactions.add(currentTransaction);
@@ -640,7 +638,7 @@ public abstract class TwoPhaseCommitSinkFunction<IN, TXN, CONTEXT>
         while (it.hasNext()) {
             TransactionHolder<TXN> txn = it.next();
             if (txn.getCheckpointId() <= checkpointId) {
-                commit(txn.handle);     // ★ 提交到Kafka!
+                commit(txn.transaction);     // ★ 提交到Kafka!
                 it.remove();
             }
         }
@@ -655,7 +653,7 @@ public abstract class TwoPhaseCommitSinkFunction<IN, TXN, CONTEXT>
         while (it.hasNext()) {
             TransactionHolder<TXN> txn = it.next();
             if (txn.getCheckpointId() == checkpointId) {
-                abort(txn.handle);      // ★ 回滚!
+                abort(txn.transaction);      // ★ 回滚!
                 it.remove();
             }
         }
@@ -721,7 +719,7 @@ execution.checkpointing.unaligned.enabled: false       # 启用不对齐
 execution.checkpointing.alignment-timeout: 30s         # 对齐超时(超时后切换为不对齐)
 
 # State Backend
-state.backend: rocksdb                                 # HashMap/rocksdb
+state.backend.type: rocksdb                                 # HashMap/rocksdb (Flink 1.13起用 state.backend.type 替代废弃的 state.backend)
 state.backend.rocksdb.localdir: /data/flink/rocksdb     # RocksDB本地目录
 state.backend.incremental: true                         # 增量Checkpoint
 state.backend.rocksdb.timer-service.factory: HEAP       # Timer存储在堆中(默认RocksDB)
@@ -773,7 +771,7 @@ Checkpoint超时排查:
   
   3. 常见问题:
      - 反压导致Barrier传播慢 → 扩大并行度或使用不对齐
-     - RocksDB Compaction和Checkpoint冲突 → 设置rocksdb.compaction.style=FIFO
+     - RocksDB Compaction和Checkpoint冲突 → 调整 state.backend.rocksdb.periodic.compaction.interval 或使用 UNIVERSAL(默认) compaction style, 并限制 state TTL。避免使用 FIFO(会禁用 compaction 合并, 导致读性能崩溃)
      - 大State导致Snapshot慢 → 使用State TTL
      - 网络带宽不足导致上传慢 → 增量Checkpoint
 ```

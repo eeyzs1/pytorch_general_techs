@@ -1494,7 +1494,7 @@ data:
     spark.kubernetes.namespace=bigdata
 EOF
 
-/spark/bin/spark-submit \
+/opt/spark/bin/spark-submit \
   --master k8s://https://$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}') \
   --deploy-mode cluster \
   --name spark-pi \

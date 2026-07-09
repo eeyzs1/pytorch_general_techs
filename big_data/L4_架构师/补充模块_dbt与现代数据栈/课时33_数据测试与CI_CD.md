@@ -113,6 +113,7 @@ def spark():
 ```python
 from pyspark.sql import Row
 from pyspark.sql.types import StructType, StructField, StringType, DoubleType, LongType
+from pyspark.sql.functions import col, when
 import pytest
 
 def transform_order_status(df):
@@ -165,7 +166,7 @@ def test_transform_order_status_unknown_value(spark):
 ```python
 from pyspark.sql import Row
 from pyspark.sql.types import StructType, StructField, DoubleType, LongType
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, when
 
 def calculate_order_metrics(df):
     return df.withColumn(
@@ -399,7 +400,7 @@ for model in $CHANGED_MODELS; do
 done
 
 echo "--- Running upstream/downstream tests ---"
-dbt test --select "staging.*+1_tag:ci" --profiles-dir profiles
+dbt test --select "staging.* tag:ci" --profiles-dir profiles
 
 echo "=== PR check passed ==="
 ```
@@ -413,7 +414,7 @@ echo "=== PR check passed ==="
 ```yaml
 great_expectations/checkpoints/ods_quality_gate.yml:
 
-name: ods_quality_gate
+name: ods_order_info_quality_gate
 config_version: 1.0
 template_name:
 module_name: great_expectations.checkpoint
@@ -614,12 +615,12 @@ git commit -m "track raw_orders v1"
 
 dvc push
 
-dvc run -n stage_stg_orders \
+dvc stage add -n stage_stg_orders \
     -d data/raw_orders.parquet \
     -o data/stg_orders.parquet \
     "dbt run --select stg_orders"
 
-dvc run -n stage_fct_orders \
+dvc stage add -n stage_fct_orders \
     -d data/stg_orders.parquet \
     -o data/fct_orders.parquet \
     "dbt run --select fct_orders"
@@ -1059,6 +1060,8 @@ scripts/quality_gate_runner.py:
 import yaml
 import subprocess
 import sys
+import json
+import os
 
 def load_gate_config(config_path="quality_gates/config.yml"):
     with open(config_path, "r") as f:
@@ -1069,9 +1072,29 @@ def run_dbt_test(select, min_pass_rate):
         ["dbt", "test", "--select", select, "--output", "json", "--output-path", "target/test-results"],
         capture_output=True, text=True
     )
-    if result.returncode != 0:
-        return False, 0.0
-    pass_rate = 1.0
+    # 解析 target/test-results 下的 JSON 结果文件，统计成功和失败的测试数
+    total = 0
+    passed = 0
+    test_results_dir = "target/test-results"
+    if os.path.exists(test_results_dir):
+        for filename in os.listdir(test_results_dir):
+            if not filename.endswith(".json"):
+                continue
+            with open(os.path.join(test_results_dir, filename), "r") as f:
+                try:
+                    content = json.load(f)
+                except json.JSONDecodeError:
+                    continue
+            # dbt run-results JSON: results 数组，每个元素含 status 字段
+            results = content.get("results", [])
+            for item in results:
+                total += 1
+                if item.get("status") in ("pass", "success", "warn"):
+                    passed += 1
+    if total == 0:
+        pass_rate = 1.0 if result.returncode == 0 else 0.0
+    else:
+        pass_rate = passed / total
     return pass_rate >= min_pass_rate, pass_rate
 
 def check_row_count(table, min_rows, max_change_rate):
@@ -1168,10 +1191,7 @@ if __name__ == "__main__":
 macros/blue_green_deploy.sql:
 
 {% macro blue_green_deploy(model_name, version) %}
-    {% set target_schema = api.Relation.create(
-        schema=model_name ~ '_v' ~ version
-    ) %}
-    {{ config(schema=target_schema) }}
+    {{ config(schema=model_name ~ '_v' ~ version) }}
 {% endmacro %}
 ```
 

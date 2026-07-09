@@ -212,8 +212,9 @@ spark = SparkSession.builder \
     .getOrCreate()
 
 # 当前日期和30天前
+# 注意: DATE_30_AGO应为CURRENT_DATE往前29天，确保30天窗口(含首尾)
 CURRENT_DATE = "2024-03-31"
-DATE_30_AGO = "2024-03-01"
+DATE_30_AGO = "2024-03-02"
 
 # ============================================================
 # 第一步：加载基础数据
@@ -245,7 +246,7 @@ user_actions_7d = spark.sql(f"""
     SELECT user_id,
            COUNT(DISTINCT dt) as active_days_7d
     FROM dws.dws_user_action_day
-    WHERE dt >= DATE_SUB('{CURRENT_DATE}', 7) AND dt <= '{CURRENT_DATE}'
+    WHERE dt >= DATE_SUB('{CURRENT_DATE}', 6) AND dt <= '{CURRENT_DATE}'
     GROUP BY user_id
 """)
 
@@ -262,12 +263,17 @@ user_orders_30d = spark.sql(f"""
 """)
 
 # 品类偏好数据
+# 注意: dws_sku_action_day按SKU汇总，无user_id列
+#       用户级品类偏好需从dwd_user_log获取，关联ods_sku_info取category_name
 category_pref = spark.sql(f"""
-    SELECT user_id, category_id, category_name,
-           SUM(pv_count) as total_pv
-    FROM dws.dws_sku_action_day
-    WHERE dt >= '{DATE_30_AGO}' AND dt <= '{CURRENT_DATE}'
-    GROUP BY user_id, category_id, category_name
+    SELECT ul.user_id, ul.category_id, si.category_name,
+           COUNT(*) as total_pv
+    FROM dwd.dwd_user_log ul
+    JOIN ods.ods_sku_info si ON ul.category_id = si.category_id
+    WHERE ul.dt >= '{DATE_30_AGO}' AND ul.dt <= '{CURRENT_DATE}'
+      AND ul.behavior = 'pv'
+      AND si.dt = '{CURRENT_DATE}'
+    GROUP BY ul.user_id, ul.category_id, si.category_name
 """)
 
 
@@ -321,10 +327,44 @@ def build_behavior_tags(spark, category_pref, user_actions_30d, user_orders_30d)
         )
 
     # === 价格敏感度 ===
-    price_sensitivity = user_orders_30d \
+    # 与定义和SQL版本一致：计算用户购买商品均价相对品类均价的偏离度（相对值）
+    # 规则: 低于品类均价50% → 高敏感; 在均价±50%内 → 中敏感; 高于均价150% → 低敏感
+    user_avg_price = spark.sql(f"""
+        SELECT user_id,
+               AVG(order_price) AS user_avg_unit_price
+        FROM dwd.dwd_order_detail
+        WHERE dt >= '{DATE_30_AGO}' AND dt <= '{CURRENT_DATE}'
+          AND order_status IN ('已完成', '已退款')
+        GROUP BY user_id
+    """)
+
+    category_avg_price = spark.sql(f"""
+        SELECT category_id,
+               AVG(order_price) AS category_avg_unit_price
+        FROM dwd.dwd_order_detail
+        WHERE dt >= '{DATE_30_AGO}' AND dt <= '{CURRENT_DATE}'
+          AND order_status IN ('已完成', '已退款')
+        GROUP BY category_id
+    """)
+
+    # 用户购买的品类（用于关联对应品类均价）
+    user_categories = spark.sql(f"""
+        SELECT DISTINCT user_id, category_id
+        FROM dwd.dwd_order_detail
+        WHERE dt >= '{DATE_30_AGO}' AND dt <= '{CURRENT_DATE}'
+    """)
+
+    price_sensitivity = user_avg_price.alias("u") \
+        .join(user_categories.alias("uc"), "user_id", "inner") \
+        .join(category_avg_price.alias("ca"), "category_id", "inner") \
+        .groupBy("u.user_id") \
+        .agg(
+            first("u.user_avg_unit_price").alias("user_avg_unit_price"),
+            avg("ca.category_avg_unit_price").alias("category_avg_unit_price")
+        ) \
         .withColumn("price_sensitivity",
-            when(col("avg_payment_30d") < 100, "高敏感")
-            .when(col("avg_payment_30d") < 500, "中敏感")
+            when(col("user_avg_unit_price") < col("category_avg_unit_price") * 0.5, "高敏感")
+            .when(col("user_avg_unit_price") <= col("category_avg_unit_price") * 1.5, "中敏感")
             .otherwise("低敏感")
         ) \
         .select("user_id", "price_sensitivity")
@@ -409,9 +449,13 @@ def build_rfm_tags(user_orders_30d):
 def build_lifecycle_tags(users_df, user_actions_7d, user_actions_30d, user_orders_30d):
     """构建生命周期标签"""
 
-    # 获取最后活跃日期
-    last_active = user_actions_30d \
-        .join(users_df.select("user_id", "register_date"), "user_id", "outer")
+    # 获取历史购买标记（不限时间范围，与定义"历史总购买>0"一致）
+    user_has_purchase = spark.sql("""
+        SELECT DISTINCT user_id, 1 AS has_purchased
+        FROM dwd.dwd_order_detail
+        WHERE order_status IN ('已完成', '已退款')
+    """)
+
 
     lifecycle = users_df \
         .select("user_id", "register_date") \
@@ -419,6 +463,7 @@ def build_lifecycle_tags(users_df, user_actions_7d, user_actions_30d, user_order
             col("user_id"), col("active_days_7d")), "user_id", "left") \
         .join(user_actions_30d.select(
             col("user_id"), col("active_days_30d")), "user_id", "left") \
+        .join(user_has_purchase, "user_id", "left") \
         .withColumn("is_new_user",
             when(datediff(lit(CURRENT_DATE), to_date(col("register_date"))) <= 7, 1)
             .otherwise(0)
@@ -436,7 +481,8 @@ def build_lifecycle_tags(users_df, user_actions_7d, user_actions_30d, user_order
             round(coalesce(col("active_days_30d"), lit(0)) / 30, 2)
         ) \
         .withColumn("is_churn_risk",
-            when((col("active_days_7d").isNull()) | (col("active_days_7d") == 0), 1)
+            when(((col("active_days_7d").isNull()) | (col("active_days_7d") == 0))
+                 & (col("has_purchased") == 1), 1)
             .otherwise(0)
         ) \
         .select("user_id", "lifecycle_stage", "active_rate_7d",
@@ -674,7 +720,7 @@ def compute_raw_rfm(analysis_date: str, lookback_days: int = 90) -> DataFrame:
 
     返回:
         DataFrame with columns: user_id, recency, frequency, monetary,
-                                 first_order_date, last_order_date
+                                 first_dt, last_dt
     """
 
     start_date = (datetime.strptime(analysis_date, "%Y-%m-%d")
@@ -683,15 +729,15 @@ def compute_raw_rfm(analysis_date: str, lookback_days: int = 90) -> DataFrame:
     rfm_raw = spark.sql(f"""
         SELECT
             user_id,
-            DATEDIFF('{analysis_date}', MAX(order_date)) AS recency,
+            DATEDIFF('{analysis_date}', MAX(dt)) AS recency,
             COUNT(DISTINCT order_id) AS frequency,
             SUM(payment_amount) AS monetary,
-            MIN(order_date) AS first_order_date,
-            MAX(order_date) AS last_order_date
+            MIN(dt) AS first_dt,
+            MAX(dt) AS last_dt
         FROM dwd.dwd_order_detail
-        WHERE order_date >= '{start_date}'
-          AND order_date <= '{analysis_date}'
-          AND order_status IN ('paid', 'completed')
+        WHERE dt >= '{start_date}'
+          AND dt <= '{analysis_date}'
+          AND order_status IN ('已完成', '已退款')
         GROUP BY user_id
     """)
 
@@ -743,12 +789,12 @@ def segment_users(rfm_scored: DataFrame) -> DataFrame:
     """
     根据RFM总分进行用户价值分层
 
-    分层规则:
-      - rfm_total >= 14: 顶级高价值 (Top 1%)
+    分层规则（与3.3节定义保持一致）:
+      - rfm_total >= 15: 顶级高价值 (Top 1%)
       - rfm_total >= 12: 高价值用户
-      - rfm_total >= 9:  中等价值用户
-      - rfm_total >= 6:  低价值用户
-      - rfm_total < 6:   流失风险用户
+      - rfm_total >= 8:  中等价值用户
+      - rfm_total >= 4:  低价值用户
+      - rfm_total < 4:   流失风险用户
 
     附: 每层用户的典型特征描述
     """
@@ -761,10 +807,10 @@ def segment_users(rfm_scored: DataFrame) -> DataFrame:
             round((col("r_score") + col("f_score") + col("m_score")) / 3.0, 2)
         ) \
         .withColumn("value_segment",
-            when(col("rfm_total") >= 14, "顶级高价值")
+            when(col("rfm_total") >= 15, "顶级高价值")
             .when(col("rfm_total") >= 12, "高价值")
-            .when(col("rfm_total") >= 9, "中等价值")
-            .when(col("rfm_total") >= 6, "低价值")
+            .when(col("rfm_total") >= 8, "中等价值")
+            .when(col("rfm_total") >= 4, "低价值")
             .otherwise("流失风险")
         ) \
         .withColumn("segment_profile",
@@ -995,18 +1041,22 @@ WHERE dt = '${analysis_date}';
 
 -- ----------------------------------------
 -- 标签6-8: 品类偏好TOP3 (使用窗口函数)
+-- 注意: dws_sku_action_day无user_id列，需从dwd_user_log获取用户级品类偏好
 -- ----------------------------------------
 WITH category_rank AS (
     SELECT
-        user_id,
-        category_id,
-        category_name,
-        SUM(pv_count) AS total_pv,
-        ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY SUM(pv_count) DESC) AS rn
-    FROM dws.dws_sku_action_day
-    WHERE dt >= DATE_SUB('${analysis_date}', 30)
-      AND dt <= '${analysis_date}'
-    GROUP BY user_id, category_id, category_name
+        ul.user_id,
+        ul.category_id,
+        si.category_name,
+        COUNT(*) AS total_pv,
+        ROW_NUMBER() OVER (PARTITION BY ul.user_id ORDER BY COUNT(*) DESC) AS rn
+    FROM dwd.dwd_user_log ul
+    JOIN ods.ods_sku_info si ON ul.category_id = si.category_id
+    WHERE ul.dt >= DATE_SUB('${analysis_date}', 29)
+      AND ul.dt <= '${analysis_date}'
+      AND ul.behavior = 'pv'
+      AND si.dt = '${analysis_date}'
+    GROUP BY ul.user_id, ul.category_id, si.category_name
 )
 SELECT
     user_id,
@@ -1031,21 +1081,21 @@ GROUP BY user_id;
 WITH user_avg_price AS (
     SELECT
         o.user_id,
-        AVG(o.payment_amount / o.sku_num) AS user_avg_unit_price
+        AVG(o.order_price) AS user_avg_unit_price
     FROM dwd.dwd_order_detail o
     WHERE o.dt >= DATE_SUB('${analysis_date}', 30)
       AND o.dt <= '${analysis_date}'
-      AND o.order_status IN ('paid', 'completed')
+      AND o.order_status IN ('已完成', '已退款')
     GROUP BY o.user_id
 ),
 category_avg_price AS (
     SELECT
         category_id,
-        AVG(payment_amount / sku_num) AS category_avg_unit_price
+        AVG(order_price) AS category_avg_unit_price
     FROM dwd.dwd_order_detail
     WHERE dt >= DATE_SUB('${analysis_date}', 30)
       AND dt <= '${analysis_date}'
-      AND order_status IN ('paid', 'completed')
+      AND order_status IN ('已完成', '已退款')
     GROUP BY category_id
 )
 SELECT
@@ -1073,18 +1123,18 @@ JOIN category_avg_price ca ON od.category_id = ca.category_id;
 WITH hour_behavior AS (
     SELECT
         user_id,
-        HOUR(FROM_UNIXTIME(ts / 1000)) AS behavior_hour,
+        behavior_hour AS behavior_hour,
         COUNT(*) AS behavior_count,
         CASE
-            WHEN HOUR(FROM_UNIXTIME(ts / 1000)) BETWEEN 6 AND 11  THEN '上午型'
-            WHEN HOUR(FROM_UNIXTIME(ts / 1000)) BETWEEN 12 AND 17 THEN '下午型'
-            WHEN HOUR(FROM_UNIXTIME(ts / 1000)) BETWEEN 18 AND 23 THEN '晚间型'
+            WHEN behavior_hour BETWEEN 6 AND 11  THEN '上午型'
+            WHEN behavior_hour BETWEEN 12 AND 17 THEN '下午型'
+            WHEN behavior_hour BETWEEN 18 AND 23 THEN '晚间型'
             ELSE '夜间型'
         END AS time_period
     FROM dwd.dwd_user_log
     WHERE dt >= DATE_SUB('${analysis_date}', 30)
       AND dt <= '${analysis_date}'
-    GROUP BY user_id, HOUR(FROM_UNIXTIME(ts / 1000))
+    GROUP BY user_id, behavior_hour
 ),
 period_rank AS (
     SELECT
@@ -1179,13 +1229,13 @@ GROUP BY user_id;
 WITH rfm_raw AS (
     SELECT
         user_id,
-        DATEDIFF('${analysis_date}', MAX(order_date)) AS recency_days,
+        DATEDIFF('${analysis_date}', MAX(dt)) AS recency_days,
         COUNT(DISTINCT order_id) AS frequency,
         SUM(payment_amount) AS monetary
     FROM dwd.dwd_order_detail
-    WHERE order_date >= DATE_SUB('${analysis_date}', 90)
-      AND order_date <= '${analysis_date}'
-      AND order_status IN ('paid', 'completed')
+    WHERE dt >= DATE_SUB('${analysis_date}', 90)
+      AND dt <= '${analysis_date}'
+      AND order_status IN ('已完成', '已退款')
     GROUP BY user_id
 ),
 rfm_scored AS (
@@ -1209,10 +1259,10 @@ SELECT
     m_score                  AS tag_m_score,
     r_score + f_score + m_score AS tag_rfm_total,
     CASE
-        WHEN r_score + f_score + m_score >= 14 THEN '顶级高价值'
+        WHEN r_score + f_score + m_score >= 15 THEN '顶级高价值'
         WHEN r_score + f_score + m_score >= 12 THEN '高价值'
-        WHEN r_score + f_score + m_score >= 9  THEN '中等价值'
-        WHEN r_score + f_score + m_score >= 6  THEN '低价值'
+        WHEN r_score + f_score + m_score >= 8  THEN '中等价值'
+        WHEN r_score + f_score + m_score >= 4  THEN '低价值'
         ELSE '流失风险'
     END AS tag_value_segment
 FROM rfm_scored;
@@ -1269,7 +1319,7 @@ SELECT
     user_id,
     ROUND(COUNT(DISTINCT dt) / 7.0, 2) AS tag_active_rate_7d
 FROM dws.dws_user_action_day
-WHERE dt >= DATE_SUB('${analysis_date}', 7)
+WHERE dt >= DATE_SUB('${analysis_date}', 6)
   AND dt <= '${analysis_date}'
 GROUP BY user_id;
 
@@ -1281,7 +1331,7 @@ SELECT
     user_id,
     ROUND(COUNT(DISTINCT dt) / 30.0, 2) AS tag_active_rate_30d
 FROM dws.dws_user_action_day
-WHERE dt >= DATE_SUB('${analysis_date}', 30)
+WHERE dt >= DATE_SUB('${analysis_date}', 29)
   AND dt <= '${analysis_date}'
 GROUP BY user_id;
 
@@ -1302,8 +1352,8 @@ user_has_purchase AS (
         user_id,
         1 AS has_purchased
     FROM dwd.dwd_order_detail
-    WHERE order_date <= '${analysis_date}'
-      AND order_status IN ('paid', 'completed')
+    WHERE dt <= '${analysis_date}'
+      AND order_status IN ('已完成', '已退款')
 )
 SELECT
     u.user_id,
@@ -1324,12 +1374,12 @@ WHERE u.dt = '${analysis_date}';
 WITH hour_detail AS (
     SELECT
         user_id,
-        HOUR(FROM_UNIXTIME(ts / 1000)) AS h,
+        behavior_hour AS h,
         COUNT(*) AS cnt
     FROM dwd.dwd_user_log
     WHERE dt >= DATE_SUB('${analysis_date}', 30)
       AND dt <= '${analysis_date}'
-    GROUP BY user_id, HOUR(FROM_UNIXTIME(ts / 1000))
+    GROUP BY user_id, behavior_hour
 ),
 hour_rank AS (
     SELECT
@@ -1351,26 +1401,39 @@ GROUP BY user_id;
 
 
 -- ----------------------------------------
--- 标签25: 优惠券敏感度
+-- 标签25: 促销敏感度（基于折扣率）
+-- 注: 原设计为"优惠券敏感度"引用coupon_id列，但dwd_order_detail表无此列，
+--     MySQL源表order_info/order_detail亦无coupon字段。
+--     改用折扣率(payment_amount < total_amount)作为促销敏感度代理指标：
+--     统计用户享受折扣的订单占比，先按order_id聚合避免明细行重复计算。
+--     阈值应根据真实数据分布校准。
 -- ----------------------------------------
 SELECT
     user_id,
     CASE
-        WHEN coupon_order_ratio >= 0.7 THEN '高敏感(优惠券驱动)'
-        WHEN coupon_order_ratio >= 0.3 THEN '中敏感'
-        WHEN coupon_order_ratio >= 0.1 THEN '低敏感'
-        WHEN coupon_order_ratio IS NULL THEN '未使用优惠券'
+        WHEN discount_order_ratio >= 0.7 THEN '高敏感(折扣驱动)'
+        WHEN discount_order_ratio >= 0.3 THEN '中敏感'
+        WHEN discount_order_ratio >= 0.1 THEN '低敏感'
+        WHEN discount_order_ratio IS NULL THEN '无消费记录'
         ELSE '无感'
     END AS tag_coupon_sensitivity
 FROM (
     SELECT
         user_id,
-        SUM(CASE WHEN coupon_id IS NOT NULL AND coupon_id > 0 THEN 1 ELSE 0 END) * 1.0
-            / COUNT(*) AS coupon_order_ratio
-    FROM dwd.dwd_order_detail
-    WHERE dt >= DATE_SUB('${analysis_date}', 30)
-      AND dt <= '${analysis_date}'
-      AND order_status IN ('paid', 'completed')
+        SUM(CASE WHEN payment_amount < total_amount THEN 1 ELSE 0 END) * 1.0
+            / COUNT(*) AS discount_order_ratio
+    FROM (
+        SELECT
+            order_id,
+            user_id,
+            MAX(total_amount) AS total_amount,
+            MAX(payment_amount) AS payment_amount
+        FROM dwd.dwd_order_detail
+        WHERE dt >= DATE_SUB('${analysis_date}', 30)
+          AND dt <= '${analysis_date}'
+          AND order_status IN ('已完成', '已退款')
+        GROUP BY order_id, user_id
+    ) o
     GROUP BY user_id
 ) t;
 ```
@@ -1511,7 +1574,7 @@ CREATE TABLE ads.user_behavior_tags (
     avg_order_value_level   STRING  COMMENT '客单价区间',
     top3_brands             STRING  COMMENT '品牌偏好TOP3',
     peak_active_hours       STRING  COMMENT '活跃高峰时段',
-    coupon_sensitivity      STRING  COMMENT '优惠券敏感度'
+    coupon_sensitivity      STRING  COMMENT '促销敏感度(基于折扣率)'
 )
 COMMENT '用户行为偏好标签'
 PARTITIONED BY (dt STRING COMMENT '日期分区')
@@ -1798,7 +1861,7 @@ ORDER BY user_count DESC
 LIMIT 100;
 
 -- ============================================================
--- 场景8: 优惠券敏感用户定向投放
+-- 场景8: 促销敏感用户定向投放
 -- ============================================================
 SELECT
     user_id,
@@ -1808,7 +1871,7 @@ SELECT
     monetary
 FROM ads.user_profile
 WHERE dt = '2024-03-31'
-  AND coupon_sensitivity = '高敏感(优惠券驱动)'
+  AND coupon_sensitivity = '高敏感(折扣驱动)'
   AND lifecycle_stage IN ('活跃用户', '沉默用户')
   AND is_churn_risk = 0
 ORDER BY monetary DESC
@@ -1942,19 +2005,41 @@ def incremental_update_pipeline(current_dt: str, prev_dt: str):
     # Step 1: 识别变更用户
     changed_users = identify_changed_users(current_dt, prev_dt)
 
-    # Step 2: 仅对变更用户重算标签（复用build_basic_tags等函数）
-    # 注意：使用JOIN过滤只处理变更用户
-    changed_users_df = spark.table("dwd.dwd_user_register") \
+    # Step 2: 对变更用户完整重算所有标签（复用build_basic_tags等函数）
+    # 注意：changed_users_df 必须是与 ads.user_profile 相同schema的画像宽表，
+    #       否则下方 unionByName 会因列名/列数不匹配而报错。
+    #       此处过滤各源表只包含变更用户，再走完整的画像构建流程。
+    changed_user_ids = changed_users.select("user_id")
+
+    users_df_changed = spark.table("dwd.dwd_user_register") \
         .filter(col("dt") == current_dt) \
-        .join(changed_users, "user_id", "inner")
+        .join(changed_user_ids, "user_id", "inner")
+    category_pref_changed = category_pref.join(changed_user_ids, "user_id", "inner")
+    user_actions_7d_changed = user_actions_7d.join(changed_user_ids, "user_id", "inner")
+    user_actions_30d_changed = user_actions_30d.join(changed_user_ids, "user_id", "inner")
+    user_orders_30d_changed = user_orders_30d.join(changed_user_ids, "user_id", "inner")
+
+    # 复用4.1~4.4的标签构建函数，生成与全量画像相同schema的宽表
+    basic_tags = build_basic_tags(users_df_changed)
+    behavior_tags = build_behavior_tags(spark, category_pref_changed,
+                                        user_actions_30d_changed, user_orders_30d_changed)
+    rfm_tags = build_rfm_tags(user_orders_30d_changed)
+    lifecycle_tags = build_lifecycle_tags(users_df_changed, user_actions_7d_changed,
+                                          user_actions_30d_changed, user_orders_30d_changed)
+
+    changed_users_df = basic_tags \
+        .join(behavior_tags, "user_id", "left") \
+        .join(rfm_tags, "user_id", "left") \
+        .join(lifecycle_tags, "user_id", "left") \
+        .withColumn("dt", lit(current_dt))
 
     # Step 3: 加载昨日画像，排除变更用户
     yesterday_profile = spark.table("ads.user_profile") \
         .filter(col("dt") == prev_dt) \
-        .join(changed_users.select("user_id"),
-              "user_id", "left_anti")
+        .join(changed_user_ids, "user_id", "left_anti")
 
     # Step 4: 合并（未变更 + 已重算的变更用户）
+    # unionByName 要求两侧列名和列数完全一致，changed_users_df 已与全量画像同schema
     final_profile = yesterday_profile.unionByName(changed_users_df)
 
     return final_profile
@@ -2039,12 +2124,13 @@ def handle_late_data(spark, analysis_dt: str, late_dt: str):
     """
 
     # 对于延迟订单数据，更新对应日期的RFM标签
+    # dt = 处理日期(分区), to_date(create_time) = 订单实际日期
     late_orders = spark.sql(f"""
         SELECT *
         FROM dwd.dwd_order_detail
         WHERE dt = '{analysis_dt}'
-          AND order_date = '{late_dt}'
-          AND order_status IN ('paid', 'completed')
+          AND to_date(create_time) = '{late_dt}'
+          AND order_status IN ('已完成', '已退款')
     """)
 
     if late_orders.count() > 0:
@@ -2055,15 +2141,15 @@ def handle_late_data(spark, analysis_dt: str, late_dt: str):
     # 绘制延迟数据趋势
     late_stats = spark.sql(f"""
         SELECT
-            order_date,
+            to_date(create_time) AS order_date,
             dt AS processing_date,
-            DATEDIFF(dt, order_date) AS delay_days,
+            DATEDIFF(dt, to_date(create_time)) AS delay_days,
             COUNT(*) AS late_order_count
         FROM dwd.dwd_order_detail
         WHERE dt >= DATE_SUB('{analysis_dt}', 7)
-          AND order_status IN ('paid', 'completed')
-        GROUP BY order_date, dt
-        HAVING DATEDIFF(dt, order_date) > 0
+          AND order_status IN ('已完成', '已退款')
+        GROUP BY to_date(create_time), dt
+        HAVING DATEDIFF(dt, to_date(create_time)) > 0
         ORDER BY order_date, processing_date
     """)
 
@@ -2083,7 +2169,7 @@ def handle_late_data(spark, analysis_dt: str, late_dt: str):
 -- ============================================================
 
 -- 类型1: 顶级高价值用户（5个）
--- 特征: RFM≥14, 高客单价, 高频
+-- 特征: RFM≥15, 高客单价, 高频
 SELECT '顶级高价值' AS profile_type, user_id, gender, age_group, city_level,
        user_level, register_days, top3_categories, price_sensitivity,
        buy_frequency_level, avg_order_value_level, top3_brands,
@@ -2235,7 +2321,7 @@ spark.stop()
 用户 #3 (ID: 10003)
   基础属性: 女 | 中青年 | 一线 | VIP | 注册2100天
   生命周期: 活跃用户 | 7天活跃率 0.71 | 流失预警:0
-  消费能力: RFM总分=14 (R=4 F=5 M=5) | 顶级高价值 | 总消费:423100.80
+  消费能力: RFM总分=15 (R=5 F=5 M=5) | 顶级高价值 | 总消费:423100.80
   行为偏好: 品类TOP3=服装鞋包,美妆个护,母婴用品
   购买特征: 高频 | 高客单价 | 低敏感
   运营建议: 时尚搭配顾问，线下VIP沙龙
@@ -2243,7 +2329,7 @@ spark.stop()
 用户 #4 (ID: 10004)
   基础属性: 男 | 中年 | 一线 | 黄金 | 注册1500天
   生命周期: 活跃用户 | 7天活跃率 0.57 | 流失预警:0
-  消费能力: RFM总分=14 (R=5 F=4 M=5) | 顶级高价值 | 总消费:178500.30
+  消费能力: RFM总分=15 (R=5 F=5 M=5) | 顶级高价值 | 总消费:178500.30
   行为偏好: 品类TOP3=数码电子,家用电器,食品饮料
   购买特征: 高频 | 高客单价 | 低敏感
   运营建议: 大额消费分期方案，品牌年度答谢
@@ -2251,7 +2337,7 @@ spark.stop()
 用户 #5 (ID: 10005)
   基础属性: 女 | 青年 | 新一线 | VIP | 注册650天
   生命周期: 活跃用户 | 7天活跃率 1.0 | 流失预警:0
-  消费能力: RFM总分=14 (R=5 F=5 M=4) | 顶级高价值 | 总消费:156800.00
+  消费能力: RFM总分=15 (R=5 F=5 M=5) | 顶级高价值 | 总消费:156800.00
   行为偏好: 品类TOP3=美妆个护,服装鞋包,家居日用
   购买特征: 高频 | 中客单价 | 中敏感
   运营建议: 美妆KOL合作种草，会员日专属折扣

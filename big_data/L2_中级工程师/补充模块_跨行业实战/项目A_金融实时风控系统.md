@@ -673,6 +673,7 @@ public class RealTimeRiskEngine {
             decision.ruleHits = String.join(";", hitRules);
             decision.action = action;
             decision.decisionTime = System.currentTimeMillis();
+            decision.fraudType = event.fraudType;
 
             out.collect(decision);
 
@@ -693,6 +694,7 @@ public class RealTimeRiskEngine {
         public String ip;
         public String deviceId;
         public String city;
+        public String fraudType;
 
         public Long getAccountId() { return accountId; }
     }
@@ -704,6 +706,7 @@ public class RealTimeRiskEngine {
         public Integer riskScore;
         public String ruleHits;
         public String action;
+        public String fraudType;
         public Long decisionTime;
     }
 }
@@ -726,6 +729,7 @@ CREATE TABLE kafka_transactions (
     device_id STRING,
     city STRING,
     is_fraud INT,
+    fraud_type STRING,
     WATERMARK FOR transaction_time AS transaction_time - INTERVAL '5' SECOND
 ) WITH (
     'connector' = 'kafka',
@@ -912,6 +916,7 @@ CREATE TABLE risk_decisions_realtime ON CLUSTER default (
     device_id String,
     ip String,
     is_fraud UInt8 DEFAULT 0,
+    fraud_type String DEFAULT '',
     create_time DateTime64(3) DEFAULT now64(),
     INDEX idx_account account_id TYPE bloom_filter GRANULARITY 1,
     INDEX idx_risk_level risk_level TYPE set(3) GRANULARITY 1,
@@ -935,11 +940,12 @@ CREATE TABLE risk_stats_minute ON CLUSTER default (
     fraud_detected UInt64,
     block_rate Float64,
     fraud_rate Float64,
-    avg_risk_score Float64
+    sum_risk_score Float64,
+    risk_score_count UInt64
 ) ENGINE = ReplicatedSummingMergeTree(
     '/clickhouse/tables/{shard}/risk_stats_minute',
     '{replica}',
-    (total_transactions, blocked_count, verified_count, passed_count, fraud_detected)
+    (total_transactions, blocked_count, verified_count, passed_count, fraud_detected, sum_risk_score, risk_score_count)
 )
 PARTITION BY toYYYYMM(window_start)
 ORDER BY (window_start)
@@ -958,7 +964,8 @@ AS SELECT
     sum(if(action = 'VERIFY', 1, 0)) AS verified_count,
     sum(if(action = 'PASS', 1, 0)) AS passed_count,
     sum(is_fraud) AS fraud_detected,
-    avg(risk_score) AS avg_risk_score
+    sum(risk_score) AS sum_risk_score,
+    count(risk_score) AS risk_score_count
 FROM risk_decisions_realtime
 GROUP BY window_start, risk_level;
 
@@ -1028,20 +1035,23 @@ CREATE (:Merchant {
     category: row.category
 });
 
-// 创建交易关系
+// 创建交易关系（商户可能为空，用OPTIONAL MATCH处理）
 LOAD CSV WITH HEADERS FROM 'file:///transactions.csv' AS row
 MATCH (a:Account {account_id: toInteger(row.account_id)})
 MATCH (d:Device {device_id: row.device_id})
 MATCH (i:IP {ip: row.ip})
-MATCH (m:Merchant {name: row.merchant})
-CREATE (a)-[:TRANSACTED {
-    transaction_id: toInteger(row.transaction_id),
-    amount: toFloat(row.amount),
-    txn_time: datetime(row.transaction_time),
-    is_fraud: toInteger(row.is_fraud)
-}]->(m)
 CREATE (a)-[:USED_DEVICE {txn_time: datetime(row.transaction_time)}]->(d)
-CREATE (a)-[:USED_IP {txn_time: datetime(row.transaction_time)}]->(i);
+CREATE (a)-[:USED_IP {txn_time: datetime(row.transaction_time)}]->(i)
+WITH a, row
+OPTIONAL MATCH (m:Merchant {name: row.merchant})
+FOREACH (merch IN CASE WHEN m IS NOT NULL THEN [m] ELSE [] END |
+    CREATE (a)-[:TRANSACTED {
+        transaction_id: toInteger(row.transaction_id),
+        amount: toFloat(row.amount),
+        txn_time: datetime(row.transaction_time),
+        is_fraud: toInteger(row.is_fraud)
+    }]->(merch)
+);
 
 // 创建共用设备关系（同设备不同账户）
 MATCH (d:Device)<-[:USED_DEVICE]-(a1:Account)
@@ -1104,11 +1114,9 @@ MATCH (a:Account)
 WHERE a.pagerank > 1.5 AND a.risk_level >= 2
 SET a.risk_level = 3;
 
-// 3. 资金环路检测: 环形转账
-MATCH path = (a1:Account)-[:TRANSACTED*2..5]->(a1)
-WHERE ALL(r IN relationships(path) WHERE r.amount > 10000)
+// 3. 关联环路检测: 共享设备/IP的欺诈团伙环
+MATCH path = (a1:Account)-[:SHARED_DEVICE|SHARED_IP*2..5]-(a1)
 RETURN [n IN nodes(path) | n.account_id] AS ring_accounts,
-       [r IN relationships(path) | r.amount] AS amounts,
        length(path) AS ring_length
 LIMIT 50;
 
@@ -1125,8 +1133,8 @@ RETURN fraud_account.account_id, suspicious.account_id, suspicious.risk_level;
 
 // 5. 查询某账户的关联网络（深度2）
 MATCH (center:Account {account_id: 12345})-[:SHARED_DEVICE|SHARED_IP*1..2]-(connected:Account)
-RETURN center, connected,
-       length(shortestPath((center)-[:SHARED_DEVICE|SHARED_IP*]-(connected))) AS distance;
+MATCH path = shortestPath((center)-[:SHARED_DEVICE|SHARED_IP*]-(connected))
+RETURN center, connected, length(path) AS distance;
 
 // 清理图投影
 CALL gds.graph.drop('fraud_network');
@@ -1142,7 +1150,7 @@ Spark批量图计算 - 每日构建全量交易图
 计算图特征写入Redis供实时使用
 """
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, count, countDistinct, sum, avg, max as spark_max, collect_list
+from pyspark.sql.functions import col, count, countDistinct, sum, avg, max as spark_max, collect_list, lit
 from graphframes import GraphFrame
 
 spark = SparkSession.builder \
@@ -1166,15 +1174,15 @@ def build_transaction_graph():
 
     account_vertices = transactions.select(
         col("account_id").alias("id")
-    ).distinct().withColumn("type", col("id") * 0 + 1)
+    ).distinct().withColumn("type", lit(1))
 
     device_vertices = transactions.select(
         col("device_id").alias("id")
-    ).distinct().withColumn("type", col("id") * 0 + 2)
+    ).distinct().withColumn("type", lit(2))
 
     ip_vertices = transactions.select(
         col("ip").alias("id")
-    ).distinct().withColumn("type", col("id") * 0 + 3)
+    ).distinct().withColumn("type", lit(3))
 
     vertices = account_vertices.unionByName(device_vertices).unionByName(ip_vertices)
 
@@ -1184,7 +1192,7 @@ def build_transaction_graph():
         col("amount").alias("weight")
     ).groupBy("src", "dst").agg(
         count("*").alias("weight")
-    ).withColumn("relationship", col("weight") * 0 + 1)
+    ).withColumn("relationship", lit(1))
 
     account_ip_edges = transactions.select(
         col("account_id").alias("src"),
@@ -1192,7 +1200,7 @@ def build_transaction_graph():
         col("amount").alias("weight")
     ).groupBy("src", "dst").agg(
         count("*").alias("weight")
-    ).withColumn("relationship", col("weight") * 0 + 2)
+    ).withColumn("relationship", lit(2))
 
     edges = account_device_edges.unionByName(account_ip_edges)
 
@@ -1358,7 +1366,7 @@ if __name__ == "__main__":
         "title": "欺诈类型分布",
         "type": "barchart",
         "targets": [{
-          "rawSql": "SELECT rule_hits, count() AS cnt FROM risk_decisions_realtime WHERE is_fraud = 1 AND decision_time >= now() - INTERVAL 1 HOUR GROUP BY rule_hits ORDER BY cnt DESC LIMIT 10",
+          "rawSql": "SELECT fraud_type, count() AS cnt FROM risk_decisions_realtime WHERE is_fraud = 1 AND decision_time >= now() - INTERVAL 1 HOUR GROUP BY fraud_type ORDER BY cnt DESC LIMIT 10",
           "format": "table"
         }]
       },

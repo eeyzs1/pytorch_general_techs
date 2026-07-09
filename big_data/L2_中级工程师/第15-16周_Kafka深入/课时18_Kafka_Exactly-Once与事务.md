@@ -389,8 +389,8 @@ consumerProps.put("bootstrap.servers", "localhost:9092");
 consumerProps.put("group.id", "analytics-group");
 
 // ====== 关键配置：隔离级别 ======
-// read_committed: 只读取已提交事务的消息（默认行为）
-// read_uncommitted: 读取所有消息（包括未提交的）
+// read_committed: 只读取已提交事务的消息
+// read_uncommitted: 读取所有消息（包括未提交的，Kafka默认值）
 consumerProps.put("isolation.level", "read_committed");
 
 // 如果使用 read_committed：
@@ -911,7 +911,7 @@ if __name__ == '__main__':
 
 ## 八、常见问题与最佳实践
 
-### 7.1 事务ID（transactional.id）的设计
+### 8.1 事务ID（transactional.id）的设计
 
 ```yaml
 最佳实践:
@@ -932,7 +932,7 @@ if __name__ == '__main__':
   # 3. 避免"僵尸Producer"问题
 ```
 
-### 7.2 事务超时配置
+### 8.2 事务超时配置
 
 ```yaml
 关键参数:
@@ -946,7 +946,7 @@ if __name__ == '__main__':
   - 对于长流程，使用"事务 + Offset提交"分开管理
 ```
 
-### 7.3 性能影响
+### 8.3 性能影响
 
 ```
 事务的性能代价:
@@ -1319,7 +1319,7 @@ print(f"\n共消费到 {count} 条消息 (预期30条，来自已提交事务)")
 
 ---
 
-## 九、参考资料
+## 十一、参考资料
 
 - [Kafka Exactly-Once Semantics (Confluent Blog)](https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/)
 - [Kafka Transactions (Confluent Blog)](https://www.confluent.io/blog/transactions-apache-kafka/)

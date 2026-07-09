@@ -418,8 +418,8 @@ tasks.max=4
 connect.mqtt.hosts=tcp://emqx:1883
 connect.mqtt.topics=iot/sensor/#
 connect.kafka.topic=iot.sensor.raw
-connect.converter.key.converter=org.apache.kafka.connect.storage.StringConverter
-connect.converter.value.converter=org.apache.kafka.connect.storage.StringConverter
+key.converter=org.apache.kafka.connect.storage.StringConverter
+value.converter=org.apache.kafka.connect.storage.StringConverter
 ```
 
 ### 4.2 Kafka Topic设计
@@ -450,6 +450,8 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.util.OutputTag;
+import org.apache.flink.streaming.api.functions.ProcessFunction;
+import org.apache.flink.util.Collector;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
@@ -457,6 +459,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 
 public class IoTPipeline {
 
@@ -553,6 +557,57 @@ public class IoTPipeline {
         }
     }
 
+    static class AnomalyDetectProcessFunction extends ProcessFunction<SensorReading, SensorReading> {
+        private final OutputTag<String> anomalyTag;
+        private transient Map<String, double[]> statsMap;
+
+        public AnomalyDetectProcessFunction(OutputTag<String> anomalyTag) {
+            this.anomalyTag = anomalyTag;
+        }
+
+        @Override
+        public void open(org.apache.flink.configuration.Configuration parameters) throws Exception {
+            statsMap = new HashMap<>();
+        }
+
+        @Override
+        public void processElement(SensorReading reading, Context ctx, Collector<SensorReading> out) throws Exception {
+            if (reading.value == null) {
+                out.collect(reading);
+                return;
+            }
+
+            String key = reading.sensorType;
+            double[] stats = statsMap.computeIfAbsent(key, k -> new double[]{0, 0, 0});
+            long count = (long) stats[0];
+            double sum = stats[1];
+            double sumSq = stats[2];
+
+            // 样本充足时使用3-Sigma检测
+            if (count >= 100) {
+                double mean = sum / count;
+                double variance = sumSq / count - mean * mean;
+                double std = Math.sqrt(Math.max(0, variance));
+
+                if (std > 0 && Math.abs(reading.value - mean) > 3 * std) {
+                    String anomalyJson = String.format(
+                        "{\"device_id\":\"%s\",\"sensor_type\":\"%s\",\"value\":%.2f,\"mean\":%.2f,\"std\":%.2f,\"anomaly_type\":\"3SIGMA\",\"timestamp\":%d}",
+                        reading.deviceId, reading.sensorType, reading.value, mean, std, reading.timestamp
+                    );
+                    ctx.output(anomalyTag, anomalyJson);
+                    reading.isAnomaly = 1;
+                }
+            }
+
+            // 更新统计量
+            stats[0] = count + 1;
+            stats[1] = sum + reading.value;
+            stats[2] = sumSq + reading.value * reading.value;
+
+            out.collect(reading);
+        }
+    }
+
     static class SensorStatsAggregator implements AggregateFunction<
             SensorReading, StatsAccumulator, SensorStats> {
 
@@ -606,7 +661,7 @@ public class IoTPipeline {
         double sum = 0;
         double sumSq = 0;
         double min = Double.MAX_VALUE;
-        double max = Double.MIN_VALUE;
+        double max = -Double.MAX_VALUE;
     }
 
     static class SensorReading {
@@ -849,7 +904,7 @@ class TDengineWriter:
 
         table_name = f"a_{device_id}_{sensor_type}".replace('-', '_')
         sql = (
-            f"INSERT INTO {table_name} USING {TDengineWriter}.anomaly_events "
+            f"INSERT INTO {table_name} USING {TDENGINE_DB}.anomaly_events "
             f"TAGS ('{device_id}', '{sensor_type}') "
             f"VALUES ({ts}, '{anomaly_type}', {anomaly_value}, {threshold}, '{severity}')"
         )

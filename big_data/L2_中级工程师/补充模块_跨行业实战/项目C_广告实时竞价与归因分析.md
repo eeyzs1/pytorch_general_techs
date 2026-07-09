@@ -224,7 +224,7 @@ class AdDataSimulator:
                 )
                 self.conn.commit()
                 self.advertiser_ids.extend(
-                    range(self.cursor.lastrowid - len(batch) + 1, self.cursor.lastrowid + 1)
+                    range(self.cursor.lastrowid, self.cursor.lastrowid + len(batch))
                 )
                 batch = []
 
@@ -235,7 +235,7 @@ class AdDataSimulator:
             )
             self.conn.commit()
             self.advertiser_ids.extend(
-                range(self.cursor.lastrowid - len(batch) + 1, self.cursor.lastrowid + 1)
+                range(self.cursor.lastrowid, self.cursor.lastrowid + len(batch))
             )
 
         print(f"广告主生成完成: {len(self.advertiser_ids)}")
@@ -271,7 +271,7 @@ class AdDataSimulator:
                 )
                 self.conn.commit()
                 self.ad_ids.extend(
-                    range(self.cursor.lastrowid - len(batch) + 1, self.cursor.lastrowid + 1)
+                    range(self.cursor.lastrowid, self.cursor.lastrowid + len(batch))
                 )
                 batch = []
 
@@ -284,7 +284,7 @@ class AdDataSimulator:
             )
             self.conn.commit()
             self.ad_ids.extend(
-                range(self.cursor.lastrowid - len(batch) + 1, self.cursor.lastrowid + 1)
+                range(self.cursor.lastrowid, self.cursor.lastrowid + len(batch))
             )
 
         print(f"广告生成完成: {len(self.ad_ids)}")
@@ -459,6 +459,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
+import org.apache.flink.streaming.api.functions.co.KeyedCoProcessFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
@@ -831,7 +832,7 @@ FROM ad_impressions i
 LEFT JOIN ad_clicks c
     ON i.ad_id = c.ad_id AND i.user_id = c.user_id
     AND c.click_time BETWEEN i.impression_time AND i.impression_time + INTERVAL '1' HOUR
-WHERE i.impression_time >= NOW - INTERVAL '1' HOUR
+WHERE i.impression_time >= CURRENT_TIMESTAMP - INTERVAL '1' HOUR
 GROUP BY i.ad_id;
 
 -- CPC/CPM实时统计: 每分钟各广告的花费
@@ -858,10 +859,13 @@ SELECT
     b.ad_id,
     TUMBLE_START(b.request_time, INTERVAL '1' MINUTE) AS window_start,
     TUMBLE_END(b.request_time, INTERVAL '1' MINUTE) AS window_end,
-    0L AS impression_count,
+    SUM(CASE WHEN b.is_won = 1 THEN 1 ELSE 0 END) AS impression_count,
     0L AS click_count,
     SUM(CASE WHEN b.is_won = 1 THEN b.bid_amount ELSE 0 END) AS total_cost,
-    SUM(CASE WHEN b.is_won = 1 THEN b.bid_amount ELSE 0 END) * 1000 AS cpm,
+    CASE WHEN SUM(CASE WHEN b.is_won = 1 THEN 1 ELSE 0 END) > 0
+         THEN (SUM(CASE WHEN b.is_won = 1 THEN b.bid_amount ELSE 0 END) /
+               SUM(CASE WHEN b.is_won = 1 THEN 1 ELSE 0 END)) * 1000
+         ELSE 0 END AS cpm,
     CASE WHEN SUM(CASE WHEN b.is_won = 1 THEN 1 ELSE 0 END) > 0
          THEN SUM(CASE WHEN b.is_won = 1 THEN b.bid_amount ELSE 0 END) /
               SUM(CASE WHEN b.is_won = 1 THEN 1 ELSE 0 END)
@@ -879,7 +883,7 @@ SELECT
     SUM(CASE WHEN is_won = 1 THEN 1 ELSE 0 END) AS won_bids,
     CAST(SUM(CASE WHEN is_won = 1 THEN 1 ELSE 0 END) AS DOUBLE) / COUNT(*) AS win_rate
 FROM ad_bids
-WHERE request_time >= NOW - INTERVAL '1' HOUR
+WHERE request_time >= CURRENT_TIMESTAMP - INTERVAL '1' HOUR
 GROUP BY ad_id;
 
 -- 反作弊: 同一用户1分钟内点击同一广告>3次
@@ -1187,14 +1191,16 @@ def load_touchpoint_data():
     print("=== 加载触点数据 ===")
 
     impressions = spark.sql("""
-        SELECT ad_id, user_id, impression_time AS touchpoint_time,
+        SELECT ad_id, user_id,
+               unix_timestamp(impression_time) * 1000 AS touchpoint_time,
                'impression' AS touchpoint_type, media, cost
         FROM ad_bidding.impressions
         WHERE impression_time >= date_sub(current_date(), 30)
     """)
 
     clicks = spark.sql("""
-        SELECT ad_id, user_id, click_time AS touchpoint_time,
+        SELECT ad_id, user_id,
+               unix_timestamp(click_time) * 1000 AS touchpoint_time,
                'click' AS touchpoint_type, media, 0 AS cost
         FROM ad_bidding.clicks
         WHERE click_time >= date_sub(current_date(), 30)
@@ -1202,7 +1208,7 @@ def load_touchpoint_data():
 
     conversions = spark.sql("""
         SELECT conversion_id, user_id, conversion_type, amount,
-               conversion_time
+               unix_timestamp(conversion_time) * 1000 AS conversion_time
         FROM ad_bidding.conversions
         WHERE conversion_time >= date_sub(current_date(), 30)
     """)
@@ -1539,9 +1545,10 @@ public class RealTimeAttribution {
                 "ad.events.conversion", new SimpleStringSchema(), kafkaProps))
             .map(line -> JSON.parseObject(line, ConversionEvent.class));
 
-        DataStream<AttributionResult> attributionResults = conversionStream
-            .keyBy(e -> e.userId)
-            .process(new RealTimeAttributionFunction(clickStream));
+        DataStream<AttributionResult> attributionResults = clickStream
+            .connect(conversionStream)
+            .keyBy(click -> click.userId, conversion -> conversion.userId)
+            .process(new RealTimeAttributionFunction());
 
         FlinkKafkaProducer<String> sink = new FlinkKafkaProducer<>(
             "ad.attribution.realtime",
@@ -1555,7 +1562,7 @@ public class RealTimeAttribution {
     }
 
     static class RealTimeAttributionFunction
-            extends KeyedProcessFunction<Long, ConversionEvent, AttributionResult> {
+            extends KeyedCoProcessFunction<Long, ClickEvent, ConversionEvent, AttributionResult> {
 
         private ListState<Touchpoint> touchpointWindow;
         private ValueState<Long> lastCleanupTime;
@@ -1569,8 +1576,19 @@ public class RealTimeAttribution {
         }
 
         @Override
-        public void processElement(ConversionEvent conversion, Context ctx,
-                                   Collector<AttributionResult> out) throws Exception {
+        public void processElement1(ClickEvent click, Context ctx,
+                                    Collector<AttributionResult> out) throws Exception {
+            // 点击事件写入触点窗口
+            Touchpoint tp = new Touchpoint();
+            tp.adId = click.adId;
+            tp.touchpointType = "click";
+            tp.touchpointTime = click.clickTime;
+            touchpointWindow.add(tp);
+        }
+
+        @Override
+        public void processElement2(ConversionEvent conversion, Context ctx,
+                                    Collector<AttributionResult> out) throws Exception {
             long sevenDaysAgo = conversion.conversionTime - TimeUnit.DAYS.toMillis(7);
 
             List<Touchpoint> validTouchpoints = new ArrayList<>();

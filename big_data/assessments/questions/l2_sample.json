@@ -7,10 +7,10 @@
       "type": "single_choice",
       "knowledge": ["Kafka", "reliability"],
       "difficulty": 3,
-      "prompt": "Kafka Producer 配置 acks=all 且 min.insync.replicas=2（3副本集群）。当 Leader 写入成功但只有一个 Follower 同步完成时，Producer 会收到什么响应？",
-      "options": ["写入成功，返回成功响应", "写入失败，抛出 NotEnoughReplicasException，Producer 重试", "Leader 等待第二个 Follower 同步完成后再响应", "数据丢失，无任何响应"],
+      "prompt": "Kafka Producer 配置 acks=all 且 min.insync.replicas=2（3副本集群）。当两个 Follower 均因落后超过 replica.lag.time.max.ms 被移出 ISR、当前 ISR 仅剩 Leader 一个副本时，Producer 写入会收到什么响应？",
+      "options": ["写入成功，acks=all 仅需 Leader 确认即可", "写入失败，抛出 NotEnoughReplicasException，Producer 重试", "Leader 等待任一 Follower 重新加入 ISR 后再响应", "数据写入 Leader 后丢失，无任何响应"],
       "answer": "写入失败，抛出 NotEnoughReplicasException，Producer 重试",
-      "explanation": "acks=all 要求所有 ISR 副本确认。min.insync.replicas=2 意味着至少 2 个副本（含 Leader）写入成功才算成功。当前只有 Leader + 1 个 Follower = 2 个 ISR，若该 Follower 未同步完成则 ISR 中确认数不足，触发 NotEnoughReplicasException。Producer 配置 retries 后会自动重试。这是金融级零丢失场景的关键配置。"
+      "explanation": "acks=all 要求当前 ISR 中所有副本都确认写入。min.insync.replicas=2 意味着写入要成功，ISR 中至少要有 2 个副本（含 Leader）。当两个 Follower 都被移出 ISR 后，ISR 仅剩 Leader（size=1），1 < min.insync.replicas=2，因此 Leader 拒绝写入并抛出 NotEnoughReplicasException。Producer 配置 retries 后会自动重试，直到 Follower 重新追上数据回到 ISR。注意：若 ISR={Leader, Follower1}（size=2）且 Follower1 尚未确认，acks=all 会等待 Follower1 确认（而非立即抛异常），只有 ISR 数量本身不足时才抛 NotEnoughReplicasException。这是金融级零丢失场景的关键配置。"
     },
     {
       "id": "L2-FLINK-001",

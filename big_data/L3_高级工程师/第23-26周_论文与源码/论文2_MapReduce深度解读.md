@@ -896,7 +896,7 @@ output: (user_id, max_streak)
 
 ---
 
-## 十、MapReduce完整6阶段执行流程图解
+## 十一、MapReduce完整6阶段执行流程图解
 
 ```
  ╔═══════════════════════════════════════════════════════════════════════════╗
@@ -974,7 +974,7 @@ output: (user_id, max_streak)
 
 ---
 
-## 十一、编程实践：用Python模拟MapReduce执行过程
+## 十二、编程实践：用Python模拟MapReduce执行过程
 
 ```python
 import hashlib
@@ -1108,7 +1108,7 @@ if __name__ == "__main__":
 
 ---
 
-## 十二、课后深度思考题
+## 十三、课后深度思考题
 
 **思考题1：MapReduce的Shuffle阶段将所有Map输出通过网络传输到Reducer。如果网络带宽是瓶颈，除了Combiner之外，还有哪些减少Shuffle数据量的方法？请至少给出3种，并分析各自的适用场景和限制。**
 

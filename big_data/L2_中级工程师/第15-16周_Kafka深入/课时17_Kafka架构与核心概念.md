@@ -89,9 +89,9 @@ kafka-topics.sh --describe \
 # Partition: 0, Leader: 1, Replicas: 1,2,3, Isr: 1,2,3
 # Partition: 1, Leader: 2, Replicas: 2,3,1, Isr: 2,3,1
 # Partition: 2, Leader: 3, Replicas: 3,1,2, Isr: 3,1,2
-# Partition: 3, Leader: 1, Replicas: 2,1,3, Isr: 1,2,3
-# Partition: 4, Leader: 2, Replicas: 3,2,1, Isr: 2,3,1
-# Partition: 5, Leader: 3, Replicas: 1,3,2, Isr: 3,1,2
+# Partition: 3, Leader: 1, Replicas: 1,2,3, Isr: 1,2,3
+# Partition: 4, Leader: 2, Replicas: 2,3,1, Isr: 2,3,1
+# Partition: 5, Leader: 3, Replicas: 3,1,2, Isr: 3,1,2
 ```
 
 ---
@@ -226,15 +226,13 @@ print("所有消息发送完成")
 ```
 传统网络传输（4次数据拷贝 + 4次上下文切换）:
 
-        用户态              内核态              硬件
-        ──────              ──────              ────
-    应用程序Buffer                              
-         ↑ ④                                    
-    Socket Buffer ──③──→ OS Buffer ──②──→ 磁盘控制器
-         ↓ ⑤                                   
-       网卡驱动                                  
-         ↓ ⑥                                   
-        网卡                                    
+  read() 系统调用:
+    磁盘 ──②DMA──→ OS Read Buffer(内核) ──③CPU──→ 应用程序Buffer(用户)
+    [上下文切换: 用户态→内核态→用户态, 2次]
+
+  write() 系统调用:
+    应用程序Buffer(用户) ──⑤CPU──→ Socket Buffer(内核) ──⑥DMA──→ 网卡
+    [上下文切换: 用户态→内核态→用户态, 2次]
 
 详细步骤:
 ① read() 系统调用 → 上下文切换到内核态
@@ -248,26 +246,27 @@ print("所有消息发送完成")
 ```
 
 ```
-Kafka零拷贝（sendfile系统调用，2次数据拷贝 + 2次上下文切换）:
+Kafka零拷贝（sendfile系统调用，2次DMA数据拷贝 + 2次上下文切换）:
 
-        用户态              内核态              硬件
-        ──────              ──────              ────
-                                                  
-                         OS Buffer ──①──→ 磁盘控制器
-                           │ ②                  
-                           ↓ (DMA: 只拷贝描述信息到Socket Buffer)
-                       Socket Buffer             
-                           ↓ ③                  
-                         网卡                    
+  sendfile() 系统调用:
+    磁盘 ──②DMA──→ OS Read Buffer(内核)
+                       │
+                       │ ③CPU(仅拷贝描述信息: offset+length, 约16字节)
+                       ↓
+                    Socket Buffer(内核)
+                       │
+                       │ ④DMA(scatter-gather, 直接从OS Read Buffer取数据)
+                       ↓
+                      网卡
 
 详细步骤:
 ① sendfile() 系统调用 → 上下文切换到内核态
 ② DMA: 磁盘 → OS Read Buffer
-③ CPU: OS Buffer → Socket Buffer（描述信息拷贝，非数据拷贝）
-④ DMA: Socket Buffer → 网卡
+③ CPU: OS Read Buffer的物理地址+长度 → Socket Buffer（仅描述信息, 非数据拷贝）
+④ DMA: 通过scatter-gather, 直接从OS Read Buffer → 网卡
 ⑤ 上下文切换回用户态
 
-共2次拷贝（1次DMA + 1次DMA描述信息） + 2次上下文切换
+共2次DMA数据拷贝（scatter-gather模式，0次CPU数据拷贝） + 2次上下文切换
 
 关键：数据从磁盘到网卡，从不经过用户态内存！
 ```
@@ -282,8 +281,8 @@ Kafka能使用零拷贝的条件：
 4. 网卡支持 scatter-gather DMA
 
 Kafka在以下场景不能使用零拷贝：
-- 需要解压缩（Consumer配置了解压）
-- 需要消息转换（如Avro→JSON）
+- 需要消息格式转换（如magic v2转v1兼容老客户端，Broker需解压再重新压缩）
+- 需要消息转换（如Avro→JSON的SMT）
 - SSL/TLS加密（数据需要先加密再发送）
 ```
 
@@ -455,17 +454,17 @@ finally:
 ISR (In-Sync Replicas): 与Leader保持同步的副本集合
 
 配置参数:
-  replica.lag.time.max.ms = 30000 (默认30秒)
+  replica.lag.time.max.ms = 10000 (默认10秒)
 
 判断逻辑:
-  如果Follower在30秒内没有追上Leader的数据，则被踢出ISR
+  如果Follower在10秒内没有追上Leader的数据，则被踢出ISR
   如果Follower追上了，则重新加入ISR
 
 示例:
   Partition 0: Leader(Broker1), Replicas=[1,2,3]
-  
+
   正常情况: ISR=[1,2,3]  ← 所有副本同步
-  Broker3网络抖动30秒+: ISR=[1,2]  ← Broker3被踢出
+  Broker3网络抖动10秒+: ISR=[1,2]  ← Broker3被踢出
   Broker3恢复同步: ISR=[1,2,3]  ← Broker3重新加入
 ```
 
@@ -503,8 +502,8 @@ Leader切换流程:
   6. Producer和Consumer更新Metadata，连接到新Leader
 
 unclean.leader.election.enable:
-  - true(默认): 如果ISR为空，允许从非ISR中选举 → 可能丢数据
-  - false(生产推荐): 宁可不可用，也不丢数据
+  - true: 如果ISR为空，允许从非ISR中选举 → 可能丢数据
+  - false(默认, Kafka 0.11+): 宁可不可用，也不丢数据（生产推荐保持默认）
 ```
 
 ---
@@ -852,7 +851,7 @@ kafka-consumer-perf-test.sh \
 
 ## 十、Broker故障演练
 
-### 9.1 手动Kill Broker观察
+### 10.1 手动Kill Broker观察
 
 ```bash
 # 1. 查看当前集群状态
@@ -879,7 +878,7 @@ docker start kafka-broker-1
 kafka-topics.sh --describe --topic user-events --bootstrap-server localhost:9092
 ```
 
-### 9.2 监控指标
+### 10.2 监控指标
 
 ```bash
 # 使用kafka-run-class查看关键指标
@@ -1196,7 +1195,7 @@ print(f"消费完成: {total}条, 耗时{consume_elapsed:.1f}s, "
 
 ---
 
-## 十一、参考资料
+## 十三、参考资料
 
 - [Apache Kafka官方文档 - Design](https://kafka.apache.org/documentation/#design)
 - [Kafka: a Distributed Messaging System for Log Processing (论文)](https://notes.stephenholiday.com/Kafka.pdf)
@@ -1205,9 +1204,9 @@ print(f"消费完成: {total}条, 耗时{consume_elapsed:.1f}s, "
 
 ---
 
-## 十二、Kafka日志存储格式详解
+## 十四、Kafka日志存储格式详解
 
-### 12.1 日志段文件结构总览
+### 14.1 日志段文件结构总览
 
 ```
 Kafka Partition的数据在磁盘上以"日志段(Segment)"为单位存储:
@@ -1232,7 +1231,7 @@ Segment滚动条件(满足任意一条):
   ③ 手动触发(通过kafka-configs.sh修改segment.bytes)
 ```
 
-### 12.2 .log 文件内部结构
+### 14.2 .log 文件内部结构
 
 ```
 .log 文件的二进制结构(每条消息的格式):
@@ -1258,17 +1257,20 @@ Segment滚动条件(满足任意一条):
   │ headers (var)        │ 消息头(Kafka 0.11+), 可选         │
   └─────────────────────────────────────────────────────────┘
 
-  字节级示例(1条消息的hex dump):
+  字节级示例(v1格式单条消息的hex dump, Kafka 0.10及更早):
   Offset:  00 00 00 00 00 00 00 2A  (offset = 42)
   Size:    00 00 00 48              (72 bytes)
   CRC:     7A B3 2F 01
-  Magic:   02                       (magic v2, Kafka 0.11+)
+  Magic:   01                       (magic v1, Kafka 0.10)
   Attrs:   00
   Time:    00 00 01 8D 2A 7F 3A 00 (timestamp in ms)
   Key Len: FF FF FF FF              (-1, no key)
   Val Len: 00 00 00 1E              (30 bytes)
   Val:     7B 22 6E 61 6D 65 22 ... ({"name":"test"}...)
-  Headers: 00 00 00 00              (no headers)
+  Headers: (v1无headers字段)
+
+  注意: Kafka 0.11+(magic v2)使用下方的Record Batch格式,
+        不再使用上述单条消息格式
 
 消息批次(Message Batch, Kafka 0.11+):
 
@@ -1299,12 +1301,12 @@ Segment滚动条件(满足任意一条):
   - 一个批次内的所有消息共享相同的ProducerId和Epoch
 ```
 
-### 12.3 .index 偏移索引文件
+### 14.3 .index 偏移索引文件
 
 ```
 .index 文件的作用: 建立 "相对Offset → 物理位置" 的映射
 
-  结构(每个索引条目12字节):
+  结构(每个索引条目8字节):
   ┌──────────────────────┬──────────────────────────┐
   │ relativeOffset(4B)   │ position(4B)             │
   │ 相对于Segment起始的   │ 对应消息在.log文件中的   │
@@ -1333,17 +1335,17 @@ Segment滚动条件(满足任意一条):
   稀疏索引策略:
   - 默认每4KB(4096字节)创建一个索引条目(log.index.interval.bytes=4096)
   - 这意味着平均查找需要扫描约4KB的数据
-  - 索引大小: 大约每条消息的索引占12字节
+  - 索引大小: 每个索引条目8字节(4B relativeOffset + 4B position)
     (相比之下日志文件每条消息可能占1KB+)
   - 索引文件通常只有日志文件的1%左右大小
 
 .index文件大小估算:
   日志文件1GB, 每条消息1KB, 共100万条
   索引间隔4KB → 约25万个索引条目
-  25万×12字节 ≈ 3MB  ← 索引仅占日志的 0.3%!
+  25万×8字节 ≈ 2MB  ← 索引仅占日志的 0.2%!
 ```
 
-### 12.4 .timeindex 时间戳索引文件
+### 14.4 .timeindex 时间戳索引文件
 
 ```
 .timeindex 文件的作用: 建立 "时间戳 → Offset" 的映射
@@ -1379,11 +1381,11 @@ Segment滚动条件(满足任意一条):
   - 在4KB内，Kafka会顺序扫描找到精确位置
 
 .timeindex文件大小估算:
-  同.index文件，约3MB
-  三文件总计: .log(1GB) + .index(3MB) + .timeindex(3MB) ≈ 1.006GB
+  25万×12字节 ≈ 3MB
+  三文件总计: .log(1GB) + .index(2MB) + .timeindex(3MB) ≈ 1.005GB
 ```
 
-### 12.5 leader-epoch-checkpoint 文件
+### 14.5 leader-epoch-checkpoint 文件
 
 ```
 leader-epoch-checkpoint 的作用: 防止Log Truncation导致的数据不一致
@@ -1414,9 +1416,9 @@ leader-epoch-checkpoint 的作用: 防止Log Truncation导致的数据不一致
 
 ---
 
-## 十三、Producer完整发送流程源码级走读
+## 十五、Producer完整发送流程源码级走读
 
-### 13.1 KafkaProducer核心架构
+### 15.1 KafkaProducer核心架构
 
 ```
 KafkaProducer 内部组件关系图:
@@ -1518,7 +1520,7 @@ KafkaProducer 内部组件关系图:
   - NetworkClient使用NIO: 单个Selector管理所有Broker连接
 ```
 
-### 13.2 RecordAccumulator源码级分析
+### 15.2 RecordAccumulator源码级分析
 
 ```java
 // RecordAccumulator核心数据结构
@@ -1622,7 +1624,7 @@ public class RecordAccumulator {
 }
 ```
 
-### 13.3 Sender线程源码级分析
+### 15.3 Sender线程源码级分析
 
 ```java
 // Sender线程的run方法(简化版)
@@ -1721,7 +1723,7 @@ public class Sender implements Runnable {
 }
 ```
 
-### 13.4 整个发送流程的时间线
+### 15.4 整个发送流程的时间线
 
 ```
 时间线: 一条消息从send()到callback的完整生命周期
@@ -1776,9 +1778,9 @@ T+13ms:   用户callback被调用:
 
 ---
 
-## 十四、Consumer Rebalance完整流程分步图解
+## 十六、Consumer Rebalance完整流程分步图解
 
-### 14.1 完整Rebalance时间线
+### 16.1 完整Rebalance时间线
 
 ```
 Consumer Rebalance完整流程 (以CooperativeStickyAssignor为例):
@@ -1924,7 +1926,7 @@ T+4s:   Rebalance完成! Group回到Stable状态
   Cooperative的代价: 只停止Partition2的消费(约2秒), 其他分区继续!
 ```
 
-### 14.2 Rebalance各阶段日志输出对照
+### 16.2 Rebalance各阶段日志输出对照
 
 ```
 阶段1: 加入Group
@@ -1975,9 +1977,9 @@ T+4s:   Rebalance完成! Group回到Stable状态
 
 ---
 
-## 十五、Page Cache与零拷贝的Linux内核级原理详解
+## 十七、Page Cache与零拷贝的Linux内核级原理详解
 
-### 15.1 Linux Page Cache详解
+### 17.1 Linux Page Cache详解
 
 ```
 Page Cache 是 Linux 内核中最重要的性能组件之一。
@@ -2086,7 +2088,7 @@ Kafka与Page Cache的关系:
      - 命中率越高, 磁盘读越少, 性能越好
 ```
 
-### 15.2 零拷贝(sendfile)内核级详解
+### 17.2 零拷贝(sendfile)内核级详解
 
 ```
 传统read+write方式的数据流(4次拷贝, 4次上下文切换):
@@ -2194,12 +2196,12 @@ sendfile()的适用条件(Kafka中的约束):
 
   ✓ 可以使用sendfile:
     ① 消息在Broker中不修改(Consumer读到什么就是磁盘上的什么)
-    ② Consumer不需要解压缩(compression.type=None 但Consumer配置了compression)
+    ② 不需要消息格式转换(新老消息格式兼容时Broker需解压重压)
     ③ 不经过SSL处理(明文传输)
     ④ 网卡支持Scatter-Gather DMA (几乎所有现代网卡都支持)
-  
+
   ✗ 不能使用sendfile:
-    ① Consumer需要解压缩(如Producer用lz4, Consumer用none → Broker需要解压)
+    ① 消息格式转换(如magic v2转v1兼容老客户端, Broker需解压再重新压缩)
     ② SSL/TLS加密传输(需要先加密数据再发送)
     ③ 需要消息转换(如Avro→JSON的SMT)
 
@@ -2213,9 +2215,9 @@ sendfile()的适用条件(Kafka中的约束):
 
 ---
 
-## 十六、完整Kafka压测脚本和结果分析方法
+## 十八、完整Kafka压测脚本和结果分析方法
 
-### 16.1 综合压测脚本
+### 18.1 综合压测脚本
 
 ```bash
 #!/bin/bash
@@ -2397,7 +2399,7 @@ echo "  $RESULTS_DIR/results.csv"
 echo "=========================================="
 ```
 
-### 16.2 结果分析Python脚本
+### 18.2 结果分析Python脚本
 
 ```python
 #!/usr/bin/env python3
@@ -2506,7 +2508,7 @@ if __name__ == '__main__':
     find_best(results)
 ```
 
-### 16.3 结果分析模板
+### 18.3 结果分析模板
 
 ```markdown
 # Kafka压测报告 - $(date +%Y-%m-%d)

@@ -224,9 +224,9 @@ SELECT * FROM iceberg_db.orders VERSION AS OF 38291028374;
 -- 基于时间戳的时间旅行
 SELECT * FROM iceberg_db.orders TIMESTAMP AS OF '2024-01-15 10:00:00';
 
--- 查看两次快照之间的变更
-SELECT * FROM iceberg_db.orders.incremental
-WHERE snapshot_id BETWEEN 38291028370 AND 38291028374;
+-- 查看两次快照之间的增量变更（Iceberg 0.14+ 支持 .changelog 元数据表）
+SELECT * FROM iceberg_db.orders.changelog
+WHERE _commit_snapshot_id BETWEEN 38291028370 AND 38291028374;
 
 -- 查看数据文件信息
 SELECT file_path, file_format, record_count, file_size_in_bytes, partition
@@ -292,7 +292,7 @@ ALTER TABLE iceberg_db.orders DROP PARTITION FIELD months(create_time);
 #### 3.2.7 行级更新与删除
 
 ```sql
--- 行级更新（Iceberg通过Morally操作实现，不需要重写整个文件）
+-- 行级更新（Iceberg通过Position Delete + Equality Delete文件实现，不需要重写整个文件）
 UPDATE iceberg_db.orders
 SET status = '已支付', pay_time = CURRENT_TIMESTAMP()
 WHERE order_id = 999901;
@@ -336,13 +336,14 @@ CREATE TABLE kafka_orders (
     'value.format' = 'json'
 );
 
--- 2. 创建Iceberg Sink表
+-- 2. 创建Iceberg Sink表（upsert模式需指定PRIMARY KEY，否则Equality Delete无法定位行）
 CREATE TABLE iceberg_sink_orders (
     order_id BIGINT,
     user_id BIGINT,
     order_status STRING,
     total_amount DECIMAL(12, 2),
-    create_time TIMESTAMP(3)
+    create_time TIMESTAMP(3),
+    PRIMARY KEY (order_id) NOT ENFORCED
 ) WITH (
     'connector' = 'iceberg',
     'catalog-name' = 'iceberg',
@@ -392,7 +393,8 @@ public class FlinkIcebergSink {
             "  user_id BIGINT," +
             "  order_status STRING," +
             "  total_amount DECIMAL(12, 2)," +
-            "  create_time TIMESTAMP(3)" +
+            "  create_time TIMESTAMP(3)," +
+            "  PRIMARY KEY (order_id) NOT ENFORCED" +
             ") WITH (" +
             "  'connector' = 'iceberg'," +
             "  'catalog-name' = 'iceberg'," +
@@ -503,10 +505,11 @@ CREATE TABLE delta_db.orders (
     shipping_province STRING,
     shipping_city STRING,
     create_time TIMESTAMP,
-    pay_time TIMESTAMP
+    pay_time TIMESTAMP,
+    dt DATE
 )
 USING delta
-PARTITIONED BY (dt STRING)
+PARTITIONED BY (dt)
 TBLPROPERTIES (
     'delta.logRetentionDuration' = 'interval 30 days',
     'delta.checkpointInterval' = '10',
@@ -613,8 +616,9 @@ DESCRIBE DETAIL delta_db.orders;
 -- 查看Delta日志
 DESCRIBE HISTORY delta_db.orders;
 
--- 查看文件列表
-SELECT * FROM delta_db.orders_files;
+-- 查看文件列表（通过DeltaTable API获取，SQL层无直接命令）
+-- Python: DeltaTable.forName(spark, "delta_db.orders").toDF().inputFiles()
+-- Databricks环境: SHOW FILELIST IN delta_db.orders;
 
 -- 真空清理（删除不再被引用的旧文件）
 VACUUM delta_db.orders RETAIN 168 HOURS;

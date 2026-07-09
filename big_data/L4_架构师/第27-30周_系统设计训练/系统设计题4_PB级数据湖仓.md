@@ -6,7 +6,7 @@
 
 | 维度 | 需求详情 |
 |------|----------|
-| **数据规模** | 当前500TB，年增长200TB，3年内达到PB级 |
+| **数据规模** | 当前500TB，年增长率40%（首年增长约200TB），3年内达到PB级 |
 | **数据类型** | 结构化（数据库表）、半结构化（JSON/XML/Protobuf日志）、非结构化（图片/视频元数据、文档） |
 | **写入模式** | 批量写入（T+1数据管道）、流式写入（CDC实时同步）、Upsert/Merge（数据修正） |
 | **查询模式** | BI报表查询、Ad-hoc自助分析、数据科学（Python/SQL交互式）、ML训练数据导出 |
@@ -43,7 +43,7 @@
 
 ```
 当前数据量: 500TB
-年增长率: 40% (200TB/年)
+年增长率: 40%（首年增长约200TB，后续按复利增长）
 
 3年投影:
   Year 1: 500TB + 200TB = 700TB
@@ -111,7 +111,8 @@
 - Iceberg是Apache顶级项目，社区活跃，贡献者多（Netflix/Apple/AWS等大厂参与）
 - 真正的开放表格式，多引擎共享（Spark/Flink/Trino/Presto/Hive/Impala）
 - ACID事务 + 时间旅行 + 分区演化 + Schema演化
-- 隐藏式分区（Partition Evolution），无需重写历史数据即可变更分区策略
+- 隐藏式分区（Hidden Partitioning）：查询时自动匹配分区过滤条件
+- 分区演化（Partition Evolution）：无需重写历史数据即可变更分区策略
 - 对象存储友好（S3/HDFS/MinIO均可）
 
 **缺点**:
@@ -219,13 +220,13 @@
 ### 选择理由
 
 **1. 多引擎共享是核心需求**
-PB级数据湖仓的核心理念是"一份数据，多引擎计算"。Iceberg作为真正的开放表格式，被Spark/Flink/Trino/Presto/Hive/Impala/Doris/StarRocks等几乎所有主流引擎原生支持。Hudi和Delta Lake在多引擎支持上存在明显的短板。
+PB级数据湖仓的核心理念是"一份数据，多引擎计算"。Iceberg作为真正的开放表格式，被Spark/Flink/Trino/Presto/Hive/Impala等引擎原生支持读写；Doris/StarRocks通过外表方式提供只读查询（不支持写入Iceberg）。Hudi和Delta Lake在多引擎支持上存在明显的短板。
 
 **2. 对象存储原生优化**
-我们的存储层计划使用MinIO（自建对象存储）+ 冷数据归档到阿里云OSS。Iceberg从设计之初就针对对象存储做了大量优化（如规避S3的最终一致性、Manifest文件减少List操作等）。Hudi对HDFS语义有强依赖，在纯对象存储环境下的表现不如Iceberg。
+我们的存储层计划使用MinIO（自建对象存储）+ 冷数据归档到阿里云OSS。Iceberg从设计之初就针对对象存储做了大量优化（如通过Manifest文件减少List操作、使用commit retry处理并发写入冲突等）。Hudi对HDFS语义有强依赖，在纯对象存储环境下的表现不如Iceberg。
 
 **3. 分区演化能力**
-PB级数据经过3年积累，分区策略必然需要调整（如从按月分区改为按天分区，或增加业务维度作为子分区）。Iceberg的隐藏式分区（Partition Evolution）可以在不重写历史数据的情况下变更分区策略，这是Hudi和Delta Lake不原生支持的。
+PB级数据经过3年积累，分区策略必然需要调整（如从按月分区改为按天分区，或增加业务维度作为子分区）。Iceberg的分区演化（Partition Evolution）可以在不重写历史数据的情况下变更分区策略；同时其隐藏式分区（Hidden Partitioning）可在查询时自动匹配分区过滤，使分区调整对业务查询透明。这两项能力是Hudi和Delta Lake不原生支持的。
 
 **4. 社区活力**
 Iceberg被Netflix/Apple/AWS/Tencent等大厂广泛采用，Apache顶级项目，社区治理成熟。2023年Google也宣布BigLake支持Iceberg格式。长期来看，Iceberg最有可能成为数据湖仓的事实标准。
@@ -322,6 +323,8 @@ WHERE dt = '2024-01-14';
   - 每周定时任务：dt < date_sub(CURRENT_DATE, 90) → 从Warm迁移到Cold
   - Iceberg的expire_snapshots + orphan文件清理
 ```
+
+> 注：冷热分层通常通过存储级别迁移或独立归档表实现，Iceberg branch主要用于版本管理和WAP模式，此处用分支做冷热分层为非常规做法。
 
 ### 6.3 Catalog架构
 

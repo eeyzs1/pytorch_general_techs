@@ -27,7 +27,7 @@
 |------|-----|-----------|---------|
 | 数据抽象 | 分布式对象集合 | 分布式行对象集合(带Schema) | 类型化的分布式对象集合 |
 | 优化器 | 无（手动优化） | Catalyst自动优化 | Catalyst自动优化 |
-| 序列化 | Java序列化 | Tungsten(堆外内存) | Encoder |
+| 序列化 | Java序列化 | Tungsten二进制格式(UnsafeRow) | Encoder |
 | 类型安全 | 编译时安全 | 运行时检查 | 编译时安全 |
 | 性能 | 最低 | 高（列式+代码生成） | 高 |
 | API易用性 | 函数式 | 声明式(SQL-like) | 函数式+声明式 |
@@ -530,7 +530,7 @@ funnel = cleaned_df \
     )
 funnel.show()
 
-# --- 分析6: 用户连续活跃天数（窗口函数） ---
+# --- 分析6: 用户连续活跃天数（gaps-and-islands方法） ---
 print("\n=== 用户连续活跃天数 TOP10 ===")
 
 # 获取每个用户活跃的日期
@@ -538,16 +538,22 @@ user_active_days = cleaned_df \
     .select("user_id", "dt") \
     .distinct()
 
-# 计算连续活跃天数
+# gaps-and-islands: 连续日期减去行号得到相同的分组键
+# 示例: 活跃日期 1/1, 1/2, 1/3, 1/5, 1/6
+#   1/1 rn=1 → group_key = 1/1 - 1天 = 12/31
+#   1/2 rn=2 → group_key = 1/2 - 2天 = 12/31  (与上行同组)
+#   1/3 rn=3 → group_key = 1/3 - 3天 = 12/31  (与上行同组)
+#   1/5 rn=4 → group_key = 1/5 - 4天 = 1/1    (新组)
+#   1/6 rn=5 → group_key = 1/6 - 5天 = 1/1    (与上行同组)
+# 分组后: 第一组3天, 第二组2天 → 取MAX = 3天
 window_spec = Window.partitionBy("user_id").orderBy("dt")
 consecutive_days = user_active_days \
-    .withColumn("prev_dt", lag("dt", 1).over(window_spec)) \
-    .withColumn("is_consecutive", 
-        when(datediff(col("dt"), col("prev_dt")) == 1, 1).otherwise(0)
-    ) \
-    .filter(col("is_consecutive") == 1) \
+    .withColumn("rn", row_number().over(window_spec)) \
+    .withColumn("group_key", expr("date_sub(to_date(dt), rn)")) \
+    .groupBy("user_id", "group_key") \
+    .agg(count("*").alias("streak_days")) \
     .groupBy("user_id") \
-    .agg((count("*") + 1).alias("consecutive_days")) \
+    .agg(max("streak_days").alias("consecutive_days")) \
     .orderBy(col("consecutive_days").desc())
 
 consecutive_days.show(10)

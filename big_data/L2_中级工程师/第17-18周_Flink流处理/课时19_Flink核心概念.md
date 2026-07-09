@@ -189,7 +189,7 @@ Watermark = "Flink告诉你，Event Time为T的数据已经全部到了"
   2    10:00:02     10:00:04    事件C  ← 比A晚到但事件时间更晚
   3    10:00:03     10:00:02    事件B  ← 顺序来了！事件时间在A和C之间
   4    10:01:05     10:01:05    事件E  ← Watermark推进！
-  5    10:01:06     10:01:03    事件D  ← 迟到数据（事件时间比Watermark小）
+  5    10:01:06     10:00:50    事件D  ← 迟到数据（事件时间比Watermark小）
 
 处理过程:
   Step1: E(A)到达, ts=10:00:01, Max=10:00:01, WM=09:59:56
@@ -206,8 +206,8 @@ Watermark = "Flink告诉你，Event Time为T的数据已经全部到了"
          → 触发窗口[10:00:00~10:01:00)计算
          → 包含事件: A(10:00:01), B(10:00:02), C(10:00:04)
 
-  Step5: E(D)到达, ts=10:01:03, Max=10:01:05, WM=10:01:00
-         ts=10:01:03 < WM=10:01:00 → 迟到数据!
+  Step5: E(D)到达, ts=10:00:50, Max=10:01:05, WM=10:01:00
+         ts=10:00:50 < WM=10:01:00 → 迟到数据!
          处理方式取决于Side Output配置
 ```
 
@@ -1206,7 +1206,7 @@ public class SessionWindowUserAnalysis {
 
 ---
 
-## 十、参考资料
+## 十一、参考资料
 
 - [Apache Flink Documentation - Time and Watermarks](https://nightlies.apache.org/flink/flink-docs-stable/docs/concepts/time/)
 - [Apache Flink Documentation - Windowing](https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/datastream/operators/windows/)

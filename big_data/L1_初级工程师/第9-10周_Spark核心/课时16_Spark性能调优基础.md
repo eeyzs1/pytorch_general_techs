@@ -528,16 +528,18 @@ def generate_skewed_data(output_path, num_records=10_000_000):
     with open(output_path, 'w') as f:
         for i in range(num_records):
             # 80%的数据集中在2个Key上（模拟倾斜）
-            if random.random() < 0.4:
+            # 注意: 必须用单次random()判断，否则条件概率不等于注释比例
+            r = random.random()
+            if r < 0.4:
                 category_id = 100  # 倾斜Key 1（40%数据）
-            elif random.random() < 0.6:
+            elif r < 0.8:
                 category_id = 200  # 倾斜Key 2（40%数据 → 80% total）
             else:
                 category_id = random.randint(1, 1000)  # 其他Key（20%数据）
-            
+
             user_id = random.randint(1, 100000)
             behavior = random.choice(['pv', 'pv', 'pv', 'buy', 'cart', 'fav'])
-            
+
             f.write(f"{user_id},{category_id},{behavior},{random.randint(1, 500)}\n")
 
 # 生成1000万行测试数据

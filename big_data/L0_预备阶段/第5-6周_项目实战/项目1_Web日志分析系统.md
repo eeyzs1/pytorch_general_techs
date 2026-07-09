@@ -87,7 +87,11 @@ class LogGenerator:
         "/static/css/main.css", "/static/js/app.js", "/faq",
     ]
 
-    STATUS_CODES = [200] * 80 + [301, 302] * 5 + [404] * 10 + [500, 502, 503] * 5
+    # 状态码分布: 200=80%, 301/302=5%, 404=10%, 500/502/503=5% (总计100)
+    STATUS_CODES = ([200] * 80 +                  # 80%
+                    [301] * 3 + [302] * 2 +       # 5%
+                    [404] * 10 +                   # 10%
+                    [500] * 2 + [502] * 2 + [503] * 1)  # 5%
     USER_AGENTS = [
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0",
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/17.0",
@@ -112,8 +116,9 @@ class LogGenerator:
 
     def _generate_request_time(self):
         """生成符合对数正态分布的响应时间（毫秒）"""
-        # 对数正态分布，中位数约200ms
-        return round(random.lognormvariate(5.3, 0.8))
+        # 对数正态分布: mu=ln(200)≈5.3 → 中位数≈200ms
+        # sigma≈0.99 → P99=exp(5.3+2.326×0.99)≈2000ms
+        return round(random.lognormvariate(5.3, 0.99))
 
     def _weighted_choice(self, items, weights=None):
         """带权重的随机选择"""
@@ -402,6 +407,7 @@ log_analyzer.py - 日志数据分析器
 """
 import json
 import csv
+import re
 from collections import defaultdict, Counter
 from datetime import datetime
 
@@ -581,7 +587,7 @@ class LogAnalyzer:
             print(f"\n【流量突增检测】")
             for burst in results["traffic_bursts"]:
                 print(f"  {burst['hour']}: {burst['pv']:,} PV "
-                      f"(超出{p2['ratio']}倍)")
+                  f"(超出{burst['ratio']}倍)")
 
         print(f"\n【爬虫请求】")
         bot = results.get("bot_stats", {})
@@ -590,7 +596,6 @@ class LogAnalyzer:
 
 
 if __name__ == "__main__":
-    import re
     analyzer = LogAnalyzer()
     analyzer.load_csv("parsed_logs.csv")
     results = analyzer.analyze_all()
