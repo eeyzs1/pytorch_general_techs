@@ -1,41 +1,62 @@
 # Making Claude a Chemist
 
 - **原文链接**: [Making Claude a chemist](https://www.anthropic.com/research/making-claude-a-chemist)
-- **作者**: Anthropic (David Kamber)
+- **作者**: David Kamber（Anthropic 化学家）
 - **发布日期**: 2026-06-05
-- **检索日期**: 2026-06-07
-- **标签**: #Claude #Chemistry #NMR #Science #Multimodal #AIforScience
+- **检索日期**: 2026-06-29
+- **标签**: #Science #Chemistry #NMR #Benchmark #GeneralPurposeModels
 
 ## 核心观点
 
-Anthropic 发布首个将 Claude 应用于化学领域的研究成果，展示 Claude 在 NMR（核磁共振）光谱预测和结构解析方面的能力，目标是将 AI 整合到化学家的日常工作流中。
+Anthropic 启动"AI for Science"化学扩展计划。**Opus 4.7 在 NMR 谱预测上匹敌甚至超越 ChemDraw 和 MestReNova**——通用模型没有化学微调也能达到专用软件水平。**还能从 NMR 谱反向推导分子结构**——这是专用软件做不到的任务。
 
-## 关键内容
+## 关键发现
 
-### Claude vs ChemDraw 的 NMR 预测对比
+### 1. 前向预测（结构 → NMR 谱）
+- 在 20 个 ChemRxiv 预印本化合物（4 个骨架类，涵盖慢交换 NH、α-vinyl-imide 羰基、螺环酮、α-硅烷基甲磺酰胺等 NMR 挑战）上测试
+- **Opus 4.7 氢谱误差 ±0.079 ppm**（远低于 ±0.20 ppm 的容差窗口）
+- 碳谱：Opus 4.7 和 MestReNova 并列第一（±1.37 vs ±1.48 ppm）
+- 峰形预测：Opus 4.7 匹配实验分裂模式最频繁；亚峰间距预测在 ±0.5 Hz 内的比例：**Opus 模型 ~80%，ChemDraw/MestReNova 26-35%**
 
-在 20 个化合物的测试中（来自训练截止日期后的 ChemRxiv 预印本）：
+### 2. 反向推导（谱 → 结构）
+- Opus 4.7 在 8 个"简单"目标（单环或双片段）上**3 次运行 3 次正确**
+- 在 7 个"困难"目标（融合环、螺环等）上，配合起始物料提示，4/7 在 3 次运行中都正确，剩余 3 个 2/3 正确
+- **专用结构解析软件需要 2D NMR、专业训练和授权工具**——Claude 从 1D 谱和高分辨率质谱就能做到
 
-- **氢谱预测**：Opus 4.7 平均误差 ±0.079 ppm，远低于 ±0.20 ppm 的化学家接受窗口，优于 ChemDraw 和 MestReNova
-- **碳谱预测**：Opus 4.7 与 MestReNova 基本持平（±1.37 vs ±1.48 ppm）
-- **峰分裂模式**：Claude 三个模型 ~80% 正确率，而 ChemDraw/MestReNova 仅 26-35%
+### 3. 关键 NMR 难题
+- 慢交换 NH 质子（在 6.8–7.9 ppm 窄带内）
+  - Opus 4.7：始终略偏低，但稳定
+  - Opus 4.6：猜测散落几个 ppm
+  - Sonnet 4.6：放到 10–13 范围（错误）
 
-### 逆结构解析（从光谱推断结构）
-
-这是传统软件做不到的任务。Opus 4.7 在 15 个问题上：
-- 8 个简单分子：**100% 正确**（每次尝试都成功）
-- 7 个复杂分子（给出起始物料提示）：4 个 100% 正确，3 个 3 次尝试中 2 次成功
-
-### 未来方向
-
-- 读取和渲染化学结构（从图片、专利、手绘转换）
-- 反应与合成推理（路线规划、结果预测）
-- 机理解释（电子箭头、中间体、过渡态）
-- 化学文献理解（方法部分、支持信息、专利）
+### 4. 局限性
+- 评估规模较小（20 个正向 + 15 个反向化合物）
+- 困难目标需起始物料提示
+- 未测试的化学骨架：慢交换 NH 杂芳烃（除氯吡嗪外）、2D 实验（HMBC、COSY、HSQC）、立体化学
+- 未覆盖溶剂：methanol-d₄、benzene-d₆、acetone-d₆
 
 ## 关键洞察
 
-1. **通用模型无需化学专用微调**即可在 NMR 预测上匹敌甚至超越专业软件
-2. Claude 能做传统软件做不到的**逆结构解析**（从光谱推断结构），这是化学家日常最耗时的任务
-3. 扩展到 AI for Science 计划，支持化学研究
-4. 化学领域 AI 工具长期未落地，主因是数据稀疏、格式不统一、付费墙。多模态 LLM 改变了这一局面
+1. **通用模型在专业领域已具竞争力**——Opus 4.7 在 NMR 任务上达到甚至超越 ChemDraw 和 MestReNova
+2. **从"模拟"到"反向推导"的能力跳跃**——专用软件长期做不到的事，通用模型做到了
+3. **可解释推理**——LLM 可以逐步展示推理过程，化学家可以审计
+4. **CAS 增长太快**——290M+ 已披露物质，每天新增 15,000——AI 是唯一可持续扩展的工具
+
+## 关键数据点
+
+| 指标 | 数值 |
+|------|------|
+| 测试化合物数（正向） | 20（4 个骨架类 × 5） |
+| 测试化合物数（反向） | 15（8 简单 + 7 困难） |
+| Opus 4.7 氢谱 MAE | ±0.079 ppm |
+| 容差窗口 | ±0.20 ppm（¹H）/ ±1.0 ppm（¹³C） |
+| 亚峰间距预测准确率（Claude） | ~80% |
+| 亚峰间距预测准确率（专用软件） | 26–35% |
+| CAS 已披露物质 | 290M+ |
+| 每天新增物质 | ~15,000 |
+
+## 相关文章
+
+- [Paving the Way for Agents in Biology](agents-in-biology.md)
+- [Coding Agents in the Social Sciences](coding-agents-social-sciences.md)
+- [How GPT-5 Helped Immunologist Derya Unutmaz Solve a 3-Year-Old Mystery](../../openai/research/gpt-5-immunology-mystery.md)

@@ -9,14 +9,9 @@ from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "catalog.yaml"
-ARTICLE_DIRS = (
-    ROOT / "anthropic" / "engineering",
-    ROOT / "openai" / "research",
-)
-SUMMARY_FILES = (
-    ROOT / "anthropic" / "engineering" / "summary.md",
-    ROOT / "openai" / "research" / "summary.md",
-)
+# 与 build_catalog.py 保持一致：动态扫描所有 provider 的文章
+EXCLUDED_TOP_DIRS = {"scripts", "topics", ".trae", ".vscode", ".git"}
+EXCLUDED_FILENAMES = {"summary.md", "README.md", "AGENTS.md"}
 LINK_RE = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
 
 
@@ -24,11 +19,52 @@ def rel(path: Path) -> str:
     return path.relative_to(ROOT).as_posix()
 
 
+def article_dirs() -> list[Path]:
+    """动态发现所有 provider/category 目录（与 build_catalog.py 一致）。"""
+    dirs: list[Path] = []
+    for provider_dir in ROOT.iterdir():
+        if not provider_dir.is_dir():
+            continue
+        if provider_dir.name in EXCLUDED_TOP_DIRS or provider_dir.name.startswith("."):
+            continue
+        subdirs = [p for p in provider_dir.iterdir() if p.is_dir()]
+        if subdirs:
+            for category_dir in subdirs:
+                dirs.append(category_dir)
+        else:
+            dirs.append(provider_dir)
+    return sorted(dirs)
+
+
+def summary_files() -> list[Path]:
+    """动态发现所有 provider 的 summary.md 文件。"""
+    files: list[Path] = []
+    for provider_dir in ROOT.iterdir():
+        if not provider_dir.is_dir():
+            continue
+        if provider_dir.name in EXCLUDED_TOP_DIRS or provider_dir.name.startswith("."):
+            continue
+        # provider/summary.md（扁平结构）
+        flat_summary = provider_dir / "summary.md"
+        if flat_summary.exists():
+            files.append(flat_summary)
+        # provider/{category}/summary.md（嵌套结构）
+        for sub in provider_dir.iterdir():
+            if sub.is_dir():
+                nested_summary = sub / "summary.md"
+                if nested_summary.exists():
+                    files.append(nested_summary)
+    return sorted(files)
+
+
 def article_files() -> list[Path]:
     files: list[Path] = []
-    for directory in ARTICLE_DIRS:
+    for directory in article_dirs():
         if directory.exists():
-            files.extend(p for p in directory.glob("*.md") if p.name != "summary.md")
+            files.extend(
+                p for p in directory.glob("*.md")
+                if p.name not in EXCLUDED_FILENAMES
+            )
     return sorted(files)
 
 
@@ -70,13 +106,26 @@ def check_article_metadata(errors: list[str]) -> None:
 
 
 def check_local_links(errors: list[str]) -> None:
+    # 排除规则文件（AGENTS.md、.trae/rules/）——这些文件包含示例链接，不是真实链接
+    excluded = {ROOT / "AGENTS.md"}
     for path in markdown_files():
+        if path in excluded:
+            continue
+        # 跳过 .trae/ 目录下的规则文件
+        try:
+            path.relative_to(ROOT / ".trae")
+            continue
+        except ValueError:
+            pass
         text = path.read_text(encoding="utf-8-sig")
         for match in LINK_RE.finditer(text):
             target = match.group(1).strip()
             if not target or target.startswith("#"):
                 continue
             if re.match(r"^[a-z][a-z0-9+.-]*:", target):
+                continue
+            # 跳过包含占位符的示例链接（如 {URL}、{相对路径}）
+            if "{" in target and "}" in target:
                 continue
             file_part = target.split("#", 1)[0]
             if not file_part:
@@ -113,7 +162,7 @@ def check_catalog(errors: list[str]) -> None:
 
 
 def check_summary_numbering(errors: list[str]) -> None:
-    for path in SUMMARY_FILES:
+    for path in summary_files():
         if not path.exists():
             errors.append(f"missing summary file: {rel(path)}")
             continue

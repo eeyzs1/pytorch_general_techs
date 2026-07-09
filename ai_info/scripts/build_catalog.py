@@ -8,10 +8,33 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "catalog.yaml"
-ARTICLE_DIRS = (
-    ROOT / "anthropic" / "engineering",
-    ROOT / "openai" / "research",
-)
+
+# 扫描所有 provider 的文章文件。支持两种目录结构：
+#   - {provider}/{category}/*.md  （如 anthropic/engineering/, openai/research/, google/deepmind/）
+#   - {provider}/*.md             （扁平结构，如 meta/）
+# 排除：scripts/、topics/、.trae/、.vscode/ 等非 provider 目录，以及 summary.md / README.md / AGENTS.md
+EXCLUDED_TOP_DIRS = {"scripts", "topics", ".trae", ".vscode", ".git"}
+EXCLUDED_FILENAMES = {"summary.md", "README.md", "AGENTS.md"}
+
+
+def article_dirs() -> list[Path]:
+    """动态发现所有 provider/category 目录。"""
+    dirs: list[Path] = []
+    for provider_dir in ROOT.iterdir():
+        if not provider_dir.is_dir():
+            continue
+        if provider_dir.name in EXCLUDED_TOP_DIRS or provider_dir.name.startswith("."):
+            continue
+        # 检查 provider 下是否有子目录（category 结构）
+        subdirs = [p for p in provider_dir.iterdir() if p.is_dir()]
+        if subdirs:
+            # {provider}/{category}/ 结构
+            for category_dir in subdirs:
+                dirs.append(category_dir)
+        else:
+            # {provider}/ 扁平结构（如 meta/）
+            dirs.append(provider_dir)
+    return sorted(dirs)
 
 
 def yaml_quote(value: str | None) -> str:
@@ -58,8 +81,11 @@ def extract_metadata(path: Path) -> dict[str, object]:
             tags = parse_list(line.split(":", 1)[-1])
 
     rel = path.relative_to(ROOT).as_posix()
-    provider = rel.split("/", 1)[0]
-    category = rel.split("/", 2)[1] if "/" in rel else ""
+    parts = rel.split("/")
+    provider = parts[0]
+    # 如果路径有 3 段（provider/category/file），category 是 parts[1]
+    # 如果只有 2 段（provider/file，扁平结构如 meta/），category 为空字符串
+    category = parts[1] if len(parts) >= 3 else ""
     return {
         "path": rel,
         "provider": provider,
@@ -76,9 +102,12 @@ def extract_metadata(path: Path) -> dict[str, object]:
 
 def iter_articles() -> list[Path]:
     paths: list[Path] = []
-    for directory in ARTICLE_DIRS:
+    for directory in article_dirs():
         if directory.exists():
-            paths.extend(p for p in directory.glob("*.md") if p.name != "summary.md")
+            paths.extend(
+                p for p in directory.glob("*.md")
+                if p.name not in EXCLUDED_FILENAMES
+            )
     return sorted(paths)
 
 

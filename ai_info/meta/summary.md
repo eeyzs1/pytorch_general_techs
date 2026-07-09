@@ -1,16 +1,16 @@
 # Meta AI — 核心观点总结
 
-> 汇总 Meta AI 近期重大动态，3 篇文章，涵盖 2025 年 4 月至 2026 年 5 月。
+> 汇总 Meta AI 近期重大动态，4 篇文章，涵盖 2025 年 4 月至 2026 年 6 月。
 
 ## 一、总体脉络
 
 Meta AI 在 2025-2026 年经历了剧烈的战略转变：
 
 ```
-Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark
+Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark → Brain2Qwerty v2
 ```
 
-从开源旗手到闭源转向，从 Llama 品牌危机到 MSL 重建，Meta 用一年时间完成了 AI 战略的彻底重构。
+从开源旗手到闭源转向，从 Llama 品牌危机到 MSL 重建，Meta 用一年时间完成了 AI 战略的彻底重构。2026 年 6 月底，Meta 又发布 [Brain2Qwerty v2](brain2qwerty-v2.md)——非侵入式脑机接口的端到端 LLM 解码 pipeline，在 Nature Neuroscience 发表并开源全部训练代码与数据集，标志 Meta 在"AI + 神经科学"方向继续深入，与主流 LLM 产品形成"产品 + 科学"双轨。
 
 ## 二、核心事件
 
@@ -31,6 +31,16 @@ Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark
 - **高效**：比 Llama 4 Maverick 高 10 倍计算效率
 - **分发**：覆盖 30 亿日活用户（Meta AI, WhatsApp, Instagram, Facebook, Messenger, Ray-Ban）
 
+### 4. Brain2Qwerty v2 非侵入式脑机接口
+
+[Brain2Qwerty v2](brain2qwerty-v2.md)（2026-06-29）是 Meta 在"AI + 神经科学"方向的旗舰研究：
+- **端到端深度学习** 直接从 MEG 原始信号解码句子，跳过手工特征工程
+- 用 **LLM 微调** 弥合噪声脑信号与连贯语言的语义鸿沟
+- 9 名志愿者、22,000 句子训练，**词准确率 61%**（最佳 78%），相比其他非侵入方法 8% 提升 7.5 倍
+- 在 **Nature Neuroscience** 发表，开源 v1+v2 训练代码 + v1 数据集
+- 配套 [Tribev2](https://ai.meta.com/blog/tribe-v2-brain-predictive-foundation-model/)、NeuralSet、NeuralBench 形成"开放脑模型基础设施"
+- **Meta 差异化**：与 Google DeepMind Co-Scientist/AlphaEvolve、Anthropic Claude Chemist、OpenAI GeneBench-Pro 等共同构成 2026 年的"AI for Science"竞争格局
+
 ## 三、关键数据点
 
 | 指标 | 数值 | 来源 |
@@ -42,6 +52,10 @@ Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark
 | Muse Spark 计算效率提升 | 10x vs Llama 4 | Muse Spark |
 | Muse Spark 上下文窗口 | 262K | Muse Spark |
 | Meta 组织重组（6 个月） | 4 次 | Llama 4 Controversy |
+| Brain2Qwerty v2 词准确率 | 61%（最佳 78%） | Brain2Qwerty v2 |
+| Brain2Qwerty v2 vs 其他非侵入方法 | 7.5×（61% vs 8%） | Brain2Qwerty v2 |
+| Brain2Qwerty v2 训练句子数 | 22,000 | Brain2Qwerty v2 |
+| Brain2Qwerty v2 志愿者数 | 9 | Brain2Qwerty v2 |
 
 ## 四、关键洞察
 
@@ -58,3 +72,4 @@ Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark
 | 1 | 2025-04 ~ 2026-01 | [Llama 4 Benchmark Scandal](llama-4-controversy.md) | 信任危机 |
 | 2 | 2025-04 ~ 2026-05 | [Llama 4 Behemoth Cancelled](llama-4-behemoth-cancelled.md) | 旗舰搁置 |
 | 3 | 2026-04-08 | [Muse Spark](muse-spark.md) | 闭源转向 |
+| 4 | 2026-06-29 | [Brain2Qwerty v2](brain2qwerty-v2.md) | 脑机接口 / AI for Science |
