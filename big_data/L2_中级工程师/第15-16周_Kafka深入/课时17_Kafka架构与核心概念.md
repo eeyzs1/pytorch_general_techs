@@ -301,7 +301,7 @@ Kafka重度依赖操作系统的Page Cache：
            → Page Cache (未命中) → 从磁盘加载到Page Cache → 零拷贝返回
 
 关键数据:
-  - Page Cache大小 ≈ Kafka进程的RSS内存
+  - Page Cache由OS内核管理，不占用Kafka进程的堆/RSS内存
   - 理想情况：80%以上的读请求命中Page Cache
   - 监控: node_exporter 中的 node_memory_Cached_bytes
 ```
@@ -454,10 +454,10 @@ finally:
 ISR (In-Sync Replicas): 与Leader保持同步的副本集合
 
 配置参数:
-  replica.lag.time.max.ms = 10000 (默认10秒)
+  replica.lag.time.max.ms = 30000 (默认30秒，Kafka 2.5+)
 
 判断逻辑:
-  如果Follower在10秒内没有追上Leader的数据，则被踢出ISR
+  如果Follower在30秒内没有追上Leader的数据，则被踢出ISR
   如果Follower追上了，则重新加入ISR
 
 示例:
@@ -2559,3 +2559,20 @@ if __name__ == '__main__':
 - 高可靠(金融): acks=all, batch=64KB, linger=5ms, lz4
 - 均衡(通用): acks=1, batch=128KB, linger=5ms, lz4
 ```
+
+---
+
+## 原理深潜：为什么
+
+> 本节把本课时的知识点挂回 [大数据第一性原理](../../大数据第一性原理.md) 的 8 矛盾骨架。
+
+Kafka 是"多矛盾交叉解法"的典范——一个组件同时解了四个矛盾：
+
+- **矛盾 1（容量/分片）——为什么用分区日志模型？** Topic 分成多个 Partition，分布到多台 Broker，实现水平扩展。分区是 Kafka 并行度的最小单位。
+- **矛盾 4（容错）+ 矛盾 5（一致性）——为什么用 ISR？** ISR（同步副本集合）是同步复制和异步复制的折中：只要求 ISR 中的副本确认（而非全部副本），兼顾一致性和性能。`acks` 参数让用户选一致性级别：0=不等（最快）、1=等Leader、all=等ISR全部。详见原理深潜2。
+- **矛盾 6（延迟/吞吐）——为什么追加写+零拷贝？** Kafka 用追加写（顺序写磁盘，比随机写快 100 倍）+ 零拷贝（sendfile 系统调用，数据不经用户空间）实现极高吞吐。这是"用延迟换吞吐"的典型——Kafka 不是最低延迟的，但吞吐极高。
+- **矛盾 3（网络代价）——为什么批量发送+压缩？** Producer 批量发送（batch.size + linger.ms）减少网络往返次数；批量压缩（lz4/snappy）减少传输量。两者都是减少网络代价的手段。
+
+**失败模式**：Kafka 默认不是强一致（acks=1 时 Leader 挂了可能丢数据）；不适合低延迟点查（是消息系统不是数据库）；Partition 不是越多越好（过多增加协调开销和 Leader 选举时间）。
+
+**延伸阅读**：[原理深潜2：一致性与容错](../../原理深潜/原理深潜2_一致性与容错.md)（ISR 与 acks 的深度展开）

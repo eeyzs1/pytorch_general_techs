@@ -467,9 +467,9 @@ ls -lh /var/lib/kafka/data/my-topic-0/
 # 00000000000000000000.log   (日志数据文件, 1GB)
 # 00000000000000000000.index (偏移索引文件, 10MB)
 # 00000000000000000000.timeindex (时间戳索引文件, 12MB)
-# 0000000000015230000.log   (下一个日志段)
-# 0000000000015230000.index
-# 0000000000015230000.timeindex
+# 00000000000015230000.log   (下一个日志段)
+# 00000000000015230000.index
+# 00000000000015230000.timeindex
 # leader-epoch-checkpoint
 
 # 手动触发日志段滚动（闭合当前Segment，创建新Segment）
@@ -574,13 +574,13 @@ flink run -py my_job.py -pyfs dependency.zip
 
 # ============ 任务取消 ============
 
-# 取消Job（默认会创建Savepoint）
+# 取消Job（不创建Savepoint，立即终止）
 flink cancel <jobId>
 
-# 取消Job并保留Savepoint
+# 优雅停止Job并创建Savepoint（推荐）
 flink stop --savepointPath hdfs://namenode:9000/flink/savepoints <jobId>
 
-# 强制取消（不创建Savepoint，不等待）
+# 取消Job并创建Savepoint（取消前先触发一次Savepoint）
 flink cancel --withSavepoint hdfs://namenode:9000/flink/savepoints <jobId>
 # 如果超时未完成Savepoint，加 --force 强制取消
 
@@ -618,7 +618,7 @@ curl http://localhost:8081/jobs/<jobId>/exceptions
 # 在 Flink Web UI → Job → TaskManagers → Logs 中查看
 
 # 动态修改日志级别（无需重启，Flink 1.17+）
-curl -X PUT http://localhost:8081/jobmanager/log \
+curl -X PUT http://localhost:8081/jobmanager/logLevel \
   -H "Content-Type: application/json" \
   -d '{"loggerName":"org.apache.flink.runtime.checkpoint","level":"DEBUG"}'
 
@@ -960,7 +960,7 @@ incremental.checkpoint = true
 
 # 场景4: 高反压(背压频繁)
 unaligned.checkpoint = true
-alignment.timeout = 30s  # 30秒对齐不到齐则走非对齐
+alignment.timeout = 30s  # 30秒内对齐未完成则切换为非对齐
 ```
 
 ### 4.3 Checkpoint监控命令

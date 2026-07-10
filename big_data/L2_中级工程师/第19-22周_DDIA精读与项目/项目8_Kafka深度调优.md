@@ -2498,7 +2498,8 @@ compression.type=producer
 # net.core.netdev_max_backlog=16384
 # net.ipv4.tcp_tw_reuse=1
 # net.ipv4.tcp_fin_timeout=15
-# net.nodelay=1
+# 注: TCP_NODELAY 是 socket 选项（setsockopt），非 sysctl 参数，无法在 sysctl.conf 中设置
+#      Kafka 客户端默认已启用 TCP_NODELAY（禁用 Nagle 算法），无需额外配置
 # fs.file-max=655360
 ```
 

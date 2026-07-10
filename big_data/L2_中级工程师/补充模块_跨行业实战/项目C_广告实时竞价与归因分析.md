@@ -866,10 +866,7 @@ SELECT
          THEN (SUM(CASE WHEN b.is_won = 1 THEN b.bid_amount ELSE 0 END) /
                SUM(CASE WHEN b.is_won = 1 THEN 1 ELSE 0 END)) * 1000
          ELSE 0 END AS cpm,
-    CASE WHEN SUM(CASE WHEN b.is_won = 1 THEN 1 ELSE 0 END) > 0
-         THEN SUM(CASE WHEN b.is_won = 1 THEN b.bid_amount ELSE 0 END) /
-              SUM(CASE WHEN b.is_won = 1 THEN 1 ELSE 0 END)
-         ELSE 0 END AS cpc
+    CAST(0 AS DECIMAL(10, 4)) AS cpc  -- CPC=总花费/点击数，竞价流无点击数据，需从点击流单独计算
 FROM ad_bids b
 GROUP BY
     b.ad_id,

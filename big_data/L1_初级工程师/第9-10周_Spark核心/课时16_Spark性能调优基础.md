@@ -789,3 +789,19 @@ Cache层面:
 2. **AQE设计文档**：https://issues.apache.org/jira/browse/SPARK-23128
 3. **《Spark快速大数据分析》**：第8章 Spark调优与调试
 4. **Databricks Blog**：https://www.databricks.com/blog/2020/05/29/adaptive-query-execution-in-speeding-up-spark-sql-at-runtime.html
+
+---
+
+## 原理深潜：为什么
+
+> 本节把本课时的知识点挂回 [大数据第一性原理](../../大数据第一性原理.md) 的 8 矛盾骨架。
+
+本课时所有调优手段的本质都是**减少矛盾 3（Shuffle 代价）**：
+
+- **为什么数据倾斜本质是 Shuffle 问题？** 数据倾斜只在 Shuffle 按 Key 分区时出现——某个 Key 数据量过大被分到同一分区，导致该 Task 远慢于其他。窄依赖不涉及 Shuffle 所以不会倾斜。诊断方法：看 Spark UI 的 Task 耗时分布，严重不均即是倾斜。
+- **为什么 Broadcast Join 能消除 Shuffle？** 小表广播到所有 Executor（每个节点一份内存副本），大表不动直接在本地 Join。把"Shuffle 1TB 大表"换成"广播 1GB 小表"，网络传输从 TB 降到 GB 级。代价是内存。
+- **为什么 reduceByKey 优于 groupByKey？** reduceByKey 在 Map 端先做局部聚合（Combiner），大幅减少 Shuffle 数据量；groupByKey 不预聚合，把所有原始数据 Shuffle 到 Reduce 端。
+
+**失败模式**：调优不是万能——某些操作（如大表 JOIN 大表）必须 Shuffle，只能优化不能消除。AQE（自适应查询执行）能在运行时动态调整分区数，是 Spark 3.x 的重要改进。
+
+**延伸阅读**：[原理深潜3：分布式计算代价](../../原理深潜/原理深潜3_分布式计算代价.md)（Shuffle 代价、数据倾斜、减少 Shuffle 手段的系统展开）

@@ -689,3 +689,19 @@ Q4: 什么是"Stage内Pipeline执行"？请举例说明。
 2. **Spark官方RDD文档**：https://spark.apache.org/docs/latest/rdd-programming-guide.html
 3. **《Spark快速大数据分析》**：第3-5章
 4. **Spark UI分析指南**：https://spark.apache.org/docs/latest/web-ui.html
+
+---
+
+## 原理深潜：为什么
+
+> 本节把本课时的知识点挂回 [大数据第一性原理](../../大数据第一性原理.md) 的 8 矛盾骨架。
+
+RDD 同时解了三个矛盾，这正是它作为 Spark 核心抽象的原因：
+
+- **矛盾 2（算力/并行）——为什么内存计算快？** MapReduce 每次迭代都读写磁盘，RDD 把中间结果缓存在内存，迭代计算快 10-100 倍。代价是内存有限，大数据集仍需落盘。
+- **矛盾 4（容错）——为什么用血缘（Lineage）而非 Checkpoint？** RDD 记录转换链（血统），丢数据时按血缘重算。比 Checkpoint 轻量（不需周期性快照），但重算代价取决于血缘长度。`cache()` 和 `checkpoint()` 是在重算代价和内存/存储代价间的折中。
+- **矛盾 3（Shuffle 代价）——为什么宽窄依赖决定 Stage 划分？** 窄依赖（map/filter）可 Pipeline 流水线执行不 Shuffle；宽依赖（reduceByKey/join）必须 Shuffle 是 Stage 边界。DAGScheduler 遇到宽依赖就切 Stage。**看 DAG 图数 Stage 数，就能判断作业的 Shuffle 代价。**
+
+**失败模式**：RDD 是低层 API，无 Catalyst 优化器，需要开发者手动优化（如选 reduceByKey 而非 groupByKey）。DataFrame/Spark SQL 弥补了这一点。
+
+**延伸阅读**：[原理深潜3：分布式计算代价](../../原理深潜/原理深潜3_分布式计算代价.md)（Shuffle 代价与宽窄依赖的深度展开）

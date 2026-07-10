@@ -140,7 +140,7 @@ HashMapStateBackend (原 MemoryStateBackend):
   └──────────────────────────────┘
   
   快照: 序列化到JobManager内存（默认）或文件系统
-  适用: 状态小（<10MB）、开发测试
+  适用: 状态小（<100MB）、开发测试
   优势: 最快（纯内存）
   劣势: 受JVM堆限制、GC压力大
 ```
@@ -203,7 +203,7 @@ checkpointConfig.setMinPauseBetweenCheckpoints(500);
 // 最大并发Checkpoint数（默认1）
 checkpointConfig.setMaxConcurrentCheckpoints(1);
 
-// Checkpoint失败是否让Job失败（建议false，生产先false观察）
+// 允许3次Checkpoint失败后才让Job失败（生产建议≥3，避免偶发故障导致Job终止）
 checkpointConfig.setTolerableCheckpointFailureNumber(3);
 
 // Job取消时是否保留Checkpoint（默认不保留）
@@ -691,7 +691,7 @@ fi
 ## 实验环境
 - Flink版本: 1.17.1
 - Job并行度: 4
-- Checkpoint间隔: 5秒
+- Checkpoint间隔: 60秒
 - State Backend: RocksDB (增量)
 - Checkpoint存储: HDFS
 
@@ -703,7 +703,7 @@ fi
 | T+30s | 第1个Checkpoint完成 | 状态大小: 12MB |
 | T+300s | Kill TaskManager | Kafka Lag: 0（实时追平） |
 | T+305s | Flink检测到TM丢失 | Job状态: RESTARTING |
-| T+320s | Job恢复 | 从CP_60恢复 |
+| T+320s | Job恢复 | 从CP_5恢复 |
 | T+330s | 消费恢复正常 | Kafka Lag降回0 |
 
 ## 数据验证
@@ -824,7 +824,7 @@ SET 'state.savepoints.dir' = 'hdfs://namenode:9000/flink/savepoints';
 
 SET 'execution.checkpointing.interval' = '30s';
 SET 'execution.checkpointing.mode' = 'EXACTLY_ONCE';
-SET 'execution.checkpointing.timeout' = '60000';
+SET 'execution.checkpointing.timeout' = '60s';
 SET 'execution.checkpointing.min-pause' = '10s';
 SET 'execution.checkpointing.max-concurrent-checkpoints' = '1';
 SET 'execution.checkpointing.externalized-checkpoint-retention' = 'RETAIN_ON_CANCELLATION';
@@ -1213,7 +1213,7 @@ T=10ms   Source-1 的快照开始
     - 注入 Barrier_N (位于 E3 之后)
     - 调用 snapshotState():
       * 快照 Kafka partition offset: offset=1003 (E1-E3已消费)
-    - 继续发送: Barrier_N → E4 → E5 ...
+    - 继续发送: Barrier_N → E4 ...
     
   AggregationFunction 状态:
     InputChannel-1 缓冲区: [Barrier_N]   ← 刚收到
@@ -1250,13 +1250,13 @@ T=22ms  AggregationFunction 收到 InputChannel-1 的 Barrier_N
 
   缓冲区状态图示:
 
-  InputChannel-1: [E4] [E5] ...    ← 暂停读取，数据积压
+  InputChannel-1: [E4] ...        ← 暂停读取，数据积压
                     ↑
                   Barrier_N 之后的数据被缓存
 
-  InputChannel-2: [E10] [E11] [Barrier_N] ...  ← 继续读取
-                                          ↑
-                                    还有数据待处理
+  InputChannel-2: [E7] [E8] [E9] [Barrier_N] [E10] [E11] ...  ← 继续读取
+                                              ↑
+                                        Barrier尚未到达，后续数据待处理
 
 ═══════════════════════════════════════════════════════════════
 T=35ms  AggregationFunction 收到 InputChannel-2 的 Barrier_N
@@ -1267,21 +1267,18 @@ T=35ms  AggregationFunction 收到 InputChannel-2 的 Barrier_N
   │                                                         │
   │  对齐过程分段:                                          │
   │                                                         │
-  │  Phase 1: 处理Channel-2剩余数据 (E10)                   │
-  │    聚合状态更新: 包含 E1-E10 的影响                      │
-  │                                                         │
-  │  Phase 2: 检测所有Channel都收到了Barrier_N              │
+  │  Phase 1: 检测所有Channel都收到了Barrier_N              │
   │    → 触发 snapshotState()                               │
   │                                                         │
-  │  Phase 3: 快照当前聚合状态                              │
-  │    - KeyGroup状态 (包含 E1-E10 的聚合结果)             │
+  │  Phase 2: 快照当前聚合状态                              │
+  │    - KeyGroup状态 (包含 E1-E3, E5-E9 的聚合结果)       │
   │    - 写入 RocksDB SST 文件                              │
   │                                                         │
-  │  Phase 4: 解除 Channel-1 的阻塞                         │
-  │    → 恢复读取 Channel-1 的 [E4, E5...]                 │
-  │    → 恢复读取 Channel-2 的 [E11...]                    │
+  │  Phase 3: 解除 Channel-1 的阻塞                         │
+  │    → 恢复读取 Channel-1 的 [E4]                         │
+  │    → 恢复读取 Channel-2 的 [E10, E11...]               │
   │                                                         │
-  │  Phase 5: 广播 Barrier_N 到下游                         │
+  │  Phase 4: 广播 Barrier_N 到下游                         │
   └─────────────────────────────────────────────────────────┘
 
 ═══════════════════════════════════════════════════════════════
@@ -1290,8 +1287,8 @@ T=36ms  对齐完成，恢复正常处理
   关键时间指标:
   - 对齐开始到结束: 14ms (T=22ms → T=36ms)
   - Channel-1 阻塞时间: 14ms
-  - 对齐期间处理Channel-2的数据: E5-E10 (6条)
-  - 对齐期间Channel-1积压: E4, E5 (2条，对齐结束后立即处理)
+  - 对齐期间处理Channel-2的数据: E5-E9 (5条)
+  - 对齐期间Channel-1积压: E4 (1条，对齐结束后立即处理)
 
 ### 12.3 非对齐Checkpoint（Unaligned Checkpoint）详细时间线
 
@@ -1518,7 +1515,7 @@ SST (Sorted String Table) 文件二进制布局:
   │   state-handle: {                                            │
   │     shared: [000001.sst, 000002.sst],  ← 引用之前Checkpoint   │
   │     private: [000004.sst, 000005.sst],  ← 本次新增            │
-  │     sst-file-size: 17179869184  (16GB total)                 │
+  │     sst-file-size: 40894464  (39MB total)                    │
   │   }                                                          │
   └─────────────────────────────────────────────────────────────┘
 
@@ -2332,3 +2329,19 @@ groups:
 - [Flink State Backends](https://nightlies.apache.org/flink/flink-docs-stable/docs/ops/state/state_backends/)
 - [Flink Savepoints](https://nightlies.apache.org/flink/flink-docs-stable/docs/ops/state/savepoints/)
 - [Chandy, K.M. and Lamport, L., Distributed Snapshots (1985)](https://lamport.azurewebsites.net/pubs/chandy.pdf)
+
+---
+
+## 原理深潜：为什么
+
+> 本节把本课时的知识点挂回 [大数据第一性原理](../../大数据第一性原理.md) 的 8 矛盾骨架。
+
+Flink Checkpoint 解的是**矛盾 4（节点故障是常态→必须容错）**在流处理场景下的具体化。流处理的容错比批处理难——流是持续的、状态是累积的、输出是连续的。
+
+- **为什么用 Chandy-Lamport 算法？** 它是分布式快照的经典算法：向数据流注入 Barrier（屏障），Barrier 随数据流动，每个算子收到 Barrier 后保存状态。这是一种**异步快照**——不需要暂停整个系统，Barrier 像水波一样流过各个算子，各算子异步保存状态。比同步快照（停系统→存状态→恢复）轻量得多。
+- **为什么 Barrier 要对齐？** 多输入算子（如 JOIN 两个流）收到第一个输入的 Barrier 后，必须等其他输入的 Barrier 到齐再保存状态。否则状态会包含"Barrier 之后的数据"，破坏一致性。代价是对齐期间先到 Barrier 的输入被缓冲，增加延迟。
+- **Checkpoint 间隔的权衡**：频繁=恢复快（丢失数据少）但开销大（频繁快照影响吞吐）；稀疏=开销小但恢复慢（要重算更多数据）。通常设 1-5 分钟。
+
+**失败模式**：状态过大导致 Checkpoint 超时；Barrier 对齐导致背压；RocksDB 状态后端在超大状态时 Checkpoint IO 成为瓶颈。
+
+**延伸阅读**：[原理深潜4：流处理时间语义](../../原理深潜/原理深潜4_流处理时间语义.md)（Checkpoint、Barrier对齐、状态管理的深度展开）和[原理深潜2：一致性与容错](../../原理深潜/原理深潜2_一致性与容错.md)（容错与一致性的一般原理）

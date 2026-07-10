@@ -808,3 +808,18 @@ explain_b2 = df1.filter(
 2. **《Spark快速大数据分析》**：第6-9章
 3. **Catalyst优化器论文**：*Spark SQL: Relational Data Processing in Spark (2015)*
 4. **Databricks Blog**：https://www.databricks.com/blog/category/engineering/spark-sql
+
+---
+
+## 原理深潜：为什么
+
+> 本节把本课时的知识点挂回 [大数据第一性原理](../../大数据第一性原理.md) 的 8 矛盾骨架。
+
+Spark SQL 主要解**矛盾 3（Shuffle 代价）**，同时触及矛盾 7（存储引擎）：
+
+- **为什么 Catalyst 优化器能减 Shuffle？** Catalyst 做三类优化：① **谓词下推**——先 filter 再 join，减少参与 Shuffle 的数据量；② **列裁剪**——只读需要的列，减少 Shuffle 传输量；③ **Join 重排**——自动判断小表用 Broadcast Join（消除 Shuffle）还是大表用 Shuffle Join。这些优化的本质都是**减少 Shuffle 数据量或消除 Shuffle**。
+- **为什么 DataFrame 比 RDD 快？** 除了 Catalyst 的逻辑优化，Tungsten 引擎做物理优化：堆外内存管理（避免 GC）、向量化执行（一次处理一批，利用 CPU 缓存/SIMD）、代码生成（编译为字节码避免解释开销）。RDD 是黑盒对象，DataFrame 有 Schema 信息，引擎能做全局优化。
+
+**失败模式**：DataFrame 的优化依赖 Catalyst 的规则匹配，某些复杂 UDF 会打破优化链（退化为 RDD 性能）。这是"声明式 vs 命令式"的固有权衡。
+
+**延伸阅读**：[原理深潜3：分布式计算代价](../../原理深潜/原理深潜3_分布式计算代价.md)（Shuffle 代价与减少手段）和[原理深潜1：存储引擎](../../原理深潜/原理深潜1_存储引擎.md)（向量化执行原理）

@@ -240,6 +240,7 @@ CREATE TABLE ecommerce.orders_sink (
     product_name String,
     category String,
     amount Decimal(10, 2),
+    unit_price Decimal(10, 2),
     status String,
     order_time DateTime,
     sync_time DateTime
@@ -440,7 +441,7 @@ CREATE TABLE cdc_orders (
     product_id BIGINT,
     amount DECIMAL(10, 2),
     status STRING,
-    order_time TIMESTAMP(3),
+    create_time TIMESTAMP(3),
     PRIMARY KEY (order_id) NOT ENFORCED
 ) WITH (
     'connector' = 'mysql-cdc',
@@ -534,7 +535,7 @@ SELECT
     o.amount,
     p.price AS unit_price,
     o.status,
-    o.order_time,
+    o.create_time AS order_time,
     CURRENT_TIMESTAMP AS build_time
 FROM cdc_orders o
 LEFT JOIN cdc_users AS u 
@@ -710,7 +711,7 @@ WHERE amount > 10000;
     → 问题：如果商品价格变化了，历史订单会被错误计算
 
   时态表Join(考虑时间):
-    orders JOIN products FOR SYSTEM_TIME AS OF orders.order_time
+    orders JOIN products FOR SYSTEM_TIME AS OF orders.create_time
     → 用订单发生时那个时间点的商品信息来Join
     → 正确：价格上升前的订单用旧价格，上升后用新价格
 ```
@@ -745,7 +746,7 @@ CREATE TABLE product_price_changelog (
 -- 2. 时态表Join查询
 SELECT
     o.order_id,
-    o.order_time,
+    o.create_time AS order_time,
     o.product_id,
     p.price AS price_at_order_time,
     o.amount,
@@ -753,7 +754,7 @@ SELECT
     o.amount / p.price AS quantity_at_order_time
 FROM cdc_orders o
 LEFT JOIN product_price_changelog 
-    FOR SYSTEM_TIME AS OF o.order_time AS p
+    FOR SYSTEM_TIME AS OF o.create_time AS p
     ON o.product_id = p.product_id
 WHERE o.status = 'completed';
 ```
@@ -807,16 +808,16 @@ SELECT
     o.amount AS order_amount,
     p.pay_amount,
     p.pay_method,
-    o.order_time,
+    o.create_time AS order_time,
     p.pay_time,
     -- 支付耗时（分钟）
-    TIMESTAMPDIFF(MINUTE, o.order_time, p.pay_time) AS pay_duration_minutes
+    TIMESTAMPDIFF(MINUTE, o.create_time, p.pay_time) AS pay_duration_minutes
 FROM cdc_orders o
 JOIN cdc_payments p
     ON o.order_id = p.order_id
     -- 关键：时间区间约束，状态有界！
-    AND p.pay_time BETWEEN o.order_time - INTERVAL '1' MINUTE 
-                       AND o.order_time + INTERVAL '30' MINUTE
+    AND p.pay_time BETWEEN o.create_time - INTERVAL '1' MINUTE 
+                       AND o.create_time + INTERVAL '30' MINUTE
 WHERE o.status = 'completed';
 ```
 
@@ -1400,8 +1401,8 @@ docker exec -it clickhouse clickhouse-client --query \
 ### 必做
 
 1. **CDC管道搭建**：在本机Docker环境搭建 MySQL → Flink CDC → Kafka → Flink SQL → ClickHouse 的完整实时同步管道
-2. **宽表构建**：实现4.2节的订单实时宽表（至少关联2个CDC源表）
-3. **实时聚合**：实现按品类、按城市的每分钟交易统计（如4.3节）
+2. **宽表构建**：实现5.2节的订单实时宽表（至少关联2个CDC源表）
+3. **实时聚合**：实现按品类、按城市的每分钟交易统计（如5.3节）
 
 ### 选做
 

@@ -999,3 +999,19 @@ FROM iceberg_db.products.history;
 - [Apache Hudi官方文档](https://hudi.apache.org/docs/latest/)
 - [Iceberg Delta Hudi对比论文: Data Lakehouse Systems](https://dl.acm.org/doi/10.14778/3551793.3551803)
 - [Tabulario Spark-Iceberg Docker镜像](https://hub.docker.com/r/tabulario/spark-iceberg)
+
+---
+
+## 原理深潜：为什么
+
+> 本节把本课时的知识点挂回 [大数据第一性原理](../../大数据第一性原理.md) 的 8 矛盾骨架。
+
+Iceberg/Delta Lake/Hudi 解的是**矛盾 8（Schema 灵活性 vs 查询性能）**。这是大数据存储演进的当代主线：
+
+- **为什么湖仓是矛盾 8 的当代解法？** 传统数仓（Hive）选了"严格 Schema"一端——查询快但加字段/改类型痛苦、无 ACID、无时间旅行。数据湖（原始 Parquet/JSON）选了"灵活性"一端——灵活但无事务、无治理、易成"数据沼泽"。湖仓在数据湖之上加元数据层，获得 ACID + Schema 演进 + 时间旅行，同时保持开放格式——**两头都要，用一层元数据层弥合**。
+- **为什么快照隔离能实现 ACID？** Iceberg 每次写入生成一个新快照（Manifest 列表），读操作看到的是某个快照的一致性视图。写入提交是原子的（CAS 操作切换快照指针）。这是 MVCC（多版本并发控制）思想在数据湖上的应用——读不阻塞写，写不阻塞读。
+- **为什么 Schema 演进和时间旅行是数仓缺失的能力？** Hive 改 Schema 要重建分区；Iceberg 加列只是元数据操作，不重写数据文件。时间旅行让"查询历史版本"和"回滚错误数据"成为可能——这在 Hive 时代是不可能的。
+
+**失败模式**：小文件过多未及时 Compaction 导致查询变慢；快照不过期导致元数据膨胀；与 Hive Metastore 混用时易混淆内外表。Iceberg 不是银弹——它补了 Hive 的短板，但也引入了元数据管理的复杂度。
+
+**延伸阅读**：[原理深潜1：存储引擎](../../原理深潜/原理深潜1_存储引擎.md)（Iceberg 底层存 Parquet 列存文件，存储引擎原理是其基础）

@@ -903,7 +903,7 @@ if __name__ == '__main__':
 
 结论:
   acks=0 → acks=1: 吞吐下降约24%, 延迟增加约2.7倍
-  acks=1 → acks=all: 吞吐下降约22%, 延迟增加约1.8倍
+  acks=1 → acks=all: 吞吐下降约22%, 延迟增加约1.9倍
   acks=0 → acks=all: 吞吐下降约40%, 延迟增加约5倍
 ```
 
@@ -1326,3 +1326,19 @@ print(f"\n共消费到 {count} 条消息 (预期30条，来自已提交事务)")
 - [Flink End-to-End Exactly-Once](https://flink.apache.org/features/2018/03/01/end-to-end-exactly-once-apache-flink.html)
 - [KIP-98: Exactly Once Delivery and Transactional Messaging](https://cwiki.apache.org/confluence/display/KAFKA/KIP-98+-+Exactly+Once+Delivery+and+Transactional+Messaging)
 - [KIP-129: Streams Exactly-Once Semantics](https://cwiki.apache.org/confluence/display/KAFKA/KIP-129%3A+Streams+Exactly-Once+Semantics)
+
+---
+
+## 原理深潜：为什么
+
+> 本节把本课时的知识点挂回 [大数据第一性原理](../../大数据第一性原理.md) 的 8 矛盾骨架。
+
+Exactly-Once 语义（EOS）是**矛盾 4（容错）+ 矛盾 5（一致性）**的极致追求。为什么这么难？
+
+- **为什么 EOS 难？** 网络不可靠导致消息可能丢失或重复。重试解决丢失但引入重复；不重试解决重复但引入丢失。EOS 不是"消息只发一次"，而是"**效果上只执行一次**"——即使消息被重试多次，最终结果也像只执行了一次。
+- **两条实现路径**：① At-Least-Once + 幂等去重（Producer 用序列号去重 + 下游主键去重，简单但要求下游支持幂等）；② 两阶段提交 2PC（Kafka 事务，端到端 EOS 不依赖下游幂等，但有 2PC 的代价——阻塞、协调者单点、延迟）。
+- **为什么需要幂等 Producer？** Producer 重试时可能产生重复消息。幂等 Producer 用 PID + 序列号让 Broker 去重，保证单个 Producer 的消息不重复。跨会话的事务性 Producer 用 `transactional.id` 保证重启后能恢复事务状态。
+
+**失败模式**：EOS 的代价是复杂度——2PC 的阻塞和延迟、事务超时的处理、Consumer 需配 `read_committed` 隔离级别。**多数场景下 At-Least-Once + 幂等已经够用，不值得为 EOS 承受全部复杂度。**
+
+**延伸阅读**：[原理深潜2：一致性与容错](../../原理深潜/原理深潜2_一致性与容错.md)（2PC、EOS、强一致代价的深度展开）

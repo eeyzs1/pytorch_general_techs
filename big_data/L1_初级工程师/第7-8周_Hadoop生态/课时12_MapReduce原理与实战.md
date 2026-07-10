@@ -905,3 +905,17 @@ public class ReduceSideJoin {
 1. **MapReduce论文**：*MapReduce: Simplified Data Processing on Large Clusters (2004)*
 2. **《Hadoop权威指南》**：第2章 MapReduce、第7章 MapReduce编程
 3. **Hadoop官方教程**：https://hadoop.apache.org/docs/stable/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapReduceTutorial.html
+
+---
+
+## 原理深潜：为什么
+
+> 本节把本课时的知识点挂回 [大数据第一性原理](../../大数据第一性原理.md) 的 8 矛盾骨架。
+
+MapReduce 解的是**矛盾 2（单机算力有限→必须并行计算）**，它的核心设计原则是**数据本地性**："移动计算比移动数据更划算"——把计算任务调度到数据所在节点，而非把数据搬到计算节点。这是因为数据量是 GB-TB 级而代码是 KB-MB 级，搬数据走网络要几分钟，搬代码只要毫秒。
+
+**为什么 MR 模型受限？** MapReduce 的固定 Map→Shuffle→Reduce 流程有两个硬伤：① 每次 Shuffle 都写磁盘（矛盾 3 的代价），迭代计算（如 PageRank）每轮都读写 HDFS，极慢；② 复杂逻辑需要多个 MR 作业串联，每个作业都要重读 HDFS。Spark 正是为解决这两个问题而生——用内存计算避免重复读写磁盘（解矛盾 2），用 DAG 一次调度避免多作业串联（解矛盾 3）。
+
+**失败模式**：MapReduce 不适合迭代计算和交互式查询。这正是它被 Spark 取代的根本原因——不是工程实现不够好，而是编程模型本身的局限。
+
+**延伸阅读**：[原理深潜3：分布式计算代价](../../原理深潜/原理深潜3_分布式计算代价.md)（数据本地性与 Shuffle 代价的深度展开）

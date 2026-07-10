@@ -271,13 +271,13 @@ Sliding Windows (滑动窗口):
 Session Windows (会话窗口):
   基于活动间隔，动态窗口
   
-  事件: event1 event2      event3    event4 event5
-  间隔:     ├─2s─┤   ├─20s──┤   ├─3s─┤
-  
+  事件: event1 event2      event3          event4 event5
+  间隔:     ├─2s─┤   ├─20s──┤    ├─15s──┤   ├─3s─┤
+
   如果 Gap > 10秒 → 新Session
-  Session1 = [event1, event2]  (间隔2s < 10s)
-  Session2 = [event3]           (与前一个间隔20s > 10s → 新窗口)
-  Session3 = [event4, event5]  (间隔3s < 10s)
+  Session1 = [event1, event2]  (event1→event2 间隔2s < 10s)
+  Session2 = [event3]           (event2→event3 间隔20s > 10s → 新窗口)
+  Session3 = [event4, event5]  (event3→event4 间隔15s > 10s → 新窗口；event4→event5 间隔3s < 10s)
 
 Global Windows (全局窗口):
   所有数据放入一个窗口，不自动触发
@@ -900,31 +900,39 @@ public class LabTumblingWindowJob {
 
     public static class ClickAggregateFunction
         implements AggregateFunction<ClickEvent,
-            java.util.Set<String>, WindowResult> {
+            ClickAccumulator, WindowResult> {
 
         @Override
-        public java.util.Set<String> createAccumulator() {
-            return new java.util.HashSet<>();
+        public ClickAccumulator createAccumulator() {
+            return new ClickAccumulator();
         }
 
         @Override
-        public java.util.Set<String> add(ClickEvent event,
-                                         java.util.Set<String> acc) {
-            acc.add(event.getUserId() + "@" + event.timestamp);
+        public ClickAccumulator add(ClickEvent event, ClickAccumulator acc) {
+            acc.pv += 1;
+            acc.userIds.add(event.getUserId());
             return acc;
         }
 
         @Override
-        public WindowResult getResult(java.util.Set<String> acc) {
-            return new WindowResult("", 0, 0, acc.size(), acc.size());
+        public WindowResult getResult(ClickAccumulator acc) {
+            return new WindowResult("", 0, 0, acc.pv, acc.userIds.size());
         }
 
         @Override
-        public java.util.Set<String> merge(java.util.Set<String> a,
-                                           java.util.Set<String> b) {
-            a.addAll(b);
-            return a;
+        public ClickAccumulator merge(ClickAccumulator a, ClickAccumulator b) {
+            ClickAccumulator merged = new ClickAccumulator();
+            merged.pv = a.pv + b.pv;
+            merged.userIds.addAll(a.userIds);
+            merged.userIds.addAll(b.userIds);
+            return merged;
         }
+    }
+
+    // PV用计数器累加事件数，UV用Set去重用户ID
+    public static class ClickAccumulator {
+        long pv = 0;
+        java.util.Set<String> userIds = new java.util.HashSet<>();
     }
 
     public static class ClickEventSource implements SourceFunction<ClickEvent> {
@@ -1212,3 +1220,19 @@ public class SessionWindowUserAnalysis {
 - [Apache Flink Documentation - Windowing](https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/datastream/operators/windows/)
 - 《基于Apache Flink的流处理》第3-5章, Fabian Hueske 等
 - [Stream Processing with Apache Flink (O'Reilly 书籍)](https://www.oreilly.com/library/view/stream-processing-with/9781491974285/)
+
+---
+
+## 原理深潜：为什么
+
+> 本节把本课时的知识点挂回 [大数据第一性原理](../../大数据第一性原理.md) 的 8 矛盾骨架。
+
+Flink 解的是**矛盾 6（延迟 vs 吞吐）**在流处理场景下的核心矛盾。三个关键设计都从这里推导：
+
+- **为什么原生流比微批延迟低？** Spark Structured Streaming 用微批（~100ms 一批），数据必须等批间隔到齐才开始处理；Flink 逐条处理，延迟达毫秒级。代价是工程复杂度高（状态管理+Checkpoint）。这是"延迟 vs 复杂度"的典型权衡。
+- **为什么事件时间比处理时间正确？** 处理时间用"系统处理时刻"分窗，数据延迟到达会导致窗口统计错误（12:00产生的数据12:01:05到，被错误归入12:01窗口）。事件时间用"数据实际发生时刻"分窗，结果正确且可复现。代价是必须处理乱序。
+- **为什么需要 Watermark？** 用事件时间后，窗口不能无限等"所有数据到齐"（流是无限的）。Watermark = 已见最大事件时间 − 允许延迟，本质是"大概率不会有更早数据了"的断言。用概率保证换窗口能确定性地关闭——这是延迟与完整性的最优折中。
+
+**失败模式**：Watermark 设过小→大量迟到数据丢失；过大→窗口迟迟不关闭、实时性丧失。多分区时取最小值，慢分区会拖累整体 Watermark。
+
+**延伸阅读**：[原理深潜4：流处理时间语义](../../原理深潜/原理深潜4_流处理时间语义.md)（事件时间、Watermark、微批vs原生流的系统展开）
