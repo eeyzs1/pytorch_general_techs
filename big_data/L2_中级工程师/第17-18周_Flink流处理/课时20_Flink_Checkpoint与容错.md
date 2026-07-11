@@ -127,10 +127,10 @@ Operator:  收到通道1的Barrier_n
 
 ## 三、State Backend详解
 
-### 3.1 三种State Backend对比
+### 3.1 两种State Backend对比
 
 ```
-HashMapStateBackend (原 MemoryStateBackend):
+HashMapStateBackend (原 MemoryStateBackend / FsStateBackend):
   ┌──────────────────────────────┐
   │  JVM Heap (Java对象)         │
   │  ┌────────────────────────┐  │
@@ -166,7 +166,7 @@ EmbeddedRocksDBStateBackend:
   快照: 全量/增量写入文件系统（HDFS/S3）
   适用: 大状态（>100MB）、生产环境
   优势: 状态可超过内存大小
-  劣势: 每次读写涉及磁盘I/O（RocksDB做了大量优化）
+  劣势: 读写性能低于纯内存方案（RocksDB通过memtable/block cache做了大量优化，热数据命中内存）
 ```
 
 ### 3.2 State Backend选型指南
@@ -532,11 +532,14 @@ public class CheckpointedOrderJob {
 
 ```python
 from pyflink.datastream import StreamExecutionEnvironment
-from pyflink.datastream import CheckpointingMode
+from pyflink.datastream import CheckpointingMode, EmbeddedRocksDBStateBackend
 from pyflink.common import RestartStrategies, Time
 
 env = StreamExecutionEnvironment.get_execution_environment()
 env.set_parallelism(2)
+
+# 配置RocksDB State Backend (增量快照)
+env.set_state_backend(EmbeddedRocksDBStateBackend(True))
 
 env.enable_checkpointing(60000)
 cp_config = env.get_checkpoint_config()
@@ -934,7 +937,7 @@ SET 'state.checkpoints.dir' = 'file:///tmp/flink-lab-rocksdb-cp';
 
 ### 必做
 
-1. **Checkpoint配置实验**：分别使用HashMapStateBackend和RocksDBStateBackend，状态大小100MB+，对比Checkpoint耗时和恢复耗时
+1. **Checkpoint配置实验**：分别使用HashMapStateBackend和EmbeddedRocksDBStateBackend，状态大小100MB+，对比Checkpoint耗时和恢复耗时
 2. **灾备演练**：执行本课时第7节的完整演练流程，输出演练报告（使用模板）
 3. **增量Checkpoint**：配置RocksDB增量快照，对比全量快照的存储空间节省
 
@@ -1216,7 +1219,7 @@ T=10ms   Source-1 的快照开始
     - 继续发送: Barrier_N → E4 ...
     
   AggregationFunction 状态:
-    InputChannel-1 缓冲区: [Barrier_N]   ← 刚收到
+    InputChannel-1 缓冲区: []           ← Barrier_N 传输中，尚未到达
     InputChannel-2 缓冲区: [E5, E6, E7]  ← 正常数据
 
 ═══════════════════════════════════════════════════════════════
@@ -1464,7 +1467,7 @@ SST (Sorted String Table) 文件二进制布局:
 关键优化:
   - 一次查询仅需读取 Index Block + 1个Data Block (通常 < 8KB)
   - Bloom Filter 避免无效的Block读取
-  - 读写放大比: ~10x (写1KB → 最终读~10KB including compaction)
+  - 写放大: ~10x (写1KB → 实际写入磁盘~10KB, 含Compaction合并)
 ```
 
 ### 13.3 RocksDB增量Checkpoint工作流程
@@ -1507,8 +1510,8 @@ SST (Sorted String Table) 文件二进制布局:
   │                                                              │
   │ Step 3: 上传增量文件                                         │
   │   - 只上传 000004.sst (8MB) 和 000005.sst (6MB)             │
-  │   - 总共上传: 14MB (vs 全量需上传37MB)                       │
-  │   - 节省: 62% 上传量                                         │
+  │   - 总共上传: 14MB (vs 全量需上传39MB)                         │
+  │   - 节省: 64% 上传量                                         │
   │                                                              │
   │ Step 4: 记录文件清单                                         │
   │   在Checkpoint元数据中记录:                                  │
@@ -1534,7 +1537,7 @@ Flink RocksDB推荐配置:
 
 ```java
 // 针对Checkpoint优化的RocksDB配置
-RocksDBStateBackend backend = new EmbeddedRocksDBStateBackend(true);
+EmbeddedRocksDBStateBackend backend = new EmbeddedRocksDBStateBackend(true);
 
 // 通过Flink配置调优 (flink-conf.yaml):
 state.backend.rocksdb.compaction.level.max-size-level-base: 268435456  // 256MB
