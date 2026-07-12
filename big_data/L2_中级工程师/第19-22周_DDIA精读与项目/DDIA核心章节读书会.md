@@ -1,6 +1,6 @@
 # DDIA核心章节读书会
 
-> **所属阶段**：L2 中级工程师 | **周次**：第19-22周 | **形式**：读书会（每周2次，每次3h） | **难度**：★★★★★
+> **所属阶段**：L2 中级工程师 | **周次**：第19-22周 | **形式**：读书会（每周3次，每次3h） | **难度**：★★★★★
 
 ---
 
@@ -90,22 +90,24 @@ scrape_configs:
 ```
 
 ```python
-# Flink中通过自定义Metrics暴露负载特征
-from org.apache.flink.metrics import Counter, Histogram
-from org.apache.flink.api.common.functions import RichMapFunction
+# PyFlink中通过自定义Metrics暴露负载特征
+import time
+from pyflink.functions import RichMapFunction
+from pyflink.metrics import Histogram
 
-class LoadMonitoringMapFunction(RichMapFunction[Order, EnrichedOrder]):
-    def open(self, parameters):
-        self.record_counter = self.getRuntimeContext().getMetricGroup().counter("records_processed")
-        self.latency_histogram = self.getRuntimeContext().getMetricGroup().histogram("processing_latency_ms", 
-            DescriptiveStatisticsHistogram(1000))
-    
-    def map(self, order: Order) -> EnrichedOrder:
-        start = System.currentTimeMillis()
+class LoadMonitoringMapFunction(RichMapFunction):
+    def open(self, runtime_context):
+        self.record_counter = runtime_context.get_metric_group().counter("records_processed")
+        # PyFlink通过自定义Histogram暴露延迟分布（需配合PrometheusReporter上报）
+        self.latency_histogram = runtime_context.get_metric_group().histogram(
+            "processing_latency_ms", Histogram())
+
+    def map(self, order):
+        start = time.monotonic()
         result = self.enrich(order)
-        elapsed = System.currentTimeMillis() - start
-        self.record_counter.inc()
-        self.latency_histogram.update(elapsed)
+        elapsed_ms = int((time.monotonic() - start) * 1000)
+        self.record_counter.inc(1)
+        self.latency_histogram.update(elapsed_ms)
         return result
 ```
 
@@ -234,7 +236,7 @@ DDIA第3章是全书技术含量最高的章节之一。它从最基础的哈希
 
 | 书中概念 | 对应技术 | 详细映射分析 |
 |----------|----------|-------------|
-| LSM-Tree MemTable + SSTable | Kafka Broker存储 | Kafka的Log Segment ≈ SSTable（类比，非等价）；Page Cache ≈ MemTable（类比，性质不同）；Index文件 = 稀疏索引；顺序追加 = LSM-Tree写入哲学 |
+| LSM-Tree MemTable + SSTable | Kafka Broker存储 | Kafka的Log Segment ≈ SSTable（类比，非等价）；Index文件 = 稀疏索引；顺序追加 = LSM-Tree写入哲学（注：Kafka依赖OS Page Cache做读缓存，与MemTable的"内存有序写入缓冲"性质不同，不宜类比） |
 | LSM-Tree Compaction | HBase Compaction | HBase的Minor Compaction（合并少量HFile）= Size-Tiered；Major Compaction（合并所有HFile）= 全量合并 |
 | B-Tree页缓存 | MySQL InnoDB Buffer Pool | Buffer Pool = 页缓存在内存中的实现；LRU淘汰策略；脏页刷盘 |
 | SSTable + Bloom Filter | HBase HFile | 每个HFile = 一个SSTable；Bloom Filter在HFile Trailer中；读路径：BlockCache → Bloom Filter → HFile Scan |
@@ -445,7 +447,7 @@ DDIA第5章是关于分布式系统最根本话题——数据的冗余存储。
 | 书中概念 | 对应技术 | 详细映射分析 |
 |----------|----------|-------------|
 | Leader-Based Replication | Kafka Partition Leader | 每个Partition一个Leader，Follower通过FetchRequest拉取数据；ISR列表由Controller维护 |
-| 同步 vs 异步复制 | Kafka acks配置 | acks=0（不等待）= 异步；acks=1（Leader确认即返回，非标准"半同步"术语）；acks=all（ISR确认）= 半同步 |
+| 同步 vs 异步复制 | Kafka acks配置 | acks=0（不等待）= 异步；acks=1（Leader确认即返回，非标准"半同步"术语）；acks=all（ISR全员确认）= 同步复制（对ISR集合，比传统半同步更严格） |
 | 读修复 + 反熵 + Hinted Handoff | Cassandra三种修复机制 | 读修复(读取时修复) + 反熵(后台Merkle Tree比对修复, nodetool repair) + Hinted Handoff(暂存写入提示) |
 | Quorum | Elasticsearch写一致性 | wait_for_active_shards控制最少写入成功的分片数 |
 | 变更日志复制 | MySQL Binlog → Kafka CDC | Debezium读取Binlog（MySQL Leader的变更日志）= 复制日志 |
@@ -605,7 +607,7 @@ keyedStream.window(TumblingEventTimeWindows.of(Time.minutes(5)))
 
 ```python
 # PySpark: 自定义分区器实现Key-Range分区
-from pyspark.sql.functions import spark_partition_id
+from pyspark.sql.functions import spark_partition_id  # 可用于查看分区编号，此处仅作示意
 
 df = spark.read.parquet("hdfs:///orders")
 # repartitionByRange: Spark中的Key-Range分区
@@ -679,7 +681,7 @@ DDIA第7章是全书最微妙也最易被误解的章节。事务的本质是"�
 | 书中概念 | 对应技术 | 详细映射分析 |
 |----------|----------|-------------|
 | ACID事务 | Delta Lake / Apache Iceberg / Apache Hudi | 数据湖表格式通过事务日志实现ACID；乐观并发控制；Snapshot Isolation |
-| MVCC | HBase Cell Versioning | 每个Cell保存多个版本（按时间戳），读取时可指定版本数 |
+| MVCC | HBase ReadWriteConsistencyControl | HBase通过独立的MVCC机制实现读写并发隔离（与Cell Versioning数据模型多版本不同）；Cell Versioning是数据模型层按时间戳保留多版本，需区分 |
 | 快照隔离 | Flink Checkpoint | Checkpoint = 分布式快照；Barrier对齐 = 一致性快照的时间点 |
 | 2PC | Kafka Exactly-Once | Kafka事务协调器 + 两阶段提交 → EOS语义 |
 | 写偏斜 | 无直接对应 | Flink Keyed State保证同一Key由同一Subtask串行处理，不存在并发更新问题 |
@@ -815,7 +817,7 @@ DDIA第8章是全书最"悲观"但最务实的章节——它系统性地揭示�
 | 部分失效 | Flink Task心跳 + Watchdog | TaskManager定期向JobManager发送心跳；连续超时判定为失效，触发Failover |
 | 超时检测 | ZooKeeper Session | 客户端和ZK服务器间的Session有超时时间；ZK靠此检测客户端是否存活 |
 | 分布式锁 | Kafka Controller选举 | Controller选举通过ZK临时节点实现(首个成功创建节点的Broker成为Controller)，非Quorum投票 |
-| 拜占庭故障 | Hadoop Checksum校验 | HDFS对每个Block存储CRC32校验和；DataNode在读取时校验，检测数据损坏 |
+| 数据损坏检测（非拜占庭） | Hadoop Checksum校验 | HDFS对每个Block存储CRC32校验和；DataNode在读取时校验，检测静默数据损坏（注：这是非恶意故障检测，非拜占庭容错；大多数系统包括HDFS不处理拜占庭故障） |
 
 #### 代码/配置示例
 
@@ -1040,7 +1042,7 @@ etcdctl --endpoints=etcd1:2379 endpoint status -w json | jq .
 
 #### 章节核心要点总结（扩充）
 
-DDIA第10章从MapReduce出发，系统性地讲解了批处理引擎的设计哲学和演进历程。MapReduce虽然已经不再是主流，但它的设计思想奠定了整个大数据批处理生态的基础。MapReduce的核心约束是"每个Map和Reduce的输入输出都必须物化到分布式文件系统上"——这意味着每个阶段完成后，结果都会完整地写入HDFS。这在容错方面是优势（任何阶段失败只需重跑该阶段），但在性能上是灾难（大量的磁盘I/O和网络传输）。书中用UNIX管道的类比揭示了MapReduce的根本局限：UNIX管道中，`sort | uniq | wc` 三个命令在单机上通过管道（内存缓冲区）串行执行，瞬间完成；而MapReduce中每个"|"（即Shuffle阶段）都会产生巨大的磁盘写入。Spark的核心创新在于"保留中间数据在内存中"（惰性求值 + RDD血缘关系），将MapReduce的"物化一切"变成了"按需物化"——这借鉴了UNIX管道的"流式处理"思想。书中关于Join的讨论特别有价值：Sort-Merge Join是MapReduce的默认策略（两端按相同Key分区、排序后合并），但Broadcast Hash Join（小表广播到所有节点，大表在本地做Hash Join）在处理一大一小表时效率提升巨大——这正是实际SQL优化器的工作核心。批处理引擎的另一个重要设计空间是"容错策略"：MapReduce通过物化中间结果实现"只需重跑失败Task"；Spark通过RDD Lineage实现"只重算丢失的Partition"；Flink通过Checkpoint/Savepoint实现"从一致性快照恢复"。
+DDIA第10章从MapReduce出发，系统性地讲解了批处理引擎的设计哲学和演进历程。MapReduce虽然已经不再是主流，但它的设计思想奠定了整个大数据批处理生态的基础。MapReduce的核心约束是"每个阶段的中间结果都会物化到磁盘上"——Map输出写入本地磁盘（供Shuffle读取），Reduce输出写入HDFS，跨Job的中间数据也持久化到HDFS。这在容错方面是优势（任何阶段失败只需重跑该阶段），但在性能上是灾难（大量的磁盘I/O和网络传输）。书中用UNIX管道的类比揭示了MapReduce的根本局限：UNIX管道中，`sort | uniq | wc` 三个命令在单机上通过管道（内存缓冲区）串行执行，瞬间完成；而MapReduce中每个"|"（即Shuffle阶段）都会产生巨大的磁盘写入。Spark的核心创新在于"保留中间数据在内存中"（惰性求值 + RDD血缘关系），将MapReduce的"物化一切"变成了"按需物化"——这借鉴了UNIX管道的"流式处理"思想。书中关于Join的讨论特别有价值：Sort-Merge Join是MapReduce的默认策略（两端按相同Key分区、排序后合并），但Broadcast Hash Join（小表广播到所有节点，大表在本地做Hash Join）在处理一大一小表时效率提升巨大——这正是实际SQL优化器的工作核心。批处理引擎的另一个重要设计空间是"容错策略"：MapReduce通过物化中间结果实现"只需重跑失败Task"；Spark通过RDD Lineage实现"只重算丢失的Partition"；Flink通过Checkpoint/Savepoint实现"从一致性快照恢复"。
 
 #### 讨论题目（扩充）
 
@@ -1508,6 +1510,6 @@ AS SELECT * FROM orders_queue;
 | 《基于Apache Flink的流处理》 | DDIA Ch11的"实战版" | L2阶段必读 |
 | 《数据库系统内幕》 | DDIA Ch3的"加长版" | 如果想深入存储引擎，必读 |
 | 《高性能MySQL》 | DDIA Ch7的"MySQL视角" | 如果想深入理解InnoDB事务和MVCC |
-| 《数据密集型应用的系统设计》原著 | 反复精读 | 作者官网dataintensive.net提供书目和参考文献，全书需通过O'Reilly等渠道购买 |
+| 《数据密集型应用系统设计》原著 | 反复精读 | 作者官网dataintensive.net提供书目和参考文献，全书需通过O'Reilly等渠道购买 |
 | 《Designing Distributed Systems》 | DDIA的Kubernetes视角 | Brendan Burns著，云原生的分布式模式 |
-| 《Cloud Native Data Pipelines》 | DDIA的工程化落地 | 如何在Kubernetes上构建数据管道 |
+| 《Data Pipelines with Apache Airflow》 | DDIA的工程化落地 | 如何在Kubernetes上构建数据管道；Bas Harenslak & Julian Rutten著 |
