@@ -1,19 +1,19 @@
 # OpenAI Research & Engineering — 核心观点总结
 
-> 汇总自 [OpenAI Research](https://openai.com/research/) 和 [OpenAI Blog](https://openai.com/index/) 的 69 篇文章，涵盖 2025 年 1 月至 2026 年 7 月。
+> 汇总自 [OpenAI Research](https://openai.com/research/) 和 [OpenAI Blog](https://openai.com/index/) 的 74 篇文章，涵盖 2025 年 1 月至 2026 年 7 月。
 
 ## 一、总体脉络
 
 OpenAI 的技术文章呈现四条并行的演进路径：
 
 ```
-路径1（工程实践）: Agent 指南 → Codex/Operator → Harness Engineering → AgentKit → Codex 全面升级 → Codex 企业安全 → Codex 多角色 → AWS/Oracle 分发 → Codex 长视野
-路径2（安全研究）: Model Spec → 指令层级 → CoT 监控 → CoT-Control → RL奖励信号分析 → Codex 安全部署实践 → 青少年安全 → 前沿治理 → GPT-5.6 安全栈 → Daybreak
-路径3（平台生态）: Responses API → Apps SDK → ChatGPT 超级App → 计算机环境 → MCP 互操作 → 多平台沙箱 → AWS 企业分发 → 记忆系统 → 推理健康
-路径4（科学+全栈）: GPT-Rosalind → 数学猜想 → 黑洞模拟 → 免疫学突破 → LifeSciBench → Daybreak 自主研究 → Jalapeño 自研芯片
+路径1（工程实践）: Agent 指南 → Codex/Operator → Harness Engineering → AgentKit → Codex 全面升级 → Codex 企业安全 → Codex 多角色 → AWS/Oracle 分发 → Codex 长视野 → ChatGPT Work
+路径2（安全研究）: Model Spec → 指令层级 → CoT 监控 → CoT-Control → RL奖励信号分析 → Codex 安全部署实践 → 青少年安全 → 前沿治理 → GPT-5.6 安全栈 → Daybreak → Bio Bug Bounty
+路径3（平台生态）: Responses API → Apps SDK → ChatGPT 超级App → 计算机环境 → MCP 互操作 → 多平台沙箱 → AWS 企业分发 → 记忆系统 → 推理健康 → GPT-Live
+路径4（科学+全栈）: GPT-Rosalind → 数学猜想 → 黑洞模拟 → 免疫学突破 → LifeSciBench → Daybreak 自主研究 → Jalapeño 自研芯片 → GeneBench-Pro → SWE-Bench Pro 审计
 ```
 
-工程路径继续向 Codex 工业化迈进：6 月推出 Codex 长视野任务白皮书 + 多角色插件 + OpenAI Partner Network（$150M 投资、目标 30 万认证顾问），HP Frontier 全企业级部署；Codex 在 OpenAI 内部已达 97.9% 活跃用户、99.8% 输出 token。6 月底 [Core Dump Epidemiology](core-dump-epidemiology-data-infrastructure-bug.md) 分享了 OpenAI 基础设施可靠性工程的关键范式——流行病学家式诊断，把看似一类的不可能崩溃分离为两个独立 bug（Azure 单台主机硬件损坏 + GNU libunwind 18 年竞态）。安全路径在 6 月发布 GPT-5.6 系列（Sol/Terra/Luna）+ 最强安全栈，引入 `max`/`ultra` 推理 effort；同时推出 Daybreak + Codex Security + GPT-5.5-Cyber + Patch the Planet——把网络安全从"找漏洞"推进到"从发现到修复的闭环"。平台路径 6 月发布 ChatGPT Enterprise 统一分析 + 支出控制 + 健康性能提升（2.3 亿周用户、71% 事实性问题下降）。科学路径 6 月底发布 [GeneBench-Pro](introducing-genebench-pro.md)——面向研究级计算生物学的"判断决策"基准（129 题、10 领域、合成数据），并发布 LifeSciBench 专家级基准 + 免疫学家案例 + Daybreak 自主发现 Linux/FreeBSD/OpenBSD 等数十个 0-day。基础设施层 6 月推出 Jalapeño 自研推理芯片（9 个月 ASIC 周期，2026 年底吉瓦级部署）。
+7 月 9 日发布 [GPT-5.6](introducing-gpt-5-6.md) 正式版——"可扩展智能"新范式，默认高效 + `max`/`ultra` 按需推理 effort，同步成为 Microsoft 365 Copilot 首选模型；同日发布 [ChatGPT Work](chatgpt-work-partner.md)，把 ChatGPT 从"聊天助手"升级为跨应用、长时间陪伴的"工作伙伴"。7 月 8 日发布 [GPT-Live](introducing-gpt-live.md)，全双工语音模型 + 智能委托机制（后台调用 GPT-5.5），重新定义自然人机语音交互；同日发布 [SWE-Bench Pro 审计](separating-signal-from-noise-coding-evaluations.md)，发现 ~30% 任务存在缺陷，编码评估可靠性再敲警钟。7 月 9 日发布 [Bio Bug Bounty](bio-bug-bounty.md)，将生物安全悬赏升级为持续计划，奖励提升至 $50,000，专注通用越狱测试。
 
 ## 二、六大核心主题
 
@@ -249,3 +249,8 @@ OpenAI 的技术文章呈现四条并行的演进路径：
 | 67 | 2026-06-30 | [Introducing GeneBench-Pro](introducing-genebench-pro.md) | 计算生物学 / Benchmark / 专家级 |
 | 68 | 2026-06-30 | [Core Dump Epidemiology: Fixing an 18-Year-Old Bug](core-dump-epidemiology-data-infrastructure-bug.md) | 基础设施可靠性 / 调试 / Libunwind |
 | 69 | 2026-07-07 | （本同步记录） | 同步记录 |
+| 70 | 2026-07-08 | [Separating Signal from Noise in Coding Evaluations](separating-signal-from-noise-coding-evaluations.md) | 评估 / SWE-Bench Pro / 审计 |
+| 71 | 2026-07-08 | [Introducing GPT-Live](introducing-gpt-live.md) | 语音模型 / 全双工 / ChatGPT Voice |
+| 72 | 2026-07-09 | [GPT-5.6](introducing-gpt-5-6.md) | 旗舰模型 / 可扩展智能 / Microsoft 365 |
+| 73 | 2026-07-09 | [ChatGPT Work](chatgpt-work-partner.md) | Agent / 跨应用 / 知识工作 |
+| 74 | 2026-07-09 | [OpenAI Bio Bug Bounty](bio-bug-bounty.md) | 生物安全 / Bug Bounty / 通用越狱 |

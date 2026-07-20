@@ -33,7 +33,7 @@ ai_info/
 └── sync-report-YYYY-MM-DD.md         ← 每次同步写一份
 ```
 
-**provider 取值**：`anthropic`、`openai`、`google`、`meta`、`huggingface`、`mistral`、`deepseek`、`community`
+**provider 取值**：`anthropic`、`openai`、`google`、`meta`、`huggingface`、`deepseek`、`glm`、`kimi`、`community`
 **category 取值**：`research`、`engineering`、`blog`、`news`
 
 ## 2. 信源范围（必须全量检索）
@@ -54,8 +54,15 @@ ai_info/
 | Provider | 信源 URL | 仓库目录 |
 |----------|----------|----------|
 | Hugging Face | https://huggingface.co/blog | `huggingface/blog/` |
-| Mistral | https://mistral.ai/news | `mistral/news/` |
-| DeepSeek | https://api-docs.deepseek.com/news | `deepseek/news/` |
+| DeepSeek | https://www.deepseek.com/ + https://api-docs.deepseek.com/ | `deepseek/news/` |
+
+### 国内厂商（每次必查）
+
+| Provider | 信源 URL | 仓库目录 |
+|----------|----------|----------|
+| DeepSeek | https://www.deepseek.com/ + https://api-docs.deepseek.com/ | `deepseek/news/` |
+| GLM (智谱) | https://www.bigmodel.cn/ + https://github.com/THUDM/GLM-4 | `glm/blog/` |
+| Kimi (Moonshot) | https://www.kimi.com/blog/ + https://platform.moonshot.cn/blog | `kimi/blog/` |
 
 ## 3. 同步工作流（必须按顺序执行）
 
@@ -284,7 +291,8 @@ Validation passed: {N} articles, {M} markdown files
 1. **Google DeepMind 3-5 月缺失多篇文章**：catalog 中只有 9 篇，但 blog 上 3-5 月还有 "AI co-clinician"、"Republic of Korea partnership"、"Gemini 3.1 Flash TTS"、"Gemini Robotics-ER 1.6"、"Measuring progress toward AGI"、"10 years of AlphaGo's impact" 等未入库
 2. **Meta AI 缺失部分 3-4 月文章**：如 "SAM 3.1"、"Alta Daily Uses SAM"
 3. **OpenAI 5 月若干文章未补齐**：personal-finance-chatgpt、openai-launches-deployment-company、tanstack-npm 供应链攻击
-4. **Hugging Face / Mistral / DeepSeek 未纳入同步**：信源 URL 已加入第 2 节，但目录尚未创建
+4. **Hugging Face 尚未入库文章**：目录和 summary.md 已于 2026-07-20 创建，但尚无独立文章摘要——后续同步需补齐文章
+5. **GLM 文章粒度不足**：`glm/blog/` 目前只有 summary.md（基于 bigmodel.cn 平台和 GitHub 整理），GLM 官方博客无结构化文章列表，后续需寻找更完整的信源渠道
 
 下次同步应优先处理这些遗留问题。
 
@@ -293,7 +301,7 @@ Validation passed: {N} articles, {M} markdown files
 每次同步结束前，对照此清单逐项确认：
 
 - [ ] 已读 catalog.yaml 确定每个 provider 的锚点日期
-- [ ] 已检查全部 7 个信源（4 主流 + 3 开源社区）
+- [ ] 已检查全部信源（4 主流 + 2 开源社区 + 3 国内厂商）
 - [ ] 每篇新文章都有完整 frontmatter（5 个字段）
 - [ ] 每篇新文章都有跨厂商对比链接（≥1 个本仓库内链接）
 - [ ] 已运行 `python scripts/build_catalog.py`

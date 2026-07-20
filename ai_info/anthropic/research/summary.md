@@ -1,16 +1,16 @@
 # Anthropic Research — 核心观点总结
 
-> 汇总自 [Anthropic Research](https://www.anthropic.com/research) 页面的 13 篇文章，涵盖 2026 年 5 月至 7 月。
+> 汇总自 [Anthropic Research](https://www.anthropic.com/research) 页面的 17 篇文章，涵盖 2026 年 5 月至 7 月。
 
 ## 一、总体脉络
 
 Anthropic 的 Research 博客呈现五条主线：
 
 ```
-可解释性突破 → 对齐工程 → 科学应用 → 经济影响 → 网络安全防御
+可解释性突破 → 对齐工程 → 科学应用 → 经济影响 → 网络安全防御 → 物理 Agent → 价值观测量 → 能力控制
 ```
 
-7 月 6 日发布 [A Global Workspace in Language Models](global-workspace.md)——把可解释性研究从"读取模型内心独白"（NLA）推向"定位特权内部表征"（J-space），并在 Claude 中实证类神经科学的全局工作空间理论。从 NLA 读取模型"内心独白"，到 Teaching Claude Why 实现 0% 黑邮件率，再到 Claude 进入化学、生物学等专业领域；同期发布两份 Economic Index 报告研究 Claude 使用模式与劳动分工；Project Glasswing、N-days、ATT&CK Navigator 三篇网络安全研究共同勾勒出"防御 vs 攻击"的双向图景。Research 博客与 Engineering 博客互补——Engineering 关注"如何构建"，Research 关注"为什么安全、能做什么、谁在用什么、对手在怎么用"。
+7 月 14 日发布 [How Canada Uses Claude](how-canada-uses-claude.md)——首份国家级经济指数报告，发现加拿大人均 Claude 用量是预期的 4 倍，且采用差异由产业结构而非收入驱动。7 月 13 日发布 [Claude's Values Across Models and Languages](claude-values-models-languages.md)，提出"价值轴"方法将 3,000+ 价值观压缩为可操作的少量维度，发现跨模型和跨语言的系统性价值观差异。7 月 9 日发布 [Claude Plays Robotics](claude-plays-robotics.md)，系统评估 LLM 控制多种机器人的能力边界——控制抽象层级决定成败，预训练策略 + 高层规划是当前最优路径。7 月 8 日发布 [An Off Switch for Dual-Use Knowledge](off-switch-dual-use.md)，提出 GRAM 模块化预训练方法，在单次训练中实现"可配置能力"，删除模块效果接近从未训练且不影响通用能力。
 
 ## 二、核心主题
 
@@ -50,6 +50,16 @@ Anthropic 的 Research 博客呈现五条主线：
 
 [Project Fetch: Phase Two](project-fetch-phase-two.md) 让 Opus 4.7 **完全自主控制四足机器人**完成 2025 年 8 月人类团队完成的任务。**平均比 Claude 辅助团队快 18 倍、比无 Claude 团队快 37 倍**，代码量少 10 倍。这是"物理 Agentic AI 早期时代"的信号：通用 Agent 可使用现成物理工具。
 
+[Claude Plays Robotics](claude-plays-robotics.md) 把物理 Agent 研究推向广度：系统测试多种机器人身体（经典控制玩具、模拟四足/人形、真实 Unitree Go2、机械臂）和多种控制抽象层级。核心发现：**控制抽象决定成败**——直接驱动关节大多失败，监督预训练策略时模型能完成真实导航和操纵任务。为 LLM + 机器人集成提供能力基线。
+
+### 7. 价值观测量
+
+[Claude's Values Across Models and Languages](claude-values-models-languages.md) 提出"价值轴"方法，将 3,000+ 价值观压缩为少量可解释维度。发现跨模型差异（与训练决策相关）和跨语言差异（非英语中情感表达类价值观更少）。使大规模价值观审计从"不可能"变为"可操作"。
+
+### 8. 能力控制
+
+[An Off Switch for Dual-Use Knowledge](off-switch-dual-use.md) 提出 GRAM（Gradient-Routed Auxiliary Modules），在预训练时将双重用途知识隔离到可删除模块。与数据过滤（不可恢复）和事后遗忘（易恢复）不同，GRAM 在单次训练中实现 16 种能力配置，删除模块效果接近从未训练且不影响通用能力。为差异化 AI 部署提供新范式。
+
 ## 三、关键数据点
 
 | 指标 | 数值 | 来源 |
@@ -79,8 +89,13 @@ Anthropic 的 Research 博客呈现五条主线：
 | Claude Code 修复 bug 占比下降 | 33% → 19% | Claude Code Expertise |
 | 编码代理采用率（社科） | 20% | Social Sciences |
 | Claude Code 使用率（社科） | 86% | Social Sciences |
-| ChatGPT 周健康用户 | 2.3 亿 | Improving Health |
-| ChatGPT 健康事实性问题下降（2 个月） | 71% | Improving Health |
+| 加拿大占全球 Claude 流量 | 2.6%（排名第 8） | Canada Economic Index |
+| 加拿大人均用量 vs 预期 | 4x | Canada Economic Index |
+| 安大略省对话量占比 | 43.9% | Canada Economic Index |
+| 四大省份对话量占比 | 94% | Canada Economic Index |
+| 价值轴方法压缩价值观 | 3,000+ → 少量轴 | Values Across Models |
+| GRAM 可配置能力数 | 16 种（4 类双重用途） | Off Switch Dual-Use |
+| GRAM 模型规模测试 | 50M - 5B 参数 | Off Switch Dual-Use |
 
 ## 四、与 OpenAI 的对比
 
@@ -120,3 +135,7 @@ Anthropic 的 Research 博客呈现五条主线：
 | 10 | 2026-06-18 | [Project Fetch: Phase Two](project-fetch-phase-two.md) | 物理 Agent |
 | 11 | 2026-06-26 | [Anthropic Economic Index Report: Cadences](economic-index-june-2026-report.md) | 经济研究 |
 | 12 | 2026-07-06 | [A Global Workspace in Language Models](global-workspace.md) | 可解释性 |
+| 13 | 2026-07-08 | [An Off Switch for Dual-Use Knowledge](off-switch-dual-use.md) | 能力控制 / AI安全 |
+| 14 | 2026-07-09 | [Claude Plays Robotics](claude-plays-robotics.md) | 物理 Agent / 机器人控制 |
+| 15 | 2026-07-13 | [Claude's Values Across Models and Languages](claude-values-models-languages.md) | 价值观测量 / 对齐 |
+| 16 | 2026-07-14 | [How Canada Uses Claude](how-canada-uses-claude.md) | 经济研究 / 区域分析 |

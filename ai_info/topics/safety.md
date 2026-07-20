@@ -26,6 +26,8 @@
 - [Patch the Planet](../openai/research/patch-the-planet.md)：AI + 专家研究员直接服务开源维护者，5 天冲刺发现数百问题、合入数十补丁。
 - [Mapping AI-enabled Cyber Threats: Insights from the LLM ATT&CK Navigator](../anthropic/research/attack-navigator.md)：ARiES 风险评分；中高风险行为者占比 33% → 56%（半年）；MITRE ATT&CK 框架需扩展到 AI Agent 编排。
 - [Measuring LLMs' Impact on N-day Exploits](../anthropic/research/n-days.md)：Mythos Preview 在 Firefox / Windows 自动构建完整 exploit，N-day 利用的瓶颈已消失。
+- [OpenAI Bio Bug Bounty](../openai/research/bio-bug-bounty.md)：生物安全通用越狱测试升级为持续计划，奖励提升至 $50,000，专注能击败预定义生物安全挑战的通用方法。
+- [An Off Switch for Dual-Use Knowledge](../anthropic/research/off-switch-dual-use.md)：GRAM 模块化预训练——在单次训练中实现 16 种能力配置，删除模块效果接近从未训练且不影响通用能力，为差异化 AI 部署提供新范式。
 
 ## 关键结论
 
@@ -34,3 +36,5 @@
 - 安全不是单点机制，而是模型规范、指令层级、沙箱、审批、遥测、隐私过滤、trusted access 和评估的组合。
 - 网络安全的瓶颈从"找漏洞"转向"修漏洞"，AI 把发现做得太好，闭环修复是新前沿。
 - Sandbagging（模型故意压低能力）需要专门监控——单看分数已不足以反映真实风险。
+- 生物安全防御需要"攻击方"视角——Bio Bug Bounty 通过悬赏激励外部研究者测试系统性防御弱点。
+- 能力控制是新的安全范式——GRAM 证明可以在训练时隔离双重用途知识，实现"可配置能力"而非"一刀切过滤"。

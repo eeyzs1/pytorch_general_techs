@@ -15,6 +15,8 @@
 - [Equipping the Responses API with a Computer Environment](../openai/research/equipping-the-responses-api-with-a-computer-environment.md)：服务端 Compaction + Agent Skills + Shell 工具——OpenAI 把"长上下文"重新设计为"持久化执行环境"。
 - [Dreaming: Better Memory for a More Helpful ChatGPT](../openai/research/chatgpt-memory-dreaming.md)：Dreaming V3 主动推理记忆——事实回忆 41.5% → 82.8%，计算成本降低约 5 倍。
 - [A Global Workspace in Language Models](../anthropic/research/global-workspace.md)：J-space 是模型内部"特权思维空间"——可被读出、编辑、用于推理；为可解释性与可控干预提供新工具。
+- [Claude's Values Across Models and Languages](../anthropic/research/claude-values-models-languages.md)：价值轴方法将 3,000+ 价值观压缩为少量可解释维度，发现跨模型和跨语言的系统性价值观差异——模型"价值观上下文"存在语言偏见。
+- [DeepSeek-V4](../deepseek/news/deepseek-v4.md)：百万上下文工程化——CSA 压缩稀疏注意力把 KV cache 压至前代 10%、单 token FLOPs 降至 27%；配套 Engram 条件记忆模块用 O(1) 哈希查找替代神经网络计算，1M 上下文从"技术奇点"变为可承担的工程现实。
 
 ## 长视野任务的上下文延续
 
@@ -30,3 +32,4 @@
 - 检索、压缩、Skill、记忆应该分层使用，避免把所有信息一次性塞进上下文。
 - 长视野任务需要"工作区即上下文"——文件系统、版本控制、测试结果、AGENTS.md/CLAUDE.md 都是上下文载体。
 - 主动推理记忆（Dreaming）比被动存储更有效——模型不只是"读"记忆，还要"整理"记忆。
+- 模型内部"价值观上下文"存在语言偏见——非英语语言中情感表达类价值观显著更少，需关注多语言对齐的上下文公平性。

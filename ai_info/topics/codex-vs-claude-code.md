@@ -21,6 +21,8 @@
 - [Introducing the OpenAI Partner Network](../openai/research/introducing-openai-partner-network.md)：$150M 投资，目标 2026 年底 30 万认证顾问。
 - [OpenAI and Broadcom Unveil LLM-Optimized Inference Chip](../openai/research/openai-broadcom-jalapeno-inference-chip.md)：Jalapeño 自研推理芯片——9 个月 ASIC 周期，2026 年底吉瓦级部署。
 - [Previewing GPT-5.6 Sol](../openai/research/previewing-gpt-5-6-sol.md)：Sol/Terra/Luna 三档模型 + `max`/`ultra` 推理 effort——Codex 任务的上限模型。
+- [GPT-5.6](../openai/research/introducing-gpt-5-6.md)：正式版"可扩展智能"——默认高效 + `max`/`ultra` 按需推理，成为 Microsoft 365 Copilot 首选模型。
+- [ChatGPT Work](../openai/research/chatgpt-work-partner.md)：ChatGPT 升级为跨应用工作伙伴——能操作应用和文件、陪伴项目数小时，与 Codex 形成"通用工作 + 编码专用"的产品矩阵。
 
 ## Anthropic 线索
 
@@ -46,3 +48,6 @@
 - 上下文载体：Codex 常见载体是 AGENTS.md、Skills、Memory；Claude Code 常见载体是 CLAUDE.md、Skills、项目笔记。
 - 工程方法：OpenAI 强调 Harness Engineering 和 Agent-first 环境设计；Anthropic 强调 Context Engineering、ACI 和长任务 Harness。
 - 经济部署：Codex 已进入 OpenAI 内部 97.9% 用户、AWS/Oracle/Dell/HP 多云全栈、Partner Network 30 万顾问；Claude Code 在 40 万会话中验证"专业规划 + Agent 执行"的新分工。
+- 产品矩阵：OpenAI 形成"ChatGPT Work（通用工作）+ Codex（编码专用）"双轨；Anthropic 保持 Claude Code 单点深化，同时向物理 Agent（Project Fetch / Claude Plays Robotics）扩展。
+- 开源竞争：Kimi K2.6 作为开源编码 Agent 进入竞争，12+ 小时连续执行能力接近闭源产品水平；[DeepSeek-V4](../deepseek/news/deepseek-v4.md) 编码能力被评价为"直追 GPT-5.6 Sol"，SWE-bench Verified 官方自测距 Claude Opus 4.6 Max 仅 0.2pp、价格约 1/7——开源阵营以"能力接近 + 价格碾压"双线夹击闭源编码 Agent。
+- 成本结构：[DeepSeek-V4 API 定价](../deepseek/news/deepseek-v4-api-pricing.md) 引入峰谷计费（高峰 ×2）+ 缓存命中 $0.0028/1M token——把 Agent 挂在工作时间不间断跑的成本模型被重新定义。

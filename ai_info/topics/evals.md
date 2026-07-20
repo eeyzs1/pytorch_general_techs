@@ -18,6 +18,9 @@
 - [Introducing GeneBench-Pro](../openai/research/introducing-genebench-pro.md)：129 道合成计算生物学问题，覆盖 10 领域 / 21 子领域，专注于"研究品味"（模糊数据 + 迭代实验 + 判断决策）；GPT-5.6 Sol（Pro）通过率 31.5%，单题人类专家需 20-40 小时。
 - [A Shared Playbook for Trustworthy Third Party Evaluations](../openai/research/trustworthy-third-party-evaluations-foundations.md)：第三方评估的方法论与质量保障。
 - [GPT-5.6 Preview System Card](../openai/research/gpt-5-6-preview-system-card.md)：Disallowed Content / Robustness / CoT / Metagaming / Preparedness 多维评估范式；Sandbagging 新增类别。
+- [Separating Signal from Noise in Coding Evaluations](../openai/research/separating-signal-from-noise-coding-evaluations.md)：SWE-Bench Pro 审计发现 ~30% 任务存在缺陷——任务描述不清、测试用例错误、环境配置缺陷；编码评估可靠性再敲警钟。
+- [PerceptionBench](../kimi/blog/perception-bench.md)：从模型失败中"发现"10 种原子视觉感知能力；无模型超过 60% 准确率，大量正确答案无法复现——当前多模态模型经常猜测而非真正感知。
+- [DeepSeek-V4](../deepseek/news/deepseek-v4.md)：官方自测 SWE-bench Verified 距 Claude Opus 4.6 Max 仅 0.2pp、价格约 1/7——但需注意这是厂商自测数据，且第三方反馈"相同任务迭代轮数多于 Fable 5"，单次通过率之外的效率指标同样重要。
 
 ## 关键结论
 
@@ -26,3 +29,6 @@
 - 基础设施配置会显著影响分数，评估环境本身需要版本化和监控。
 - 专家级评估需要专家级基准——通用问答不足以衡量真实科研能力。
 - Sandbagging（模型故意压低能力）已正式成为 Preparedness 评估类别。
+- 编码评估基准本身需要审计——SWE-Bench Pro ~30% 任务有缺陷，基准分数可能误导能力判断。
+- 感知评估需要与推理评估分离——PerceptionBench 显示当前多模态模型在原子感知上表现不佳（<60%），且经常猜测而非真正感知。
+- 评估质量标准化是行业迫切需求——从 SWE-Bench Verified 到 SWE-Bench Pro，任务质量问题持续存在。
