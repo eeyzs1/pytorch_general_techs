@@ -26,6 +26,14 @@
 │       核心优势：llama.cpp CPU 推理即可跑通大部分课程内容
 │       实际部署体验依赖路径 A 或 M
 │
+├── 你想先做网页试用 / 零安装演示
+│   └── → 路径 B：浏览器端（WebGPU / WASM）
+│       核心优势：无需装 App；配合 §7.6 与 browser_demo
+│
+├── 你有 MCU / 传感器板（Cortex-M / Ethos-U / Arduino 级）
+│   └── → 路径 E：TinyML 唤醒词与传感
+│       核心优势：理解“始终在线”极低功耗层，衔接语音全链路
+│
 └── 你有预算（¥2000-5000）可以购买开发板
     └── → 路径 D：开发板方案（见后文推荐）
         核心优势：完整的嵌入式部署体验，IoT/车载/机器人场景
@@ -69,6 +77,45 @@ ollama run gemma4 --gpu-memory-fraction 0.8
 ```
 
 > **建议**：初学者可用 Ollama / LM Studio 快速体验模型效果，再深入 CoreAI / LiteRT-LM 做生产部署。CoreAI 适合 Apple 生态深度集成，LiteRT-LM 是 Android 端官方推荐路径。
+
+---
+
+---
+
+## 路径 B：浏览器端（WebGPU / WASM）
+
+> 适合：快速做「打开网页就能聊」的演示；不替代原生 NPU 路径。
+
+### 建议步骤
+
+1. 阅读 §7.6 与 `07_edge_cloud/7.6_browser_wasm.ipynb`，先算清 Tab 内存预算  
+2. 用本地静态服务器打开 `07_edge_cloud/browser_demo/index.html`  
+3. 进阶：按 demo 中的 WebLLM / Transformers.js 伪代码接入 1B 级量化模型  
+4. 对比同模型在路径 C（llama.cpp CPU）的 tok/s 与首包体验  
+
+### 检查清单
+
+- [ ] 说清 WebGPU vs WASM 的选型理由  
+- [ ] 模型体积 + KV + 运行时 < 浏览器可用内存  
+- [ ] 有 Service Worker / 缓存策略说明（可只写设计）  
+
+---
+
+## 路径 E：MCU / TinyML
+
+> 适合：耳机/手表/IoT；目标不是跑 7B，而是 **唤醒与传感**。
+
+### 建议步骤
+
+1. 完成 `15_mcu_tinyml/15.1_mcu_tinyml.ipynb`，掌握 INT8 体积与静态内存规划  
+2. 若有板子：Arduino/Cortex-M 上跑 TFLM 或 ExecuTorch Ethos-U 官方 sample  
+3. 与路径 A/M 衔接：画出 `KWS(MCU) → ASR+LLM(AP/NPU)` 状态机（§7.7）  
+
+### 检查清单
+
+- [ ] 能估算模型+arena 是否装进 SRAM  
+- [ ] 理解为何 LLM 不该常驻 MCU  
+- [ ] 有一份与手机 SoC 的职责划分图  
 
 ---
 

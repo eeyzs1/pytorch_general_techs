@@ -9,14 +9,18 @@
   - [1.3 知识蒸馏（Knowledge Distillation）](#13-知识蒸馏knowledge-distillation)
   - [1.4 低秩分解（Low-Rank Factorization）](#14-低秩分解low-rank-factorization)
   - [1.5 超低比特量化（Sub-2-bit Quantization）](#15-超低比特量化sub-2-bit-quantization)
+  - [1.6 torchao 与官方量化工具链](#16-torchao-与官方量化工具链)
 - [2 高效推理架构（Efficient Inference Architecture）](#2-高效推理架构efficient-inference-architecture)
   - [2.1 KV Cache 优化](#21-kv-cache-优化)
   - [2.2 注意力机制优化](#22-注意力机制优化)
   - [2.3 推理加速策略](#23-推理加速策略)
+  - [2.4 Prefill / Decode 分治](#24-prefill--decode-分治)
+  - [2.5 长上下文技术](#25-长上下文技术beyond-kv-cache)
 - [3 高效模型架构设计（Efficient Model Architecture）](#3-高效模型架构设计efficient-model-architecture)
   - [3.1 轻量化架构设计](#31-轻量化架构设计)
   - [3.2 线性注意力与亚二次复杂度架构](#32-线性注意力与亚二次复杂度架构)
   - [3.3 混合专家架构（Mixture of Experts, MoE）](#33-混合专家架构mixture-of-experts-moe)
+  - [3.4 硬件感知 NAS](#34-硬件感知-nas-与一次训练多部署once-for-all--mcunet)
 - [4 编译与运行时优化（Compilation & Runtime Optimization）](#4-编译与运行时优化compilation--runtime-optimization)
   - [4.1 计算图优化](#41-计算图优化)
   - [4.2 针对硬件的代码生成](#42-针对硬件的代码生成)
@@ -34,10 +38,12 @@
   - [7.4 端侧推理服务](#74-端侧推理服务)
   - [7.5 功耗管理与电池感知调度](#75-功耗管理与电池感知调度)
   - [7.6 WebAssembly与浏览器端推理](#76-webassembly与浏览器端推理)
+  - [7.7 端侧语音全链路（ASR-LLM-TTS）](#77-端侧语音全链路asr-llm-tts)
 - [8 端侧训练与个性化（On-Device Training & Personalization）](#8-端侧训练与个性化on-device-training--personalization)
   - [8.1 参数高效微调（PEFT）](#81-参数高效微调peft)
   - [8.2 端侧训练优化](#82-端侧训练优化)
   - [8.3 端侧评估与个性化](#83-端侧评估与个性化)
+  - [8.4 多适配器路由](#84-多适配器路由一基座多-lora)
 - [9 端到端实战与故障排查（E2E Deployment & Troubleshooting）](#9-端到端实战与故障排查e2e-deployment--troubleshooting)
   - [9.1 端到端部署流水线](#91-端到端部署流水线)
   - [9.2 故障排查与调试方法](#92-故障排查与调试方法)
@@ -48,6 +54,16 @@
 - [12 评估指标体系（Evaluation Metrics）](#12-评估指标体系evaluation-metrics)
 - [13 端侧模型选型（2026 主流小模型）](#13-端侧模型选型2026-主流小模型)
 - [14 端侧 Agent 与新范式（2026 前沿）](#14-端侧-agent-与新范式2026-前沿)
+- [15 MCU / TinyML 极低功耗部署](#15-mcu--tinyml-极低功耗部署)
+- [16 端侧扩散模型与图像生成](#16-端侧扩散模型与图像生成)
+- [17 模型交付安全与 IP 保护](#17-模型交付安全与-ip-保护)
+- [18 OS 系统 AI 运行时与共享基座](#18-os-系统-ai-运行时与共享基座)
+- [19 模型分发与 OTA](#19-模型分发与-ota)
+- [20 端侧检索与向量库](#20-端侧检索与向量库)
+- [21 流式音视频交互管线](#21-流式音视频交互管线)
+- [22 自定义算子与 Kernel 工程](#22-自定义算子与-kernel-工程)
+- [23 车载与功能安全部署](#23-车载与功能安全部署)
+- [24 端侧 MLOps 与质量门禁](#24-端侧-mlops-与质量门禁)
 - [技术选型决策树](#技术选型决策树)
 - [总结](#总结)
 
@@ -56,6 +72,11 @@
 ## 总览
 
 大模型端侧部署旨在将大规模语言模型（LLM）及多模态模型高效运行在资源受限的终端设备上（手机、平板、嵌入式设备、车载平台等）。其核心挑战在于：**模型体积大、计算需求高、内存带宽受限、功耗预算严格**。以下从产业级视角，对端侧部署所涉及的全部技术进行系统性分类。
+
+> **两份全景导读（覆盖本仓库全部技术 · 已合并定稿）**  
+> - **学习地图**：[odd_learning_panorama.md](odd_learning_panorama.md) — 学什么、去哪练  
+> - **零基础科普**：[odd_popular_science.md](odd_popular_science.md) — 生活比喻讲全部分类  
+> （本文是技术详解主讲义，不替代上述两份导读。）
 
 ---
 
@@ -212,6 +233,8 @@
 
 > **前沿趋势（2025-2026）**：传统量化（INT8/INT4）已接近成熟，2025 年起，**1.58-bit 和 2-bit 量化**成为端侧部署的新前沿，目标是将 7B 模型压缩至 1-2GB，使手机能流畅运行。
 
+📖 代码实践：[1.5_sub2bit_quantization.ipynb](01_model_compression/1.5_sub2bit_quantization.ipynb)
+
 #### 1.5.1 BitNet 1.58-bit（三值量化）
 
 - **核心思想**：权重仅取 {-1, 0, +1} 三个值，即 1.58 bit（log₂3 ≈ 1.585）。矩阵乘法退化为加减法，完全消除乘法运算。
@@ -230,6 +253,20 @@
 - **趋势转变**：2025 年前，量化以训练后量化（PTQ）为主流（AWQ/GPTQ）。2026 年起，Google Gemma 4、BitNet 等模型**原生采用 QAT 训练**，量化不再是"后处理"而是"训练的一部分"。
 - **Gemma 4 的 INT4 QAT**：训练阶段即模拟 INT4 量化噪声，最终模型在 INT4 推理时精度损失 <1%，远优于 PTQ 方案。
 - **端侧部署启示**：未来应优先选择原生量化训练的模型（如 Gemma 4 INT4 版本），而非对 FP16 模型做 PTQ。
+
+### 1.6 torchao 与官方量化工具链
+
+> **目的**：梳理 PyTorch 官方量化栈（`torchao`）与 ExecuTorch 的衔接方式，避免只掌握第三方 AWQ/GPTQ、却不会走官方端侧导出路径。
+
+📖 代码实践：[1.6_torchao_toolchain.ipynb](01_model_compression/1.6_torchao_toolchain.ipynb)
+
+- **Weight-only INT4/INT8**：对 Linear 权重做分组量化，激活保持 FP16/BF16，适合 decode 带宽受限场景。
+- **静态/动态激活量化**：配合 XNNPACK / QNN Delegate，满足 NPU 对激活 INT8 的要求。
+- **与生态分工**：
+  - HuggingFace 研究流：AWQ / GPTQ / bitsandbytes
+  - PyTorch 官方端侧流：`torchao` → `torch.export` → ExecuTorch
+  - CPU GGUF 流：llama.cpp 自带量化工具
+- **选型建议**：新项目若目标是 Android/iOS + ExecuTorch，优先 `torchao`；已有 GGUF 资产则继续 llama.cpp。
 
 ---
 
@@ -368,6 +405,29 @@
 
 ---
 
+
+### 2.4 Prefill / Decode 分治
+
+> **目的**：端侧 LLM 的算力画像在两阶段截然不同，必须作为独立优化分类，而不是混在“推理加速”里顺带提一句。
+
+- **Prefill（提示吞入）**：compute-bound 或中等高算强度；可批处理、可用 FlashAttention、可 NPU 大核。
+- **Decode（逐 token）**：memory-bound；吃带宽与 KV；适合权重量化、KV 量化、投机解码。
+- **工程实践**：
+  - 导出两张图 / 两个 method（prefill graph & decode graph），ExecuTorch 等 Runtime 已常见
+  - 动态 shape：prefill 按 bucket（128/256/512）编译；decode 固定 batch=1
+  - 调度：预填充可短时提频，decode 阶段优先保带宽与温度（接第7.5章）
+
+### 2.5 长上下文技术（Beyond KV Cache）
+
+> **目的**：长上下文不只是“把 KV 压小”，还包括位置编码外推、注意力模式与上下文压缩策略。
+
+- **位置编码外推**：YaRN / NTK-aware RoPE scaling / 位置插值；导出时需与训练配置一致
+- **局部-全局混合注意力**：如滑动窗口 + 少量全局 token（Gemma 等）；实现要避免每步物理 shift KV
+- **上下文压缩 / 摘要进缓存**：超限时将旧轮次摘要为短 system 片段再继续（Agent 刚需）
+- **检索替代无限上下文**：超长文档优先第20章端侧检索，而不是硬扩到 128K 全进 KV
+
+---
+
 ## 3 高效模型架构设计（Efficient Model Architecture）
 
 > **目的**：从架构层面设计更适合端侧部署的模型，使其在参数量更少的情况下达到与大模型可比的性能。
@@ -418,6 +478,18 @@
   - **专家权重按需加载**：MoE总参数量大（如Mixtral 8x7B有46B参数），端侧内存无法全部驻留。需根据路由预测结果，在计算前将目标专家权重从慢存储（Flash/SSD）加载到快内存（SRAM/DRAM），计算后释放。关键在于路由预测的提前量和加载延迟的隐藏。
   - **专家合并与蒸馏**：多个专家的权重可能高度相似，可将相似专家合并为单个专家（expert merging），或将多个专家的知识蒸馏到更少的专家中（expert distillation），降低端侧内存需求。
   - **Expert Choice Routing**：与传统Token Choice（每个token选Top-K专家）不同，Expert Choice由每个专家选择Top-K token，天然实现负载均衡，避免路由崩塌问题。
+
+---
+
+
+### 3.4 硬件感知 NAS 与一次训练多部署（Once-for-All / MCUNet）
+
+> **目的**：在 MCU/手机档位差异大时，用搜索得到满足延迟/内存约束的子网，而不是只手工改宽度深度。
+
+- **Once-for-All**：超网训练后按设备约束采样子网，免逐设备重训
+- **MCUNet / TinyNAS**：联合搜索骨干与推理库调度，面向 KB–MB 级
+- **延迟预测器**：用查表或小型回归模型估计端侧延迟，避免搜索时每次真机跑满
+- **与本课程关系**：手机 LLM 更多是选现成 SLM（第13章）；NAS 在 TinyML（第15章）与 CV 骨干上更关键
 
 ---
 
@@ -655,6 +727,19 @@
 | **LiteRT-LM** (2026) | Android CPU/NPU | ★★★★ | ★★★★ | INT4/INT8 | TFLite演进版, 内存降30%+ |
 | **Ollama** | CPU/GPU | ★★★★★ | ★ | Q4_K_M等 | 极简部署, 一行命令运行模型 |
 
+
+#### 5.2.18 厂商系统栈补全（联发科 / Google AI Edge / 三星）
+
+| 栈 | 定位 | 备注 |
+|----|------|------|
+| **MediaTek NeuroPilot** | 天玑 APU 工具链 | 与 BitNet 1.58-bit 叙事需核对芯片世代 |
+| **Google AI Edge / LiteRT** | Android 官方演进路径 | AICore 负责系统模型；App 侧 LiteRT 委托 GPU/NPU |
+| **Samsung Gauss / Galaxy AI** | 垂直整合 | 常走“系统预置 + 端云混合”，App 可调用的是能力 API 而非裸权重 |
+
+选型提醒：能走系统 API 就不要重复内嵌同尺寸基座（接第18章共享基座）。
+
+---
+
 ### 5.3 硬件感知优化
 
 📖 代码实践：[5.3_hardware_aware.ipynb](05_hardware_deployment/5.3_hardware_aware.ipynb)
@@ -779,7 +864,7 @@
 
 > **目的**：高效的模型存储格式直接影响加载速度、内存占用和跨平台兼容性。
 
-📖 代码实践：[6.0_model_format.ipynb](06_model_format/6.0_model_format.ipynb)
+📖 代码实践：[6.0_model_format.ipynb](06_model_format/6.0_model_format.ipynb) · [6.1_model_versioning.ipynb](06_model_format/6.1_model_versioning.ipynb)
 
 | 格式 | 核心原理 | 特点 |
 |------|---------|------|
@@ -847,6 +932,8 @@
 
 > **目的**：产业级端侧部署不仅需要单次推理优化，还需要完整的推理服务系统来管理多模型共存、请求调度和生命周期。
 
+📖 代码实践：[7.4_inference_service.ipynb](07_edge_cloud/7.4_inference_service.ipynb) · 配套监控：[7.4_edge_monitoring.ipynb](07_edge_cloud/7.4_edge_monitoring.ipynb)
+
 - **请求排队与优先级调度**
   - 原理：端侧设备可能同时服务多个应用（如语音助手、实时翻译、文本补全），需要根据请求优先级和延迟要求进行调度。高优先级交互式请求优先处理，低优先级后台任务延后执行。
 - **多模型共存内存管理**
@@ -860,7 +947,7 @@
 
 > **目的**：端侧设备的电池约束是硬性限制，需要系统化的功耗管理策略来最大化推理时长和用户体验。
 
-📖 代码实践：[5.4_hardware_benchmarking.ipynb](05_hardware_deployment/5.4_hardware_benchmarking.ipynb)（热节流与持续性能测试部分）
+📖 代码实践：[7.5_power_battery.ipynb](07_edge_cloud/7.5_power_battery.ipynb)（配套热节流实测见 [5.4_hardware_benchmarking.ipynb](05_hardware_deployment/5.4_hardware_benchmarking.ipynb)）
 
 #### 7.5.1 功耗建模
 
@@ -907,7 +994,7 @@ $$P = \alpha C V^2 f + V I_{\text{leak}}$$
 
 > **目的**：WebAssembly (WASM) 和 WebGPU 技术的发展使得在浏览器中运行 AI 模型成为现实，这是端侧部署的新兴重要场景。
 
-📖 代码实践：本节为知识性内容，浏览器端推理依赖Web平台API，暂不提供Python notebook。
+📖 代码实践：[7.6_browser_wasm.ipynb](07_edge_cloud/7.6_browser_wasm.ipynb) · 浏览器骨架：[browser_demo/index.html](07_edge_cloud/browser_demo/index.html)
 
 #### 7.6.1 技术栈概览
 
@@ -948,6 +1035,21 @@ Chrome 126+ 直接内置Gemini Nano模型（约3B参数），通过Prompt API提
 - 本地执行：完全离线可用
 - API简洁：`const session = await ai.languageModel.create()`
 
+### 7.7 端侧语音全链路（ASR-LLM-TTS）
+
+> **目的**：真实语音助手不是“只跑一个 LLM”，而是 **唤醒/KWS → ASR → LLM/NLU → TTS** 的流水线；任一段延迟或内存失控都会毁掉体验。多模态笔记本覆盖了部件，本节把全链路系统约束补齐。
+
+📖 代码实践（部件与调度）：[7.2_multimodal_deployment.ipynb](07_edge_cloud/7.2_multimodal_deployment.ipynb)
+
+- **延迟预算分解（端到端 <500ms 交互）**
+  - KWS：常驻、极小模型（MCU/DSP，见第15章）
+  - 流式 ASR：边听边出 partial transcript，TTFT 与端点检测（VAD）解耦
+  - LLM：流式 token；首 token 预算通常 <200ms
+  - TTS：流式声码器，不必等 LLM 整句结束
+- **内存共存策略**：三模型很少同时常驻；ASR 结束后可卸载 encoder，TTS 与 LLM 分时或共享 CPU/NPU
+- **量化组合经验**：ASR INT8、LLM INT4、TTS FP16/INT8（声学对量化更敏感时保 FP16）
+- **失败降级**：ASR 低置信 → 云端识别；LLM 超时 → 模板回复；TTS 失败 → 文本展示
+
 ---
 
 ## 8 端侧训练与个性化（On-Device Training & Personalization）
@@ -984,6 +1086,8 @@ Chrome 126+ 直接内置Gemini Nano模型（约3B参数），通过Prompt API提
 
 > **目的**：端侧模型需要持续适应用户的个性化需求，同时避免灾难性遗忘和隐私泄漏。
 
+📖 代码实践：[8.3_on_device_eval.ipynb](08_on_device_training/8.3_on_device_eval.ipynb)
+
 - **灾难性遗忘防御**
   - 原理：端侧微调时，新数据上的训练可能导致模型遗忘预训练知识。防御方法包括：EWC（Elastic Weight Consolidation，对重要参数施加L2正则约束）、MAS（Memory Aware Synapses，基于输出敏感度评估参数重要性）、经验回放（保留少量旧数据混合训练）。
 - **端侧数据高效利用**
@@ -992,6 +1096,18 @@ Chrome 126+ 直接内置Gemini Nano模型（约3B参数），通过Prompt API提
   - 原理：更强的个性化通常需要更多用户数据，增加隐私风险。通过差分隐私微调（在梯度中添加噪声）、联邦学习（数据不出端）、最小化适配器参数量（仅LoRA的少量参数包含用户信息）来在个性化和隐私间取得平衡。
 - **用户画像与条件生成**
   - 原理：通过轻量级用户画像模块（如可学习的user embedding或soft prompt），在推理时根据用户特征条件化模型输出，无需修改模型权重即可实现个性化。
+
+---
+
+
+### 8.4 多适配器路由（一基座多 LoRA）
+
+> **目的**：系统或超级 App 内同时服务翻译、写作、代码等技能时，用适配器路由替代多模型常驻。
+
+- **路由策略**：意图分类（小模型/规则）→ `adapter_id`；未知意图走 base
+- **内存**：同一时间只激活 1–2 个 LoRA；LRU 淘汰（接第7.4章）
+- **冲突**：同一 base 上多 LoRA 可合并（加法）或切换；注意任务负迁移
+- **与第18章**：系统级共享 base 时，adapter 成为 App 个性化的主载荷（也是 OTA 最小单元，第19章）
 
 ---
 
@@ -1145,6 +1261,8 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 
 > **目的**：在中国市场部署端侧AI模型，需要了解国产NPU芯片和国产开源模型的特性，制定针对性的适配方案。
 
+📖 代码实践：[10.1_china_npu.ipynb](10_china_hardware/10.1_china_npu.ipynb)
+
 ### 10.1 国产NPU部署实践
 
 #### 10.1.1 华为昇腾（Ascend）全栈部署
@@ -1291,6 +1409,11 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 
 ### 第7章 端云协同
 
+**动手题**：
+1. 用 7.4 推理服务笔记本实现：交互请求优先于后台总结，并在 2.4GB 内存预算下完成 LLM↔文生图切换
+2. 用 7.5 笔记本为 SoC=15%、T=48°C 推导调度策略，并估算单轮对话耗电
+3. 打开 `browser_demo/index.html`，对照 7.6 说明 WebGPU 与 WASM 的选型边界
+
 **思考题**：
 1. 端云协同推理中，中间特征传输替代原始数据上传，是否真正保护了用户隐私？攻击者能从中间特征重建原始输入吗？
 2. 浏览器端推理（WebGPU vs WASM）与原生App推理相比，在哪些场景下是更优选择？
@@ -1330,6 +1453,81 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 1. 在交互式对话场景和后台批处理场景中，TTFT和吞吐量哪个更重要？如何根据场景调整评估指标的权重？
 2. 能效比（tokens/J）在电池供电设备上是关键指标，但测量它需要硬件功耗计。在没有专用硬件的情况下，如何通过软件手段估算能效比？
 
+### 第13章 端侧模型选型
+
+**动手题**：
+1. 用 13.1 选型器为「车载中文语音助手，可用内存 2.5GB，需要工具调用」给出 Top-3，并说明否决项
+2. 将同一场景的 bits 从 4 改为 2，观察候选集合如何变化
+
+### 第14章 端侧 Agent
+
+**动手题**：
+1. 扩展 14.1 Agent：新增 `get_location` 工具，并用 JSON 约束保证参数合法
+2. 为 Agent 对话设计 KV 预算：超过 N token 时触发摘要压缩（可用伪代码）
+
+**思考题**：
+1. 端侧 Agent 为何比单轮聊天更容易 OOM？列出至少三条缓解路径。
+
+### 第15章 MCU / TinyML
+
+**动手题**：
+1. 估算 TinyKWS INT8 模型能否放入 256KB SRAM（含激活 arena），并给出裁剪建议
+2. 设计“MCU 唤醒 → AP 拉起 ASR+LLM”的状态机
+
+### 第16章 端侧扩散
+
+**动手题**：
+1. 比较 50/8/4 步采样的延迟，给出手机相册场景的步数建议
+2. 设计 LLM 与 SD-Turbo 的分时内存策略（参考 7.4）
+
+### 第17章 模型交付安全
+
+**动手题**：
+1. 用 17.1 流水线演示：篡改权重被拒、换设备 license 失败
+2. 讨论水印能否单独充当 DRM，为什么？
+
+### 第18章 OS 系统 AI 运行时
+
+**动手题**：
+1. 用 18.1 演示多 App 适配器并存，并在预算内触发 LRU 驱逐
+2. 说明为何系统预置基座优于每个 App 各嵌一份同尺寸模型
+
+### 第19章 模型分发与 OTA
+
+**动手题**：
+1. 模拟分片下载中断后从 ledger 续传
+2. 比较“全量基座 OTA”与“仅 LoRA OTA”的流量与风险
+
+### 第20章 端侧检索
+
+**动手题**：
+1. 为私有文档建简易索引，并强制上下文 token 预算裁剪
+2. 讨论何时用暴力检索 vs HNSW/sqlite-vec
+
+### 第21章 流式音视频管线
+
+**动手题**：
+1. 走通 barge-in 状态迁移，并核算首包语音是否 <800ms
+2. 列出车载免提场景缺少 AEC 时的失败模式
+
+### 第22章 自定义算子
+
+**动手题**：
+1. 把 RMSNorm 拆成可下沉的标准算子序列，并做数值对齐
+2. 估算 5% CPU 回退对端到端延迟的影响
+
+### 第23章 车载功能安全
+
+**动手题**：
+1. 用看门狗仿真超时进入安全态
+2. 设计“LLM 建议”与“安全执行器”的隔离边界图
+
+### 第24章 端侧 MLOps
+
+**动手题**：
+1. 跑通导出/量化/设备三道 gate，故意让一道失败并阻止 release
+2. 定义 10 条金样本（含工具调用）与通过率阈值
+
 ### 综合实战
 
 1. 独立完成一个完整的端侧部署项目：选择3B模型 → AWQ量化 → 导出GGUF → llama.cpp部署 → 基准测试 → 撰写部署报告
@@ -1339,6 +1537,8 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 ## 12 评估指标体系（Evaluation Metrics）
 
 > **目的**：系统化的评估指标是端侧部署技术选型和优化的基础。不同应用场景对精度、延迟、内存、功耗的优先级不同，需要综合评估。
+
+📖 代码实践：[12.1_evaluation_metrics.ipynb](12_evaluation/12.1_evaluation_metrics.ipynb)
 
 ### 12.1 延迟指标
 
@@ -1390,6 +1590,8 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 
 > **目的**：2025-2026 年涌现了大量高质量小模型（SLM），选对模型是端侧部署成功的第一步。本章对比当前主流的端侧可用模型，提供选型参考。
 
+📖 代码实践：[13.1_model_selection.ipynb](13_model_selection/13.1_model_selection.ipynb)
+
 ### 13.1 纯文本模型
 
 | 模型 | 参数量 | 量化后体积 | 上下文 | 特点 | 端侧推荐场景 |
@@ -1428,6 +1630,8 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 
 > **趋势**：2026 年端侧 AI 从"单轮问答"进化为"多轮 Agent"——模型能自主调用工具、规划步骤、执行任务，全程在设备上完成，无需云端。
 
+📖 代码实践：[14.1_edge_agent.ipynb](14_edge_agent/14.1_edge_agent.ipynb)
+
 ### 14.1 端侧 Agent 架构
 
 - **核心能力**：Function Calling（工具调用）+ 多轮规划 + 状态管理
@@ -1455,6 +1659,310 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 - **LM Studio**：图形界面管理模型，支持 GGUF/MLX 多格式，适合非技术用户
 - **Apple CoreAI**（WWDC 2026）：替代 Core ML 的统一 AI 推理框架，比 MLX 快 2.47x，iOS/macOS 开发者首选
 - **Google LiteRT-LM**：TFLite 演进版，2026.03 更新降内存 30%+，Android 端 LLM 部署官方方案
+
+---
+
+## 15 MCU / TinyML 极低功耗部署
+
+> **目的**：补齐“手机 SoC LLM”之下的另一半端侧世界——Cortex-M、Ethos-U、传感器 MCU 上的 KB–MB 级模型。关键词检测、异常检测、简单分类往往先于 LLM 常驻设备。
+
+📖 代码实践：[15.1_mcu_tinyml.ipynb](15_mcu_tinyml/15.1_mcu_tinyml.ipynb)
+
+### 15.1 与手机端侧的资源鸿沟
+
+| 维度 | 旗舰手机 NPU | MCU + Ethos-U | 纯 MCU |
+|------|-------------|---------------|--------|
+| 内存 | 4–16GB | 256KB–2MB SRAM | 64–512KB |
+| 算力 | 10–60 TOPS | 0.05–0.5 TOPS | 无 NPU |
+| 典型模型 | 1B–7B SLM | 10K–1M 参数 | 1K–100K |
+| 运行时 | llama.cpp / ExecuTorch / QNN | ExecuTorch / TFLM | CMSIS-NN / TFLM |
+
+### 15.2 关键技术点
+
+- **深度可分离卷积 / DS-CNN**：KWS 的事实标准结构，参数与 MAC 远低于常规 CNN。
+- **INT8 全静态图**：禁止动态 shape 与运行时 malloc；AOT 内存规划一次算清 arena。
+- **ExecuTorch → Ethos-U**：与手机共享 `torch.export` 流程，是连接两档设备的桥梁。
+- **始终在线与事件触发**：KWS 在 DSP/MCU 常驻，唤醒后再拉起大模型，节省主 SoC 功耗。
+
+### 15.3 部署建议
+
+1. 先定延迟与内存硬预算（例如 20ms / 200KB），再选模型。
+2. 用代表性噪声数据做 PTQ，避免实验室干净音频过拟合。
+3. 与第 7.7 节语音全链路衔接：MCU 负责唤醒，AP/NPU 负责 ASR+LLM。
+
+---
+
+## 16 端侧扩散模型与图像生成
+
+> **目的**：端侧不只是文本；相册美化、壁纸生成、AR 贴图依赖 **少步数扩散模型**。其内存峰值与优化手段与 LLM 不同，需单独成章。
+
+📖 代码实践：[16.1_on_device_diffusion.ipynb](16_on_device_diffusion/16.1_on_device_diffusion.ipynb)
+
+### 16.1 核心约束
+
+- **步数就是延迟**：经典 50 步在手机上不可用；LCM / SD-Turbo / Lightning 等到 4–8 步。
+- **分辨率决定激活峰值**：512→384/256 或 VAE tiling，往往比再砍一点权重更有效。
+- **与 LLM 分时复用**：文生图时卸载/流式 LLM 权重，避免双模型 OOM。
+
+### 16.2 优化组合
+
+1. 步数蒸馏（首选）
+2. UNet/DiT 权重量化 INT8/INT4，VAE 谨慎量化
+3. 小分辨率 + 后超分（可选）
+4. ControlNet / LoRA 插件化，按需加载
+5. NPU 上优先委托卷积密集子图，Attention 可能回退 GPU/CPU
+
+### 16.3 选型提示
+
+| 场景 | 推荐方向 |
+|------|---------|
+| 1s 内出图 | SD-Turbo / LCM 系，4 步 |
+| 人像美化 | 小分辨率 img2img + 专用 LoRA |
+| 与助手共存 | 插件化加载，推理完立即释放 |
+
+---
+
+## 17 模型交付安全与 IP 保护
+
+> **目的**：端侧模型以文件形式落在用户设备上，面临盗用、篡改、逆向。第 7.3 节侧重隐私与联邦；本节补 **交付与 IP** 视角。
+
+📖 代码实践：[17.1_model_security.ipynb](17_model_security/17.1_model_security.ipynb)
+
+### 17.1 威胁模型
+
+- 直接拷贝 GGUF/mlpackage/pte 二次分发
+- 篡改权重植入后门或广告触发器
+- 提取用户 LoRA / 个性化适配器中的隐私方向
+
+### 17.2 防护技术
+
+- **完整性**：签名 + 哈希（与 6.1 版本管理联动）；启动时校验
+- **机密性**：权重加密静态存储，运行时在 TEE/安全内存解密；或厂商 secure model container
+- **水印与指纹**：第 7.3 节水印用于溯源；模型指纹用于授权校验
+- **授权与轮换**：设备绑定 license、短时会话密钥、OTA 吊销
+- **最小化暴露**：只下发任务所需 LoRA/适配器，基座可由系统预装（Apple/Google 内置模型路径）
+
+### 17.3 工程清单
+
+1. 发布流水线：量化产物 → 签名 → 加密包装 → CDN
+2. 客户端：安全加载 → 完整性检查 → 推理 → 密钥清零
+3. 运营：异常设备吊销、版本强制升级、审计日志
+
+---
+
+
+## 18 OS 系统 AI 运行时与共享基座
+
+> **目的**：产业级端侧不只是 App 内嵌一个 Runtime，而是 **操作系统级 AI 服务**：多 App 共享基座模型、按需挂载适配器、统一调度内存与权限。缺了这一层，课程会停在“单应用部署”。
+
+📖 代码实践：[18.1_system_ai_runtime.ipynb](18_system_runtime/18.1_system_ai_runtime.ipynb)
+
+### 18.1 系统 AI 服务形态
+
+| 平台 | 系统能力 | 典型入口 |
+|------|---------|---------|
+| **Android** | AICore / Gemini Nano 系统服务；按功能模块下载 | ML Kit GenAI / Prompt API 风格接口 |
+| **iOS / macOS** | Foundation Models / CoreAI；系统预装小模型 | App Intent / 系统 Writing Tools |
+| **Windows** | Copilot+ NPU 运行时；ISQ/厂商 EP | ONNX Runtime + QNN/OpenVINO |
+| **厂商 ROM** | 三星 Galaxy AI、小米 HyperAI、荣耀 YOYO 等 | 系统助手进程常驻 |
+
+### 18.2 共享基座 + 每应用适配器
+
+- **一基座多租户**：系统只常驻 1 份 INT4 基座（如 1–3B），各 App 下发/挂载私有 LoRA/IA³。
+- **路由**：`app_id → adapter_id`；无适配器则走通用基座；冲突时按前台 App 优先。
+- **隔离**：适配器权重可加密；对话 KV 按会话隔离，禁止跨 App 读取。
+- **生命周期**：后台 App 的 adapter 可卸载；基座受系统内存压力（LMKD / jetsam）保护等级约束。
+
+### 18.3 进程、权限与后台
+
+- **绑定服务 / XPC**：App 不直连 NPU，经系统 daemon 排队（见 7.4）。
+- **权限**：麦克风、相册、通讯录按系统隐私授权；模型推断的敏感意图需二次确认。
+- **后台限制**：长任务需前台服务/BGProcessing；被杀后要能从 session checkpoint 恢复。
+
+### 18.4 与本课程其它章的衔接
+
+- 调度/降级 → 第7.4/7.5 章；安全加载 → 第17章；个性化 LoRA → 第8章；选型 → 第13章。
+
+---
+
+## 19 模型分发与 OTA
+
+> **目的**：端侧模型动辄数百 MB–数 GB，**如何可靠送到设备并热更新**是独立工程分类，不等于“版本号管理”（第6.1节）或“防篡改”（第17章）。
+
+📖 代码实践：[19.1_model_ota.ipynb](19_model_ota/19.1_model_ota.ipynb)
+
+### 19.1 分发管线
+
+1. 构建产物：量化包 + 元数据（arch、量化、最低 OS、哈希）
+2. CDN 分片：按 4–16MB chunk；支持 Range 断点续传
+3. 客户端组装：边下边校验 chunk 哈希；全部通过后原子切换（双缓冲，见 7.4）
+4. 失败：保留旧版本；指数退避重试；弱网降级只下 LoRA 不定制基座
+
+### 19.2 增量更新（Delta OTA）
+
+- **bsdiff / courgette 类二进制差分**：v1→v2 只传差量，适合小改动。
+- **适配器优先**：基座不动，只 OTA LoRA（KB–MB 级）是端侧最经济路径。
+- **分模块更新**：tokenizer / projector / LLM 可独立版本。
+
+### 19.3 渐进式可用
+
+- 先下 tokenizer + 配置 → 可显示“准备中”
+- 再下关键层或草稿小模型 → 可先跑弱能力
+- 最后补全权重 → 全功能；用户无感升级
+
+### 19.4 发布策略
+
+- 灰度：按设备档位 / 地区 / 电量条件推送（与 7.5 联动）
+- 强制升级：安全漏洞或坏量化版本；吊销旧签名（第17章）
+- 度量：下载成功率、平均耗时、切换失败率、回滚率
+
+---
+
+## 20 端侧检索与向量库
+
+> **目的**：端侧 RAG 不是“调用一下 Chroma”一笔带过，需要 **Embedding 模型部署 + 向量索引 + 内存/精度权衡** 的完整技术分类。
+
+📖 代码实践：[20.1_on_device_retrieval.ipynb](20_on_device_retrieval/20.1_on_device_retrieval.ipynb)
+
+### 20.1 端侧 Embedding
+
+- 模型：E5-small / BGE-small / 厂商微模型（通常 20–100M）
+- 量化：INT8 几乎无损；维度 384/768；可 PCA/Matryoshka 截断到 128–256 维省内存
+- 部署：常与 LLM 分时；或固定在 CPU/ANE 小网
+
+### 20.2 索引结构
+
+| 结构 | 内存 | 延迟 | 端侧适用 |
+|------|------|------|---------|
+| 暴力余弦 | 低实现成本 | 大数据慢 | <5k 条 |
+| HNSW | 较高 | 低 | 中等语料首选 |
+| IVF-PQ | 可压缩 | 中 | 较大私有语料 |
+| SQLite-VSS / sqlite-vec | 随 DB | 中 | 移动 App 易集成 |
+
+### 20.3 系统约束
+
+- 索引构建放首次空闲；增量插入要可控（避免主线程卡顿）
+- 检索 Top-K 结果必须 **截断进 LLM 上下文**（见第14章 Agent 的 OOM 风险）
+- 隐私：向量库默认不出端；云端检索需明文脱敏
+
+---
+
+## 21 流式音视频交互管线
+
+> **目的**：第7.7节给出 ASR-LLM-TTS 部件组合；本章上升为 **实时交互系统分类**：打断、双工、回声消除与帧级延迟预算。
+
+📖 代码实践：[21.1_streaming_av_pipeline.ipynb](21_streaming_av/21.1_streaming_av_pipeline.ipynb)
+
+### 21.1 典型状态机
+
+`Idle → Listening(VAD) → ASR Streaming → LLM Streaming → TTS Streaming → Speaking`，任意时刻可被 **Barge-in（用户打断）** 拉回 Listening。
+
+### 21.2 关键技术
+
+- **VAD / 端点检测**：决定何时切 ASR；过于敏感会截断，过于迟钝增尾延迟
+- **AEC（回声消除）**：TTS 外放时麦克风回路；车载/免提刚需
+- **全双工 vs 半双工**：全双工要并行 ASR+TTS 通路与打断策略；端侧算力常迫使半双工
+- **流式 ASR partial** → 预填 LLM prompt；**LLM token 流** → 句子级送 TTS，降低首包语音延迟
+
+### 21.3 延迟预算示例（对话助手）
+
+| 段 | 预算 |
+|----|------|
+| VAD 尾点 | 50–150ms |
+| ASR 终值 | 100–300ms |
+| LLM TTFT | <200ms |
+| TTS 首帧 | <150ms |
+| E2E 首声 | 常目标 <800ms |
+
+### 21.4 与多模态/视频
+
+- 实时视觉问答：相机帧选关键帧 → 视觉 encoder → 与语音通路仲裁（避免双模态同时打满 NPU）
+- 视频理解：时序采样 + token 预算，见第7.2节 token 剪枝
+
+---
+
+## 22 自定义算子与 Kernel 工程
+
+> **目的**：NPU/GPU 上“官方算子覆盖不够”是端侧落地头号工程风险之一；需要独立方法论，而不是只在排障里提“CPU 回退”。
+
+📖 代码实践：[22.1_custom_ops_kernel.ipynb](22_custom_ops/22.1_custom_ops_kernel.ipynb)
+
+### 22.1 决策树
+
+1. 能否用等价标准算子图分解？（RoPE、SwiGLU、RMSNorm）
+2. 能否改模型结构避开？（换激活、换注意力实现）
+3. 必须自定义：在目标 Runtime 注册 op（ExecuTorch / ONNX / QNN / Core ML）
+4. 最后才 CPU 回退（测量代价，见第9.2.3节）
+
+### 22.2 工程内容
+
+- **图模式匹配**：融合 QKV、识别 attention 模板再下沉
+- **Kernel 后端**：NEON / AVX、Vulkan、Metal、Hexagon HVX、CUDA
+- **数值对齐**：与 FP32 参考比余弦/MaxErr；纳入第24章门禁
+- **版本契约**：自定义 op 的 ABI 与模型版本绑定，OTA 时同步
+
+### 22.3 高频端侧自定义点
+
+RoPE、RMSNorm、SiLU/SwiGLU、INT4 GEMM 解包、KV cache update、采样（top-k/p）、MLA 吸收投影。
+
+---
+
+## 23 车载与功能安全部署
+
+> **目的**：车载不是“更大的手机”。功能安全（ISO 26262 等）对 **不确定性输出、延迟上界、失效时安全态** 提出独立分类要求。
+
+📖 代码实践：以清单与场景仿真为主（见 [23.1_automotive_safety.ipynb](23_automotive_safety/23.1_automotive_safety.ipynb)）；完整认证需主机厂流程。
+
+### 23.1 与消费电子差异
+
+| 维度 | 手机 | 车载 |
+|------|------|------|
+| 延迟 | 体验指标 | 常有硬截止（DDL） |
+| 失败 | 重试/云端 | 必须安全态（降级/禁用） |
+| 温度 | 可降频 | 舱内宽温、长时满载 |
+| 变更 | 频繁 OTA | 变更受安全论证约束 |
+| 数据 | 隐私为主 | 另含法规与事件记录 |
+
+### 23.2 技术控制措施
+
+- **看门狗**：推理超时 → 切断执行器建议，回落到规则语音/仪表提示
+- **双通道**：关键决策 ASR+规则 NLU 与 LLM 建议分离；LLM 不直连安全相关执行器
+- **确定性**：固定 shape、禁止动态内存抖动；长稳压测（热/振动/电压）
+- **溯源**：模型版本进入事件记录仪相关日志（与第17/19章联动）
+
+### 23.3 推荐架构
+
+感知/规控安全链 **不经过 LLM**；LLM 仅用于信息娱乐、导航对话、手册问答，并明确 HMI 披露“建议性内容”。
+
+---
+
+## 24 端侧 MLOps 与质量门禁
+
+> **目的**：把第9章排障与第12章指标提升为 **持续交付体系**：每次量化/编译/OTA 都有可重复门禁。
+
+📖 代码实践：[24.1_edge_mlops.ipynb](24_edge_mlops/24.1_edge_mlops.ipynb)
+
+### 24.1 流水线阶段门禁
+
+| 阶段 | 门禁 |
+|------|------|
+| 导出 | 算子覆盖率、动态 shape 合法性 |
+| 量化 | PPL/任务指标跌幅、逐层余弦 |
+| 编译 | NPU 回退算子数、二进制大小 |
+| 设备 | TTFT/ITL/峰值内存/热节流 10 分钟长稳 |
+| 发布 | 签名、license、灰度比例 |
+
+### 24.2 设备农场与金样本
+
+- 金样本 prompt 集：中英、工具调用、长上下文、敏感拒答
+- 多档位设备（高通/联发科/苹果/RK）并行回归
+- 失败自动归因：精度 / 性能 / 崩溃（ANR、EXC_RESOURCE）
+
+### 24.3 线上可观测
+
+- 客户端埋点：TTFT、取消率、降级率、OOM 杀进程
+- 与第7.4监控衔接；隐私最小化（不上报原文，只上报哈希与直方图）
+- 触发回滚：关键指标超阈或安全漏洞（第19章强制 OTA）
 
 ---
 
@@ -1499,6 +2007,7 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 │   │   └── 瑞芯微 → RKNN
 │   ├── 通用CPU → llama.cpp / Ollama(极简部署)
 │   ├── 浏览器端 → WebLLM / Transformers.js (第7.6节)
+│   ├── MCU/传感器 → ExecuTorch Ethos-U / TFLM (第15章)
 │   └── NVIDIA GPU → TensorRT-LLM
 │
 ├── 选什么模型？ → 模型选型 (第13章)
@@ -1512,6 +2021,18 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 │   ├── 工具调用 → GBNF语法约束 + Function Calling
 │   ├── 知识增强 → 端侧 RAG (第7.1节)
 │   └── 持续进化 → 联邦学习 + LoRA
+│
+├── 语音助手全链路？ → ASR-LLM-TTS (第7.7节) + KWS/MCU (第15章)
+├── 端侧文生图？ → 少步数扩散 (第16章)
+├── 模型防盗版/防篡改？ → 交付安全 (第17章)
+│
+├── 系统预置模型 / 多 App 共享？ → OS AI 运行时 (第18章)
+├── 模型怎么下发与热更新？ → OTA 分发 (第19章)
+├── 私有知识库问答？ → 端侧检索 (第20章)
+├── 实时语音打断/双工？ → 流式音视频管线 (第21章)
+├── NPU 缺算子？ → 自定义 Kernel (第22章)
+├── 车载量产约束？ → 功能安全 (第23章)
+├── 持续回归与发布门禁？ → 端侧 MLOps (第24章)
 │
 ├── 部署出问题？ → 故障排查 (第9.2节)
 │   ├── OOM → 量化/小模型/KV管理
@@ -1534,16 +2055,29 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 
 | 维度 | 核心技术 | 关键收益 |
 |------|---------|---------|
-| **模型压缩** (第1章) | 量化、剪枝、蒸馏、低秩分解 | 模型体积 60-75%，精度损失 <1% |
-| **推理优化** (第2章) | KV Cache、Flash Attention、投机解码 | 吞吐 2-5×，延迟降低 50% |
+| **模型压缩** (第1章) | 量化、剪枝、蒸馏、低秩、超低比特、torchao | 模型体积 60-90%，精度损失可控 |
+| **推理优化** (第2章) | KV Cache、Flash Attention、投机解码、MLA | 吞吐 2-5×，延迟降低 50% |
 | **架构设计** (第3章) | GQA、SSM、MoE、自定义算子 | KV Cache 4-8×减少 |
 | **编译运行时** (第4章) | 图优化、代码生成、内存优化 | 延迟 20-30%，内存 15-25% |
 | **硬件部署** (第5章) | NPU适配、框架选择、基准测试 | 硬件利用率 70%+ |
 | **模型格式** (第6章) | ONNX、GGUF、TorchScript、版本管理 | 多平台互操作 |
-| **端云协同** (第7章) | 协同推理、多模态、隐私安全、功耗管理、WASM | 云端算力+端侧隐私 |
+| **端云协同** (第7章) | 协同推理、多模态、语音全链路、功耗、WASM | 云端算力+端侧隐私 |
 | **端侧训练** (第8章) | PEFT、QLoRA、训练优化、个性化 | 适配内存 <2GB |
 | **实战与排查** (第9章) | 端到端流水线、故障诊断 | 独立完成部署 |
 | **国产生态** (第10章) | 昇腾/寒武纪/地平线、Qwen/DeepSeek/MiniCPM | 中国市场适配 |
+| **评估指标** (第12章) | TTFT/ITL/内存/精度/功耗 | 可复现验收 |
+| **模型选型** (第13章) | 2026 主流 SLM/VLM | 选对模型事半功倍 |
+| **端侧 Agent** (第14章) | Function Calling、RAG、联邦 | 离线多步任务 |
+| **MCU/TinyML** (第15章) | KWS、Ethos-U、INT8 静态图 | 始终在线极低功耗 |
+| **端侧扩散** (第16章) | 少步数蒸馏、分辨率/内存策略 | 手机文生图 |
+| **交付安全** (第17章) | 签名、加密、水印、授权 | 防盗用与防篡改 |
+| **系统 AI 运行时** (第18章) | AICore/Foundation Models、共享基座 | 多 App 复用、省内存 |
+| **模型 OTA** (第19章) | 分片、差分、灰度、渐进可用 | 可运营的端侧模型 |
+| **端侧检索** (第20章) | Embedding、HNSW/IVF、sqlite-vec | 私有知识不出端 |
+| **流式 AV 管线** (第21章) | VAD、AEC、打断、双工 | 可用的语音助手体验 |
+| **自定义算子** (第22章) | 分解/注册/Kernel/对齐 | 降低 NPU 回退 |
+| **车载功能安全** (第23章) | 看门狗、安全态、隔离 | 可量产车载 AI |
+| **端侧 MLOps** (第24章) | 门禁、设备农场、可观测 | 可持续发布 |
 
 各技术之间并非独立，而是相互配合、联合使用：
 
@@ -1566,6 +2100,8 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 | 1.2 | 模型剪枝 | [01_model_compression/1.2_pruning.ipynb](01_model_compression/1.2_pruning.ipynb) |
 | 1.3 | 知识蒸馏 | [01_model_compression/1.3_knowledge_distillation.ipynb](01_model_compression/1.3_knowledge_distillation.ipynb) |
 | 1.4 | 低秩分解 | [01_model_compression/1.4_low_rank_factorization.ipynb](01_model_compression/1.4_low_rank_factorization.ipynb) |
+| 1.5 | 超低比特量化 | [01_model_compression/1.5_sub2bit_quantization.ipynb](01_model_compression/1.5_sub2bit_quantization.ipynb) |
+| 1.6 | torchao 工具链 | [01_model_compression/1.6_torchao_toolchain.ipynb](01_model_compression/1.6_torchao_toolchain.ipynb) |
 | 2.1 | KV Cache | [02_efficient_inference/2.1_kv_cache.ipynb](02_efficient_inference/2.1_kv_cache.ipynb) |
 | 2.2 | 注意力优化 | [02_efficient_inference/2.2_attention_optimization.ipynb](02_efficient_inference/2.2_attention_optimization.ipynb) |
 | 2.3 | 推理加速 | [02_efficient_inference/2.3_inference_acceleration.ipynb](02_efficient_inference/2.3_inference_acceleration.ipynb) |
@@ -1584,18 +2120,36 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 | 7.1 | 端云协同推理 | [07_edge_cloud/7.1_edge_cloud_inference.ipynb](07_edge_cloud/7.1_edge_cloud_inference.ipynb) |
 | 7.2 | 多模态部署 | [07_edge_cloud/7.2_multimodal_deployment.ipynb](07_edge_cloud/7.2_multimodal_deployment.ipynb) |
 | 7.3 | 隐私安全 | [07_edge_cloud/7.3_privacy_security.ipynb](07_edge_cloud/7.3_privacy_security.ipynb) |
-| 7.4 | 端侧推理服务 | [07_edge_cloud/7.4_edge_monitoring.ipynb](07_edge_cloud/7.4_edge_monitoring.ipynb) |
+| 7.4 | 端侧推理服务 | [07_edge_cloud/7.4_inference_service.ipynb](07_edge_cloud/7.4_inference_service.ipynb) |
+| 7.4b | 端侧监控运维 | [07_edge_cloud/7.4_edge_monitoring.ipynb](07_edge_cloud/7.4_edge_monitoring.ipynb) |
+| 7.5 | 功耗与电池调度 | [07_edge_cloud/7.5_power_battery.ipynb](07_edge_cloud/7.5_power_battery.ipynb) |
+| 7.6 | 浏览器 / WASM | [07_edge_cloud/7.6_browser_wasm.ipynb](07_edge_cloud/7.6_browser_wasm.ipynb) · [browser_demo](07_edge_cloud/browser_demo/index.html) |
+| 7.7 | 语音全链路 | 见第7.7节 + [7.2_multimodal_deployment.ipynb](07_edge_cloud/7.2_multimodal_deployment.ipynb) |
 | 8.1 | PEFT | [08_on_device_training/8.1_peft.ipynb](08_on_device_training/8.1_peft.ipynb) |
 | 8.2 | 训练优化 | [08_on_device_training/8.2_training_optimization.ipynb](08_on_device_training/8.2_training_optimization.ipynb) |
 | 8.3 | 端侧评估与个性化 | [08_on_device_training/8.3_on_device_eval.ipynb](08_on_device_training/8.3_on_device_eval.ipynb) |
 | 9.1 | 端到端流水线 | [09_end_to_end/9.1_end_to_end_deployment.ipynb](09_end_to_end/9.1_end_to_end_deployment.ipynb) |
 | 9.2 | 故障排查 | [09_end_to_end/9.2_troubleshooting_debug.ipynb](09_end_to_end/9.2_troubleshooting_debug.ipynb) |
-| 10.1 | 国产NPU部署实践 | 见本文档第10章 |
-| 10.2 | 国产开源模型端侧部署 | 见本文档第10章 |
+| 10.1 | 国产NPU部署实践 | [10_china_hardware/10.1_china_npu.ipynb](10_china_hardware/10.1_china_npu.ipynb) |
+| 10.2 | 国产开源模型端侧部署 | 见本文档第10.2节 |
 | 11 | 课后练习与思考题 | [exercises_solutions.md](exercises_solutions.md) |
-| 12.1-12.5 | 评估指标体系 | 见本文档第12章 |
-| 13 | 端侧模型选型（2026） | 见本文档第13章 |
-| 14 | 端侧 Agent 与新范式 | 见本文档第14章 |
+| 12.1-12.5 | 评估指标体系 | [12_evaluation/12.1_evaluation_metrics.ipynb](12_evaluation/12.1_evaluation_metrics.ipynb) |
+| 13 | 端侧模型选型（2026） | [13_model_selection/13.1_model_selection.ipynb](13_model_selection/13.1_model_selection.ipynb) |
+| 14 | 端侧 Agent 与新范式 | [14_edge_agent/14.1_edge_agent.ipynb](14_edge_agent/14.1_edge_agent.ipynb) |
+| 15 | MCU / TinyML | [15_mcu_tinyml/15.1_mcu_tinyml.ipynb](15_mcu_tinyml/15.1_mcu_tinyml.ipynb) |
+| 16 | 端侧扩散 / 文生图 | [16_on_device_diffusion/16.1_on_device_diffusion.ipynb](16_on_device_diffusion/16.1_on_device_diffusion.ipynb) |
+| 17 | 模型交付安全 | [17_model_security/17.1_model_security.ipynb](17_model_security/17.1_model_security.ipynb) |
+| 18 | OS 系统 AI 运行时 | [18_system_runtime/18.1_system_ai_runtime.ipynb](18_system_runtime/18.1_system_ai_runtime.ipynb) |
+| 19 | 模型分发与 OTA | [19_model_ota/19.1_model_ota.ipynb](19_model_ota/19.1_model_ota.ipynb) |
+| 20 | 端侧检索与向量库 | [20_on_device_retrieval/20.1_on_device_retrieval.ipynb](20_on_device_retrieval/20.1_on_device_retrieval.ipynb) |
+| 21 | 流式音视频管线 | [21_streaming_av/21.1_streaming_av_pipeline.ipynb](21_streaming_av/21.1_streaming_av_pipeline.ipynb) |
+| 22 | 自定义算子与 Kernel | [22_custom_ops/22.1_custom_ops_kernel.ipynb](22_custom_ops/22.1_custom_ops_kernel.ipynb) |
+| 23 | 车载与功能安全 | [23_automotive_safety/23.1_automotive_safety.ipynb](23_automotive_safety/23.1_automotive_safety.ipynb) |
+| 24 | 端侧 MLOps 与门禁 | [24_edge_mlops/24.1_edge_mlops.ipynb](24_edge_mlops/24.1_edge_mlops.ipynb) |
+| 2.4-2.5 | Prefill/Decode、长上下文 | 见本文档第2.4/2.5节 |
+| 3.4 | 硬件感知 NAS | 见本文档第3.4节 |
+| 8.4 | 多适配器路由 | 见本文档第8.4节 |
+| - | 学习级技术全景 | [odd_learning_panorama.md](odd_learning_panorama.md) |
+| - | 零基础趣味科普（合并定稿） | [odd_popular_science.md](odd_popular_science.md) |
 | - | 综合实战项目 | [comprehensive_projects.md](comprehensive_projects.md) |
 | - | 硬件实操路线图 | [hardware_roadmap.md](hardware_roadmap.md) |
-| - | 趣味科普指南（非技术读者） | [fun_guide_for_everyone.md](fun_guide_for_everyone.md) |

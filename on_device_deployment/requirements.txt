@@ -26,6 +26,9 @@ scipy>=1.10.0
 jupyter>=1.0.0
 ipywidgets>=8.0.0
 
+# 可选：PyTorch 官方量化 (ExecuTorch 路径推荐)
+# torchao>=0.7.0
+
 # 可选：GPTQ/AWQ 量化 (需CUDA)
 # auto-gptq>=0.5.0
 # autoawq>=0.2.0
