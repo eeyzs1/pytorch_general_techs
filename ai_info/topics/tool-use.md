@@ -14,12 +14,20 @@
 - [Advancing Voice Intelligence with New Models in the API](../openai/research/advancing-voice-intelligence-with-new-models-in-the-api.md)：实时语音模型如何把工具调用和 Agent 行为带入 voice interface。
 - [New Tools and Features in the Responses API](../openai/research/new-tools-and-features-in-the-responses-api.md)：Web 搜索、文件搜索、Computer Use 的工具层迭代。
 - [Equipping the Responses API with a Computer Environment](../openai/research/equipping-the-responses-api-with-a-computer-environment.md)：把 Shell 工具 + 托管容器 + 服务端 Compaction + Agent Skills 组合为"系统级 Agent 执行"。
+- [Muse Spark 1.1 and the Meta Model API](../meta/muse-spark-1-1.md)：务实的 Computer Use——按场景自选执行方式（写脚本更快就写脚本、点 GUI 更省事就点界面），批量场景一次生成多步操作统一执行，解决"每步重新看屏-推理-点击"的低效。
+- [Gemini API Managed Agents: 3.6 Flash, hooks, and more](../google/deepmind/expanding-managed-agents-gemini-api-3-6-flash-hooks.md)：环境 hooks 治理工具调用——`.agents/hooks.json` 在 pre/post_tool_execution 事件执行自定义脚本，可按正则匹配工具进行阻断、lint 或审计，拒绝理由直接注入模型上下文。
+- [Continuous Voice Interaction with GPT-Live](../openai/research/continuous-voice-interaction-with-gpt-live.md)：语音作为工具接口——全双工语音模型同时听和说，深度推理和工具调用走异步路径不阻塞对话流；会话开始即创建前沿模型推理会话并预填充初始上下文，用稳定会话亲和性和 prompt caching 降低延迟。
+
+## 协议与标准
+
+- [The 2026-07-28 MCP Specification](../community/specification/mcp-2026-07-28-specification.md)：MCP 问世以来最大修订——无状态协议核心（移除 initialize 握手，每请求自描述，普通负载均衡即可水平扩展）、MRTR 多轮往返替代长连接 elicitation、HTTP 头部路由（网关/WAF 无需解析 JSON body 即可鉴权）、可缓存列表响应（ttlMs + cacheScope 保持 prompt cache 跨重连稳定）、OAuth 授权加固（RFC 9207 iss 校验 + localhost 重定向 + 凭据绑定签发方）；Tasks 移入扩展框架，Roots/Sampling/Logging 进入弃用期。
 
 ## 工具组合与垂直化
 
 - [Codex for Every Role, Tool, Workflow](../openai/research/codex-for-every-role-tool-workflow.md)：90+ 插件、6 角色插件、62 应用、110 技能——OpenAI 把工具组合工业化。
 - [Open-Source Codex Orchestration with Symphony](../openai/research/open-source-codex-orchestration-symphony.md)：把 Codex 接入企业自建协调器，多 Agent 调度的开源实现。
 - [Codex-Maxxing for Long-Running Work](../openai/research/codex-maxxing-long-running-work.md)：把"工作树 + 测试 + Git"作为可验证工具组合，让 Agent 的执行可观测、可回滚。
+- [New ways to learn and teach with ChatGPT Work and Codex](../openai/research/learn-teach-chatgpt-work-codex.md)：教育插件作为垂直化工具——K-12 教师、大学教师、大学生三款插件把应用、角色技能、指令和工作流打包，让用户无需构建复杂提示即可上手；插件化策略将"如何提示"的负担从用户转移到预配置工作流。
 
 ## 网络安全与安全工具
 
@@ -27,6 +35,7 @@
 - [Patch the Planet: A Daybreak Initiative](../openai/research/patch-the-planet.md)：把"AI + 专家研究员"直接做成开源维护者的工具，5 天冲刺发现数百问题、合入数十补丁。
 - [Mapping AI-enabled Cyber Threats: Insights from the LLM ATT&CK Navigator](../anthropic/research/attack-navigator.md)：ARiES 风险评分工具 + MITRE ATT&CK 框架扩展到 AI Agent 编排。
 - [Measuring LLMs' Impact on N-day Exploits](../anthropic/research/n-days.md)：Mythos Preview 自动构建完整 exploit 工具链——N-day 利用从手工走向工业化。
+- [Inference hooks: inline DLP for Claude Enterprise](../anthropic/engineering/claude-enterprise-inference-hooks.md)：DLP 集成作为安全工具——签名 WebSocket 把工具调用响应在返回模型前先经检查；支持 shadow mode、基于角色的排除、百分比灰度发布，可与 Netskope/Palo Alto/Zscaler 等现有 DLP 服务器集成。
 
 ## 跨域工具
 
@@ -34,6 +43,8 @@
 - [Agents in Biology: Paving the Way for Autonomous Wet-Lab Discovery](../anthropic/research/agents-in-biology.md)：把湿实验、数据库查询、确定性工具组合为 VirBench 自动化工具链。
 - [Making Claude a Chemist](../anthropic/research/making-claude-a-chemist.md)：把化学专用工具（ChemDraw / MestReNova）作为 Agent 的专业 ACI。
 - [Brain2Qwerty v2](../meta/brain2qwerty-v2.md)：把"AI Agent 自动探索解码 pipeline 优化配置"作为科研工具——Meta 在脑机接口研究中用 Agent 探索超参空间，但最终训练配置由工程师手动选择，体现"Agent 探索 + 人类决策"的协作模式。
+- [Gemini Robotics-ER 1.6](../google/deepmind/gemini-robotics-er-1-6.md)：机器人的高层推理大脑——原生调用 Google Search、VLA 模型或任意第三方函数执行任务，成功检测决定重试失败步骤还是进入下一阶段。
+- [Introducing Gemini Robotics ER 2](../google/deepmind/gemini-robotics-er-2.md)：物理工具编排——开发者把 VLA、导航 API 等低层控制接口声明为工具，模型流式接收视频/音频/文本并原生调用 Search 或自定义函数，在真实 VLA、仿真 VLA、人类遥操作三种模式下编排能力均超 ER 1.6。
 
 ## 关键结论
 

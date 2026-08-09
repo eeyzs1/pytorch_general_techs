@@ -8,3 +8,4 @@
 - [安全与可靠性](safety.md)
 - [工具使用与 ACI](tool-use.md)
 - [Codex 与 Claude Code 对比](codex-vs-claude-code.md)
+- [企业 AI 经济学](enterprise-ai-economics.md)

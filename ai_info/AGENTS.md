@@ -288,13 +288,11 @@ Validation passed: {N} articles, {M} markdown files
 
 以下是历史遗留问题，按新规则应在后续同步中逐步修复：
 
-1. **Google DeepMind 3-5 月缺失多篇文章**：catalog 中只有 9 篇，但 blog 上 3-5 月还有 "AI co-clinician"、"Republic of Korea partnership"、"Gemini 3.1 Flash TTS"、"Gemini Robotics-ER 1.6"、"Measuring progress toward AGI"、"10 years of AlphaGo's impact" 等未入库
-2. **Meta AI 缺失部分 3-4 月文章**：如 "SAM 3.1"、"Alta Daily Uses SAM"
-3. **OpenAI 5 月若干文章未补齐**：personal-finance-chatgpt、openai-launches-deployment-company、tanstack-npm 供应链攻击
-4. **Hugging Face 尚未入库文章**：目录和 summary.md 已于 2026-07-20 创建，但尚无独立文章摘要——后续同步需补齐文章
-5. **GLM 文章粒度不足**：`glm/blog/` 目前只有 summary.md（基于 bigmodel.cn 平台和 GitHub 整理），GLM 官方博客无结构化文章列表，后续需寻找更完整的信源渠道
-
-下次同步应优先处理这些遗留问题。
+1. ~~**Google DeepMind 3-5 月缺失多篇文章**~~：✅ 已于 2026-08-01 全部补齐（AI co-clinician、Republic of Korea partnership、Gemini 3.1 Flash TTS、Gemini Robotics-ER 1.6、Measuring progress toward AGI、10 years of AlphaGo's impact）
+2. ~~**Meta AI 缺失部分 3-4 月文章**~~：SAM 3.1 已于 2026-08-01 补齐；"Alta Daily Uses SAM" 经 14 轮搜索确认不存在于 Meta 官方博客，从遗留清单移除
+3. ~~**OpenAI 5 月若干文章未补齐**~~：✅ 已于 2026-08-01 全部补齐（personal-finance-chatgpt、openai-launches-deployment-company、tanstack-npm 供应链攻击）
+4. ~~**Hugging Face 尚未入库文章**~~：已于 2026-08-01 补齐 8 篇文章（安全事件 + 模型发布 + 平台 + 安全研究 + 物理 AI + 编码器 + 评估 + 大规模推理），后续同步继续追踪
+5. **GLM 文章粒度不足**：`glm/blog/` 已有 2 篇文章（GLM-5.2 + summary），但 GLM 官方博客仍无结构化文章列表，后续需寻找更完整的信源渠道
 
 ## 10. 工作流快速检查清单
 
