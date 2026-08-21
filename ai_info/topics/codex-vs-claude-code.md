@@ -29,6 +29,7 @@
 - [Advancing the price-performance frontier with GPT-5.6](../openai/research/advancing-the-price-performance-frontier-with-gpt-5-6.md)：Luna 降价 80%、Terra 降价 20%、Sol 推 Fast mode（2 倍价格换最高 2.5 倍速度）——按"成果需要多少智能"在同一工作流内分档混用模型。
 - [Improving GPT-5.6 Sol in ChatGPT](../openai/research/improving-gpt-5-6-sol-in-chatgpt.md)：ChatGPT 中 GPT-5.6 Sol 改进——更聚焦答案、更可靠事实（金融/医疗/法律错误响应比 GPT-5.5 Instant 少 68%）、新"思考"滑块让用户控制推理深度；同一模型驱动即时和深度推理消除体验不一致。
 - [New ways to learn and teach with ChatGPT Work and Codex](../openai/research/learn-teach-chatgpt-work-codex.md)：Codex 教育插件——面向 K-12 教师、大学教师和大学生三款插件，通过 ChatGPT Edu 和 ChatGPT for Teachers 部署；2 亿+ 18-24 岁年轻人每周使用 ChatGPT 但存在"能力过剩"鸿沟。
+- [Introducing ChatGPT for Teens](../openai/research/chatgpt-for-teens.md)：面向 13-17 岁青少年的专门版本——Study Mode 引导学习、家长控制、防情感操控，把 AI 教育从"成年用户培训"延伸到未成年学习场景，与教育插件共同构成 OpenAI 的教育产品矩阵。
 
 ## Anthropic 线索
 
@@ -65,3 +66,7 @@
 - 国产第三极：[GLM-5.2](../glm/blog/glm-5-2.md) 以约 7400 亿参数成为首个编程能力追上 Claude Opus 级别的国产模型，GLM Coding Plan 订阅制 + 兼容 Claude Code 与 VS Code——为企业提供 Claude Code 之外的合规可选项。
 - 新进入者：[Muse Spark 1.1](../meta/muse-spark-1-1.md) 是 Meta 首次直接售卖旗舰模型 API（输入 $1.25 / 输出 $4.25 每百万 token），主-子 Agent 编排 + 务实 Computer Use，官方目标对标 Claude 与 GPT 旗舰——编码 Agent 竞争从两强走向多极。
 - 新进入者深化：[Muse Code and Muse Spark 1.2](../meta/introducing-muse-code-muse-spark-1-2.md) 是 Meta 首个终端编码 Agent——Terminal-Bench 2.1 得 82.9%（次于 Claude Code on Opus 5 的 86.7%，高于 Codex on GPT-5.6 Terra 的 81.8%）；持久化后台 Agent + append-only 事件日志 + 模型与 harness 协同训练是架构差异点，但 DeepSWE 1.1（59.3%）仍落后 Claude（65.0%）与 Codex（64.8%）。
+- 端侧开源竞争者：[Muse Glimmer](../meta/introducing-muse-glimmer.md) 以 30B 参数 + Apache 2.0 开源 Agent 模型重返开源——约 24GB 显存即可本地运行，专为函数调用与工具使用优化；"云端闭源旗舰 + 端侧开源"双轨为编码 Agent 提供"本地部署 + 数据不出设备"的选项，与自托管 Claude Code（数据驻留）形成不同技术路线。
+- 国产第三极深化：[GLM-5.3](../glm/blog/glm-5-3.md) 以 743B 参数将 AA 综合智能指数推到 60 分（并列开源第一），编程能力较前代提升约 50% 并涌现防御性网络安全能力——暂缓开源但 API 即日上线且价格不变，开源与闭源之间的发布节奏控制成为国产厂商的差异化治理手段。
+- 效率新维度：[Maximizing the value of your Claude Code sessions](../anthropic/engineering/maximizing-value-of-claude-code-sessions.md) 展示会话级 token 优化（`/clear`、effort 前置、`/compact`）如何显著降低成本——Agent 编码的竞争从"模型能力"延伸到"会话成本工程"。
+- 创业公司视角：[The Claude Code Guide For Startups](../anthropic/engineering/claude-code-guide-for-startups.md) 展示创业公司用 agentic coding 以十倍规模组织的速度交付——ClickHouse 功能交付 +30%、Omni 生产力 2-3 倍，与大企业部署形成对照。

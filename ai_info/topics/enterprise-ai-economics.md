@@ -24,6 +24,9 @@
 
 - [Advancing the price-performance frontier with GPT-5.6](../openai/research/advancing-the-price-performance-frontier-with-gpt-5-6.md)：Luna 降价 80%、Terra 降价 20%、Sol 推 Fast mode（2 倍价格换 2.5 倍速度）；Luna 以约 6% 的单任务成本达到一年前前沿级性能。
 - [DeepSeek-V4 API 定价与峰谷计费](../deepseek/news/deepseek-v4-api-pricing.md)：大模型 API 首次引入电力行业式"峰谷计费"——高峰时段价格 2 倍；"价格屠夫"给算力装上计价器。
+- [DeepSeek-V4-Pro GA 与 API 调价](../deepseek/news/deepseek-api-price-adjustment-2026-08.md)：价格战转向的标志性节点——部分模型涨幅最高 1100%、低峰时段价格为高峰 50%，峰谷分时计费全面落地；"以低价换规模"阶段结束，"合理定价换可持续"开始，开发者成本模型需把峰谷调度纳入架构设计。
+- [GLM Coding Plan 套餐改版](../glm/blog/glm-coding-plan-pricing-revision.md)：国产编码订阅从"次数计费"转向"token 积分制"并引入峰谷系数（高峰 3 倍积分）——国产厂商计费模型集体重构，"集体变贵"成为 2026 下半年行业趋势。
+- [The Future is for Everyone](../meta/the-future-is-for-everyone.md)：开源 AI 的经济学主张——Zuckerberg 以 6510 字论述"多超智能 + 开源防集中"，宣布 10 亿美元开放模型基金；"蒸馏开源"（旗舰闭源、衍生开源）成为 Meta 的算力投资与生态扩张双重叙事，与 OpenAI"充裕智能"的集中式算力投资形成路线对立。
 
 ## 关键结论
 
@@ -32,3 +35,4 @@
 - 企业 AI 竞争的下半场从模型能力转向部署能力——FDE 模式（OpenAI Deployment Company）与产品化护栏（Presence）是两种互补的商业化路径。
 - 任务跨界数据（43.5%）表明 AI 对劳动力市场的重构先于职位变化发生——使用数据是比就业统计更早的领先指标。
 - 前沿智能进入价格竞争阶段：OpenAI 三档降价、DeepSeek 峰谷计费、Claude Opus 5"半价逼近前沿"——"每美元有效工作"取代 benchmark 分数成为厂商叙事核心。
+- 价格竞争出现分化：OpenAI 靠效率提升降价，DeepSeek/GLM 靠峰谷结构与积分制提价回收成本——"低价换规模"与"合理定价换可持续"两种成本工程路线并存。

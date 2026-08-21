@@ -45,6 +45,10 @@
 - [Brain2Qwerty v2](../meta/brain2qwerty-v2.md)：把"AI Agent 自动探索解码 pipeline 优化配置"作为科研工具——Meta 在脑机接口研究中用 Agent 探索超参空间，但最终训练配置由工程师手动选择，体现"Agent 探索 + 人类决策"的协作模式。
 - [Gemini Robotics-ER 1.6](../google/deepmind/gemini-robotics-er-1-6.md)：机器人的高层推理大脑——原生调用 Google Search、VLA 模型或任意第三方函数执行任务，成功检测决定重试失败步骤还是进入下一阶段。
 - [Introducing Gemini Robotics ER 2](../google/deepmind/gemini-robotics-er-2.md)：物理工具编排——开发者把 VLA、导航 API 等低层控制接口声明为工具，模型流式接收视频/音频/文本并原生调用 Search 或自定义函数，在真实 VLA、仿真 VLA、人类遥操作三种模式下编排能力均超 ER 1.6。
+- [From the Hugging Face Hub to robot hardware with Strands Agents and LeRobot](../huggingface/blog/strands-lerobot-hub-to-hardware.md)：机器人训练闭环工具链——Hub 下载 LeRobot 模型/数据集 → Strands 模拟训练 → 真实机械臂部署的端到端流程，把"模型中心化分发 + 开源框架 + 云服务"的 LLM 生态模式复制到物理世界，降低机器人开发者的 ML 基础设施门槛。
+- [Introducing Muse Glimmer](../meta/introducing-muse-glimmer.md)：端侧 Agent 的工具调用——30B 参数、Apache 2.0、专为函数调用与工具使用优化的开源模型，约 24GB 显存本地运行；把"工具调用能力"从云端 API 下沉到消费级硬件，工具使用不再依赖云端连接。
+- [Build production agents with computer use, the Skills API, and the Files API](../anthropic/engineering/computer-use-skills-api-files-api.md)：Agent 工具三件套 GA——Computer Use 新增 browser use tool（读页面结构操作具体元素而非屏幕坐标），Skills API 打包团队方法论按需注入，Files API 交付结构化成品；"操作 + 方法 + 产出"的完整工具闭环。
+- [The Multimodal Intelligence of Muse Spark 1.2](../meta/multimodal-intelligence-muse-spark-1-2.md)：工具增强的多模态推理——多模态增益在模型可调用工具时最显著，视觉检查 → 工具调用 → 推理的闭环让视频可直接转化为可运行代码产物。
 
 ## 关键结论
 

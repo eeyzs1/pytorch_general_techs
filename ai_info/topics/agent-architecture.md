@@ -45,6 +45,14 @@
 - [Introducing Gemini Robotics ER 2](../google/deepmind/gemini-robotics-er-2.md)：机器人的"高层大脑"——时序智能（进度分类、关键时刻定位）支持出错自我纠正而不重启工作流，首次引入多机器人协作。
 - [Running auto mode in production](../anthropic/engineering/auto-mode-in-production.md)：生产级 Agent 部署案例——Nuro 夜间长时研究 Agent（晚 10 点到凌晨 5 点产出 3 个 PR）、Gusto 纵深防御 + 敏感操作降级、Garner Health 标准化 SDLC 流水线；全量 Claude Code 使用中两次中断间工作时长提升 9 倍。
 - [Run Claude Code sessions on your own compute](../anthropic/engineering/run-claude-code-sessions-on-your-own-compute.md)：自托管 Agent 环境——会话在客户网络内运行，仓库检出、构建产物、密钥留在自有基础设施；Runner 架构（Fixed/On-demand）支持会话隔离与按需伸缩，填补金融/医疗/政府等强合规行业的数据驻留缺口。
+- [Introducing Muse Glimmer](../meta/introducing-muse-glimmer.md)：端侧 Agent 模型——30B 参数、Apache 2.0、约 24GB 显存即可运行，从闭源旗舰蒸馏而来，专为函数调用与工具使用优化；"云端闭源旗舰 + 端侧开源"双轨让 Agent 本地部署成为可能，与自托管 Claude Code 呼应"Agent 基础设施自主可控"趋势。
+- [From the Hugging Face Hub to robot hardware with Strands Agents and LeRobot](../huggingface/blog/strands-lerobot-hub-to-hardware.md)：机器人 Agent 训练闭环——从 Hub 下载 LeRobot 预训练模型 → Strands 模拟训练 → 真实机械臂部署，把"模型中心化分发 + 开源框架 + 云服务"的 LLM 生态模式复制到物理世界。
+- [SkillSmith: Learning to Compose Parametric Skills and Textual Knowledge](../google/deepmind/skillsmith.md)：技能组合的第三条路——把"参数化技能"（写入权重的技能）与"文本知识"在 KV-cache 层动态组合，模型运行时按需获得新能力而无需完整微调；与 Agent Skills（文本封装）、MCP（服务层标准化）并列为技能封装范式。
+- [Build production agents with computer use, the Skills API, and the Files API](../anthropic/engineering/computer-use-skills-api-files-api.md)：Agent 构建三件套 GA——Computer Use（看懂并操作软件，新增 browser use tool 按页面结构定位元素）+ Skills API（注入团队专业知识）+ Files API（返回成品文件），三者构成"看 + 懂 + 交付"的生产级 Agent 闭环。
+- [How monday.com transformed its platform into an agent-first product](../anthropic/engineering/monday-com-agent-first-platform.md)：25 万公司平台的 agent-first 重构——AI 编织进工作流每一层而非附加功能，转型两个月 500 万次 Agent 交互，五条经验覆盖"何时让 Agent 自主、何时需要人类"的边界设计。
+- [Turning conversation into knowledge: how Slack builds human-agent teams](../anthropic/engineering/slack-human-agent-teams.md)："工作即对话"的人机团队——开放频道让对话、决策、工作进程可读可搜，Agent 与人类共享知识空间并从中学习上下文。
+- [Claude on call: CI/CD first responder](../anthropic/engineering/claude-tag-ci-cd-on-call.md)：运维 Agent 作为第一响应者——Claude Tag 定位构建故障根因、判断回滚安全性，工程师从"1 小时调查"解放为"3 分钟验证"，配套 setup kit 可复制。
+- [Maximizing the value of your Claude Code sessions](../anthropic/engineering/maximizing-value-of-claude-code-sessions.md)：会话级 token 优化——`/clear` 防上下文回流、effort 前置设置保 prompt cache、`/compact` 压缩、`@-mention` 省 Read 调用，把上下文工程落到 CLI 操作粒度。
 
 ## Agent 内部可观测性与审计
 

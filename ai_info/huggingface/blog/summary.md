@@ -1,6 +1,6 @@
 # Hugging Face — 核心观点总结
 
-> 汇总自 [Hugging Face Blog](https://huggingface.co/blog)，当前收录 11 篇文章（2026 年 7 月至 8 月）。
+> 汇总自 [Hugging Face Blog](https://huggingface.co/blog)，当前收录 16 篇文章（2026 年 7 月至 8 月）。
 
 ## 一、总体脉络
 
@@ -11,6 +11,10 @@ Hugging Face 是全球最大的开源 AI 社区和模型托管平台，其博客
 与此同时，7 月的 [安全事件披露](security-incident-july-2026.md) 让 Hugging Face 意外成为全球首例"自主 AI Agent 入侵生产基础设施"事件的当事方与披露方——其安全团队用自有开源模型完成检测、遏制与取证，并向全球开源社区推送补丁与智能体防护规范；配套的 [技术时间线](agent-intrusion-technical-timeline.md) 把同一事件还原为可复用的威胁狩猎与取证重建方法学，展示了开源社区在 AI 安全治理中的独特价值。
 
 7 月底至 8 月初，HF 博客继续在推理基础设施与检索模型上扩展：[Baseten 入驻推理供应商](baseten-inference-providers.md) 让开发者以零加价 serverless 方式调用 DeepSeek V4 Flash、GLM-5.2、Kimi K3 等开源权重模型；[mDenseOn 与 mLateOn](mdenseon-mlateon-retrieval-models.md) 发布 307M 参数多语言检索模型，late-interaction 架构可泛化到训练中完全未见的语言；[Fast Gemma Challenge 配方](fast-gemma-challenge-recipe.md) 在单流 A10G GPU 上对 gemma-4-E4B-it 实现 510 TPS 的已验证 SOTA，公开了 INT4 量化 + MTP + CUDA-graph 的质量中性叠加配方。
+
+8 月中旬 [Strands Agents + LeRobot 打通机器人训练闭环](strands-lerobot-hub-to-hardware.md) 由 AWS 与 HF 联合推出：从 Hub 下载预训练机器人模型 → Strands 模拟训练 → 真实机械臂部署的端到端流程，把 LeRobot（Meta 主导的开源机器人学习框架）与 AWS 云端训练、Strands 硬件控制层连接起来。与 NVIDIA 同期推出的 GR00T/Isaac 集成（LeRobot 生态）形成竞争与互补，标志 Hugging Face 正从"模型托管平台"扩展为"物理 AI 平台"。
+
+8 月 10-18 日 HF 博客继续扩张四个方向：[Muse Glimmer 登陆 HF](muse-glimmer-hf.md)（8/10）——Meta 30B 开源 Agent 模型在 HF 首发，展示"开源模型分发即生态"；[ICML 2026 开放复现](icml-2026-open-reproductions.md)（8/13）——AI 智能体复现 2,200+ 篇 ICML 论文，交互式 logbook 公开全过程；[2026 夏季开源模型报告](state-of-open-models-summer-2026.md)（8/14）——Qwen 系列下载突破 30 亿超越 Google/Meta，揭示"能力竞赛与采用竞赛分离"；[MultiVectorEncoder](multi-vector-encoder.md)（8/18）——Sentence Transformers v6.0 原生支持 ColBERT/late interaction 多向量检索，把多向量检索从专用工具带入主流框架。
 
 ## 二、核心主题
 
@@ -48,6 +52,8 @@ Hugging Face 是全球最大的开源 AI 社区和模型托管平台，其博客
 ### 5. 物理 AI 与仿真
 
 [NVIDIA Cosmos-H-Dreams](cosmos-h-dreams.md)（2026-07-27）是面向手术机器人的实时、动作条件生成仿真器：将此前的 Cosmos-H-Surgical-Simulator 世界基础模型蒸馏为因果、少步的学生模型，并通过 FlashDreams 加速推理库服务化。结果是在单张 NVIDIA RTX PRO 6000 上从约 10 FPS 提升到约 160 FPS 的交互式运行，人或学习策略都可在闭环中控制该环境，并已与 Versius 手术控制器（CMR Surgical、Cambridge Consultants）集成，解决了物理平台昂贵、实验难复现、失败可能损坏器械或生物组织的痛点。
+
+[Strands Agents + LeRobot 机器人训练闭环](strands-lerobot-hub-to-hardware.md)（2026-08-14）是 AWS 与 HF 的联合方案，打通"记录-训练-部署"完整闭环：开发者从 Hugging Face Hub 下载 LeRobot 预训练模型与数据集 → 用 Strands 机器人 SDK 在模拟器中训练 → 部署到真实机械臂，实现从数据集到实体硬件的端到端流程。这是"开源机器人"复制 LLM 生态成功模式的尝试——模型中心化分发 + 开源框架 + 云服务，让机器人创业公司无需自建完整 ML 基础设施。
 
 ### 6. 大规模推理与地理空间
 
@@ -94,6 +100,12 @@ HF 的响应成为防御范式样板：用自有开源模型完成检测、遏�
 | mDenseOn/mLateOn 多语言语料 | 28 亿对 | 同上 |
 | mLateOn 未见语言泛化（MLDR nDCG@10 提升） | 中文 +36 / 印地语 +35 / 泰语 +29 | 同上 |
 | Fast Gemma Challenge 单流 A10G TPS | 510.58（PPL 2.3930） | Fast Gemma Challenge |
+| Strands 训练闭环 | Hub 下载 → 模拟训练 → 真实机械臂部署 | Strands + LeRobot |
+| Strands 合作方 | AWS × Hugging Face | Strands + LeRobot |
+| Muse Glimmer HF 首发许可 | Apache 2.0 / 30B 参数 | Muse Glimmer HF |
+| ICML 2026 复现论文数 | 2,200+ | ICML Open Reproductions |
+| Qwen 系列累计下载 | 30 亿+（超 Google/Meta） | State of Open Models |
+| MultiVectorEncoder 能力 | ColBERT / late interaction 多向量 | MultiVectorEncoder |
 
 ## 四、与商业厂商的对比
 
@@ -129,5 +141,10 @@ HF 的响应成为防御范式样板：用自有开源模型完成检测、遏�
 | 9 | 2026-07-30 | [mDenseOn 与 mLateOn](mdenseon-mlateon-retrieval-models.md) | 多语言检索 / late-interaction / 跨语言泛化 |
 | 10 | 2026-08-04 | [Fast Gemma Challenge 验证 SOTA 配方](fast-gemma-challenge-recipe.md) | 推理优化 / 量化 / 推测解码 |
 | 11 | 2026-08-06 | [Baseten 入驻 Hugging Face 推理供应商](baseten-inference-providers.md) | 推理服务 / Baseten / Serverless |
+| 12 | 2026-08-14 | [Strands Agents + LeRobot：从 Hub 到机器人硬件](strands-lerobot-hub-to-hardware.md) | 机器人 / LeRobot / AWS / 训练闭环 |
+| 13 | 2026-08-10 | [Welcome Muse Glimmer on Hugging Face](muse-glimmer-hf.md) | 开源模型 / Meta / 分发生态 |
+| 14 | 2026-08-13 | [ICML 2026 Open Reproductions](icml-2026-open-reproductions.md) | 科研复现 / 智能体 / 开放科学 |
+| 15 | 2026-08-14 | [State of Open Models: Summer 2026](state-of-open-models-summer-2026.md) | 开源报告 / Qwen / 下载量 |
+| 16 | 2026-08-18 | [MultiVectorEncoder: Multi-vector Models](multi-vector-encoder.md) | 检索 / ColBERT / Sentence Transformers v6.0 |
 
-> **说明**：本次同步（2026-08-01）补齐 Hugging Face 博客常规列表中的 7 篇文章，覆盖模型发布（Inkling）、推理优化（vLLM 后端、LFM2.5 编码器）、物理 AI（Cosmos-H-Dreams）、评估基准（VoiceEQ）、大规模推理（OlmoEarth）与安全研究（Agent 入侵技术时间线），加上原有的安全事件披露共 8 篇。后续同步（2026-08-08）新增 3 篇：Baseten 推理供应商集成、mDenseOn/mLateOn 多语言检索模型、Fast Gemma Challenge 推理优化配方，共 11 篇。后续同步将继续追踪 HF 博客列表与社区动态。
+> **说明**：本次同步（2026-08-01）补齐 Hugging Face 博客常规列表中的 7 篇文章，覆盖模型发布（Inkling）、推理优化（vLLM 后端、LFM2.5 编码器）、物理 AI（Cosmos-H-Dreams）、评估基准（VoiceEQ）、大规模推理（OlmoEarth）与安全研究（Agent 入侵技术时间线），加上原有的安全事件披露共 8 篇。后续同步（2026-08-08）新增 3 篇：Baseten 推理供应商集成、mDenseOn/mLateOn 多语言检索模型、Fast Gemma Challenge 推理优化配方，共 11 篇。2026-08-21 同步新增 5 篇：Strands Agents + LeRobot 机器人训练闭环、Muse Glimmer 登陆 HF、ICML 2026 开放复现、2026 夏季开源模型报告、MultiVectorEncoder，共 16 篇。后续同步将继续追踪 HF 博客列表与社区动态。

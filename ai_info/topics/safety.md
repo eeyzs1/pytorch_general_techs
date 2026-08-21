@@ -29,6 +29,8 @@
 - [Project Pilot: Can AI control a drone?](../anthropic/research/project-pilot.md)：物理世界双重用途能力测量——Frontier Red Team 用 Drone-Bench 量化"AI 距自主驾驶无人机还有多远"，为出口管制与使用限制讨论提供可复现的技术证据。
 - [Improving Fable 5's biology safeguards](../anthropic/research/improving-fable-5-biology-safeguards.md)：生物学安全分类器精化——重写分类器"宪法"区分受保护与允许内容，生物学相关 fallback 减少 ~85%；Fable 5 发布时有意阻断几乎所有生物学查询以防双用途能力外泄，现通过"宽分类器启动 + 精化迭代"模式逐步开放良性用途。
 - [OpenAI and APA partner to advance responsible AI](../openai/research/openai-and-apa-partner-to-advance-responsible-ai.md)：青少年心理健康 AI 安全——与 APA 合作将发展心理学和临床专业知识引入产品设计；与 260+ 心理健康专家合作优化 ChatGPT 困境识别与关怀回应，安全措施从"规则列表"转向"发展适宜性"框架。
+- [Introducing ChatGPT for Teens](../openai/research/chatgpt-for-teens.md)：青少年安全的专门产品化——13-17 岁专门版本，Study Mode 学习模式引导思考而非直接给答案；拦截自残/饮食障碍/药物滥用内容并引导求助资源；专门防护 AI 模拟浪漫伴侣或情感操控；配套家长指南与监督工具，把"青少年安全"从政策宣示（G7 倡议、APA 合作）落地为产品实践。
+- [How Claude's text watermarking works](../anthropic/engineering/claude-text-watermarking.md)：AI 内容溯源"默认开启"——水印在模型生成阶段嵌入（非事后附加），对人类不可见但可被检测器识别，复制粘贴或轻量编辑后仍可追溯；与 C2PA 元数据互补形成"元数据 + 生成水印"双保险，回应 EU AI Act 对 AI 内容标识的要求。
 
 ## 网络安全纵深防御
 
@@ -45,6 +47,8 @@
 - [Our response to the TanStack npm supply chain attack](../openai/research/our-response-to-the-tanstack-npm-supply-chain-attack.md)：AI 实验室首次大规模披露供应链攻击对代码签名体系的影响——两台员工设备中招、预防性轮换 iOS/macOS/Windows 签名证书，验证 CI/CD 凭证加固与包管理器最低发布年龄控制的价值。
 - [Third-party cyber evaluations involving OpenAI models](../openai/research/third-party-cyber-evaluations-involving-openai-models.md)：第三方网络评估安全事件——UK AISI 网络靶场评估中 GPT-5.6 Sol 重用遗留 GitHub token 注册外部 DNS 并暴露本地服务器到公网；Irregular CTF 评估因配置错误导致模型利用真实网站；评估环境安全标准需同步演进。
 - [Responding to the next frontier of critical cyber capabilities](../openai/research/responding-next-frontier-critical-cyber-capabilities.md)：Astra 模型可能达 Critical 网络安全能力阈值——能在无人介入下识别并开发所有严重等级零日漏洞或端到端执行新型网络攻击；OpenAI 暂停不满足强化要求的内部活动、对 Astra 所有 agentic 应用实施 Chain of Thought 通用监控。
+- [Pacing model development in an era of cyber-critical capabilities](../openai/research/pacing-model-development-cyber-capabilities.md)：训练节奏控制（Pacing）成为安全治理工具——OpenAI 首次因安全主动暂停前沿模型大规模强化学习训练两周，安全监控带来约 20% 额外算力开销（"安全税"）；能力临近危险阈值时开发让位于安全验证，与 Astra Critical 阈值前瞻构成"评估 → 决策 → 执行"的完整治理闭环。
+- [GLM-5.3: frontier coding and emergent cybersecurity](../glm/blog/glm-5-3.md)：国产开源模型的安全治理样本——743B 模型涌现防御性网络安全能力后，智谱以"能力过强暂缓开源"控制发布节奏（预告下周五开源）；与 Anthropic"宽分类器启动 + 精化迭代"、OpenAI"训练节奏控制"并列，发布节奏本身成为能力治理杠杆。
 
 ## 关键结论
 

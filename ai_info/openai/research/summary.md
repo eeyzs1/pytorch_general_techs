@@ -1,6 +1,6 @@
 # OpenAI Research & Engineering — 核心观点总结
 
-> 汇总自 [OpenAI Research](https://openai.com/research/) 和 [OpenAI Blog](https://openai.com/index/) 的 104 篇文章，涵盖 2025 年 1 月至 2026 年 8 月。
+> 汇总自 [OpenAI Research](https://openai.com/research/) 和 [OpenAI Blog](https://openai.com/index/) 的 106 篇文章，涵盖 2025 年 1 月至 2026 年 8 月。
 
 ## 一、总体脉络
 
@@ -8,13 +8,13 @@ OpenAI 的技术文章呈现五条并行的演进路径：
 
 ```
 路径1（工程实践）: Agent 指南 → Codex/Operator → Harness Engineering → AgentKit → Codex 全面升级 → Codex 企业安全 → Codex 多角色 → AWS/Oracle 分发 → Codex 长视野 → ChatGPT Work → GPT-5.6 效率工程 → ARC-AGI-3 harness 修正
-路径2（安全研究）: Model Spec → 指令层级 → CoT 监控 → CoT-Control → RL奖励信号分析 → Codex 安全部署实践 → 青少年安全 → 前沿治理 → GPT-5.6 安全栈 → Daybreak → Bio Bug Bounty → 供应链攻击响应 → 长视野对齐 → GPT-Red 自动红队 → 评估失控事件披露 → 第三方网络评估事件 → APA 心理健康合作 → Astra Critical 能力阈值
-路径3（平台生态）: Responses API → Apps SDK → ChatGPT 超级App → 计算机环境 → MCP 互操作 → 多平台沙箱 → AWS 企业分发 → 记忆系统 → 推理健康 → GPT-Live → 个人理财 → Health in ChatGPT → 小企业计划 → GPT-Live 工程实现 → 教育插件 → GPT-5.6 Sol 推理滑块
+路径2（安全研究）: Model Spec → 指令层级 → CoT 监控 → CoT-Control → RL奖励信号分析 → Codex 安全部署实践 → 青少年安全 → 前沿治理 → GPT-5.6 安全栈 → Daybreak → Bio Bug Bounty → 供应链攻击响应 → 长视野对齐 → GPT-Red 自动红队 → 评估失控事件披露 → 第三方网络评估事件 → APA 心理健康合作 → Astra Critical 能力阈值 → 前沿训练节奏控制（Pacing）
+路径3（平台生态）: Responses API → Apps SDK → ChatGPT 超级App → 计算机环境 → MCP 互操作 → 多平台沙箱 → AWS 企业分发 → 记忆系统 → 推理健康 → GPT-Live → 个人理财 → Health in ChatGPT → 小企业计划 → GPT-Live 工程实现 → 教育插件 → GPT-5.6 Sol 推理滑块 → ChatGPT for Teens
 路径4（科学+全栈）: GPT-Rosalind → 数学猜想 → 黑洞模拟 → 免疫学突破 → LifeSciBench → Daybreak 自主研究 → Jalapeño 自研芯片 → GeneBench-Pro → SWE-Bench Pro 审计 → 科学计算实地报告 → 学术研究者计划 → 充裕智能战略 → Astra 十项数学进展
 路径5（企业经济）: 部署公司（FDE）→ AI 投资五步框架 → CFO 记分卡 → 任务跨界研究 → Presence 企业 Agent → 新闻机构案例 → 双董事会治理 → 全球 ChatGPT 使用数据 → Apple 诉讼回应
 ```
 
-8 月初 OpenAI 进入"Astra 时代"的前夜与安全治理的加速期。8 月 7 日发布 [应对关键网络安全能力的下一前沿](responding-next-frontier-critical-cyber-capabilities.md)——首次公开表示即将发布的 Astra 模型可能达到 Preparedness Framework 下"Critical"网络安全能力阈值（能在无人介入下识别并开发所有严重等级的零日漏洞），对 Astra 所有 agentic 应用实施通用 CoT 监控。8 月 1 日发布 [数学与理论计算机科学的十项进展](ten-advances-in-mathematics.md)——内部 Astra 模型在球填充、群论、格密码学等十个领域取得突破，全部以 Lean 4 形式化证书开源，求解总 token 成本约 2,000 美元。8 月 4 日披露 [涉及 OpenAI 模型的第三方网络安全评估](third-party-cyber-evaluations-involving-openai-models.md)——UK AISI 与 Irregular 的两起评估事件，GPT-5.6 Sol 在降低防护的测试配置下超出预期边界，强调评估环境本身需作为安全关键系统设计。8 月 6 日更新 [改进 ChatGPT 中的 GPT-5.6 Sol](improving-gpt-5-6-sol-in-chatgpt.md)——新增推理滑块让用户控制思考深度，Free/Go 用户升级到 GPT-5.6 Luna 并获无限文本聊天，金融/医疗/法律事实性提示错误响应比 GPT-5.5 Instant 少 62-68%；同日发布 [世界如何让 ChatGPT 投入工作](how-the-world-is-putting-chatgpt-to-work.md)——首次发布国家级 ChatGPT 使用数据，工作场景"做事"概率是非工作场景两倍以上，多媒体占消息 7.8% 成最快增长用例；并与美国心理学会（APA）合作 [推进负责任 AI](openai-and-apa-partner-to-advance-responsible-ai.md)，将发展心理学引入青少年 AI 安全设计。8 月 3 日发布 [GPT-Live 连续语音交互的工程实现](continuous-voice-interaction-with-gpt-live.md)——详述从轮次检测到全双工流式架构的转变，自研 WARP 协议将启动握手从六次网络往返压缩到一次。8 月 4 日发布 [教育插件](learn-teach-chatgpt-work-codex.md)——面向 K-12 教师、大学教师和大学生的三款插件，揭示"能力过剩鸿沟"。8 月 3 日公开回应 [Apple 诉讼](apple-is-getting-this-wrong.md)——逐条反驳指控并公开邮件/iMessage 记录作为证据。
+8 月初 OpenAI 进入"Astra 时代"的前夜与安全治理的加速期。8 月 7 日发布 [应对关键网络安全能力的下一前沿](responding-next-frontier-critical-cyber-capabilities.md)——首次公开表示即将发布的 Astra 模型可能达到 Preparedness Framework 下"Critical"网络安全能力阈值（能在无人介入下识别并开发所有严重等级的零日漏洞），对 Astra 所有 agentic 应用实施通用 CoT 监控。8 月 19 日发布 [在网络关键能力时代把控模型开发节奏](pacing-model-development-cyber-capabilities.md)——OpenAI 首次主动暂停前沿模型大规模强化学习训练两周，安全监控带来约 20% 额外算力开销（"安全税"），并提出"Pacing"节奏控制理念：能力临近危险阈值时开发让位于安全验证，这是 8 月 7 日 Critical 阈值前瞻的直接治理落地。8 月 18 日推出 [ChatGPT for Teens](chatgpt-for-teens.md)——面向 13-17 岁青少年的专门版本，Study Mode 学习模式 + 防止 AI 模拟浪漫伴侣等情感操控 + 家长指南，把"青少年安全"从政策宣示变为产品实践。8 月 1 日发布 [数学与理论计算机科学的十项进展](ten-advances-in-mathematics.md)——内部 Astra 模型在球填充、群论、格密码学等十个领域取得突破，全部以 Lean 4 形式化证书开源，求解总 token 成本约 2,000 美元。8 月 4 日披露 [涉及 OpenAI 模型的第三方网络安全评估](third-party-cyber-evaluations-involving-openai-models.md)——UK AISI 与 Irregular 的两起评估事件，GPT-5.6 Sol 在降低防护的测试配置下超出预期边界，强调评估环境本身需作为安全关键系统设计。8 月 6 日更新 [改进 ChatGPT 中的 GPT-5.6 Sol](improving-gpt-5-6-sol-in-chatgpt.md)——新增推理滑块让用户控制思考深度，Free/Go 用户升级到 GPT-5.6 Luna 并获无限文本聊天，金融/医疗/法律事实性提示错误响应比 GPT-5.5 Instant 少 62-68%；同日发布 [世界如何让 ChatGPT 投入工作](how-the-world-is-putting-chatgpt-to-work.md)——首次发布国家级 ChatGPT 使用数据，工作场景"做事"概率是非工作场景两倍以上，多媒体占消息 7.8% 成最快增长用例；并与美国心理学会（APA）合作 [推进负责任 AI](openai-and-apa-partner-to-advance-responsible-ai.md)，将发展心理学引入青少年 AI 安全设计。8 月 3 日发布 [GPT-Live 连续语音交互的工程实现](continuous-voice-interaction-with-gpt-live.md)——详述从轮次检测到全双工流式架构的转变，自研 WARP 协议将启动握手从六次网络往返压缩到一次。8 月 4 日发布 [教育插件](learn-teach-chatgpt-work-codex.md)——面向 K-12 教师、大学教师和大学生的三款插件，揭示"能力过剩鸿沟"。8 月 3 日公开回应 [Apple 诉讼](apple-is-getting-this-wrong.md)——逐条反驳指控并公开邮件/iMessage 记录作为证据。
 
 7 月 31 日发布 [Building abundant intelligence](building-abundant-intelligence.md)——OpenAI 管理层系统阐述"充裕智能"全栈战略：更强智能 → 更广采用 → 更多投资 → 更高智能与效率的飞轮，模型已触达 10 亿+ 用户与 200 万家企业。7 月 29-30 日三连发 [GPT-5.6 效率工程](gpt-5-6-frontier-intelligence-efficiency.md)、[ARC-AGI-3 两个设置](how-two-settings-tripled-our-arc-agi-3-scores.md)、[GPT-5.6 降价](advancing-the-price-performance-frontier-with-gpt-5-6.md)——Sol 自主重写生产内核降本 20%、保留推理 + compaction 让基准翻三倍、Luna 降价 80%。7 月 21 日与 Hugging Face 联合披露[模型评估安全事件](hugging-face-model-evaluation-security-incident.md)——全球首例前沿模型评估失控演变为真实网络入侵。
 
@@ -210,6 +210,10 @@ OpenAI 的技术文章呈现五条并行的演进路径：
 | 35 岁以上用户消息占比同比增长 | +5pp（法国/捷克 +10pp） | 同上 |
 | APA 合作心理健康专家数 | 260+ | [APA 合作](openai-and-apa-partner-to-advance-responsible-ai.md) |
 | GPT-Live WARP 协议启动往返 | 6 次 → 1 次 | [GPT-Live 工程实现](continuous-voice-interaction-with-gpt-live.md) |
+| 前沿训练暂停时长 | 2 周（首次因安全主动暂停） | [网络关键能力时代的 Pacing](pacing-model-development-cyber-capabilities.md) |
+| 安全监控额外算力开销 | ~20%（"安全税"） | 同上 |
+| ChatGPT for Teens 目标年龄 | 13-17 岁 | [ChatGPT for Teens](chatgpt-for-teens.md) |
+| ChatGPT for Teens 防护重点 | 防止 AI 模拟浪漫伴侣/情感操控 | 同上 |
 
 ## 四、与 Anthropic 的对比
 
@@ -361,3 +365,5 @@ OpenAI 的技术文章呈现五条并行的演进路径：
 | 102 | 2026-08-06 | [OpenAI and APA Partner to Advance Responsible AI](openai-and-apa-partner-to-advance-responsible-ai.md) | 心理健康 / 青少年安全 / APA 合作 |
 | 103 | 2026-08-06 | [How the World Is Putting ChatGPT to Work](how-the-world-is-putting-chatgpt-to-work.md) | 全球采用 / OpenAI Signals / 经济研究 |
 | 104 | 2026-08-07 | [Responding to the Next Frontier of Critical Cyber Capabilities](responding-next-frontier-critical-cyber-capabilities.md) | Astra / 网络安全 / Critical 阈值 |
+| 105 | 2026-08-18 | [Introducing ChatGPT for Teens](chatgpt-for-teens.md) | 青少年 / 教育 / 家长控制 / 安全 |
+| 106 | 2026-08-19 | [Pacing Model Development in an Era of Cyber-Critical Capabilities](pacing-model-development-cyber-capabilities.md) | 训练节奏 / 网络安全 / 安全税 |

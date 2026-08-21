@@ -1,6 +1,6 @@
 # Anthropic Engineering Blog — 核心观点总结
 
-> 汇总自 [Anthropic Engineering](https://www.anthropic.com/engineering) 博客的 32 篇文章，涵盖 2024 年 9 月至 2026 年 8 月。
+> 汇总自 [Anthropic Engineering](https://www.anthropic.com/engineering) 博客的 45 篇文章，涵盖 2024 年 9 月至 2026 年 8 月。
 
 ## 一、总体脉络
 
@@ -13,6 +13,10 @@ Anthropic 的工程博客呈现了一条清晰的技术演进路径：
 从最初关注如何写好单个提示，到管理整个 Agent 的上下文生态，再到设计长时间运行的多角色 Harness 系统，最终到将 Agent 的推理、执行和状态解耦为可独立演进的基础设施层——这反映了 AI Agent 从简单工具到自主系统再到可扩展基础设施的演进。
 
 8 月初 Anthropic 工程博客集中发布 Claude Enterprise 企业部署与安全管控的六大组件。[Auto Mode 成为默认](auto-mode-default-in-claude-code.md)（8 月 14 日起 Pro/Max/Team 默认启用）标志着 Agent 权限管理从"人工逐条审批"转向"分类器自动决策"——1,053 人对照实验显示人工仅拦截 13.6% 危险命令而 auto mode 拦截 89%，分类器开销不再收费；[Auto Mode 生产实践](auto-mode-in-production.md) 通过 Nuro、Gusto、Garner Health 三家案例验证，Claude 在两次中断间工作时长提升 9 倍。[自托管环境](run-claude-code-sessions-on-your-own-compute.md) 让企业在自有基础设施上运行 Claude Code（源代码和密钥不出网络），填补金融/医疗/政府强合规行业的数据驻留缺口。[Inference Hooks](claude-enterprise-inference-hooks.md) 提供企业级内联 DLP（数据防泄漏）——签名 WebSocket 将每次 prompt 和工具响应路由到客户 DLP 服务器做 allow/deny 判定，与 Netskope/Palo Alto/Zscaser 等现有安全栈集成。[成本可见性与控制指南](cost-visibility-and-control-in-claude.md) 系统阐述"每成果成本"理念，通过模型分级（Fable/Opus/Sonnet/Haiku）+ effort 控制 + advisor 策略实现精细化成本管控。[Millennium 数字风险分析师](millennium-digital-risk-analyst.md) 是金融业企业案例——与全球最大另类投资管理公司之一共建 AI 风险分析队友，覆盖 340+ 投资团队。这六篇文章共同构成 Claude Enterprise "数据驻留 + 内容检查 + 操作决策 + 成本管控 + 业务价值"的完整企业栈。
+
+8 月 11 日发布 [Claude 文本水印的工作原理](claude-text-watermarking.md)——为 Claude 生成的所有文本与文件嵌入隐形水印，水印在模型生成阶段嵌入（而非事后附加），对人类不可见但可被检测器识别，即使复制粘贴或轻量编辑仍可追溯；配套 C2PA 元数据与检测 API，回应欧盟 AI 法案对 AI 内容标识的要求。与 [Inference Hooks](claude-enterprise-inference-hooks.md)（管"谁用了数据"）互补，水印管"内容来自哪里"，共同构成企业合规闭环。
+
+8 月中旬起 Anthropic 工程博客进入"企业 Agent 平台化 + 全员采用"爆发期，一周内发布 12 篇新文章。**Agent 构建三件套 GA**：[Computer Use + Skills API + Files API](computer-use-skills-api-files-api.md)（8/20）让开发者构建"能操作软件 + 注入团队经验 + 返回成品文件"的生产级 Agent，新增 browser use tool 按页面结构而非屏幕坐标操作。[Compliance API 覆盖 Cowork 与 Claude Code](compliance-api-cowork-claude-code.md)（8/11）以增量端点把审计能力扩展到 Agent 产品，与推理钩子构成"事前 + 事后"治理闭环。[Claude Cowork 进 Chrome 侧边栏](cowork-chrome-side-panel.md)（8/12）让浏览器内 Agent 任务跨桌面/移动/Web 延续。**全员采用案例**：[monday.com agent-first 重构](monday-com-agent-first-platform.md)（8/20）——25 万公司平台两个月 500 万次 Agent 交互，五条转型经验；[Slack 人机团队](slack-human-agent-teams.md)（8/19）——"工作即对话"的开放频道协作；[ABC Legal 全员构建者](abc-legal-managed-agents.md)（8/17）——1,100 名法律公司员工用 Managed Agents 自建自动化；[JetBrains 评估 Fable 5](jetbrains-evaluates-claude-fable-5.md)（8/13）——私有仓库评估 + 护栏数据保留优先。**内部实践**：[Claude Tag CI/CD 值班](claude-tag-ci-cd-on-call.md)（8/18）——Agent 作为 CI/CD 故障第一响应者；[Claude Tag 自助数据分析](claude-tag-self-service-data-analytics.md)（8/13）——约 95% 准确率的治理一致数据问答。**效率与教学**：[Claude Code 会话价值最大化](maximizing-value-of-claude-code-sessions.md)（8/14）——`/clear`、`/compact`、缓存友好的会话卫生；[创业公司 Claude Code 指南](claude-code-guide-for-startups.md)（8/20）——五条运营原则 + 可量化效率（功能交付 +30%、生产力 2-3 倍）；[Anthropic 教学 AI 方法](anthropics-approach-to-teaching-and-learning-ai.md)（8/20）——Claude Academy 与"增加自主性"的教学哲学。
 
 ## 二、七大核心主题
 
@@ -89,6 +93,9 @@ Anthropic 的工程博客呈现了一条清晰的技术演进路径：
 | Millennium Claude Code 覆盖投资团队 | 340+ | [Millennium 数字风险分析师](millennium-digital-risk-analyst.md) |
 | Inference Hooks DLP 覆盖产品 | chat / Claude Code / Cowork 全部 | [Inference Hooks](claude-enterprise-inference-hooks.md) |
 | Prompt caching 缓存命中费率 | 正常输入的 10% | [成本可见性与控制](cost-visibility-and-control-in-claude.md) |
+| 水印嵌入时机 | 模型生成阶段（非事后附加） | [Claude 文本水印](claude-text-watermarking.md) |
+| 水印覆盖内容 | 全部文本与文件（含代码） | 同上 |
+| 水印检测能力 | 编辑/复制粘贴后仍可追溯 | 同上 |
 
 ## 四、贯穿始终的原则
 
@@ -137,3 +144,16 @@ Anthropic 的工程博客呈现了一条清晰的技术演进路径：
 | 30 | 2026-08-06 | [Millennium and Anthropic Are Building a Digital Risk Analyst](millennium-digital-risk-analyst.md) | 企业案例 / 金融风险 / Agent |
 | 31 | 2026-08-07 | [Auto Mode Is Now the Default in Claude Code](auto-mode-default-in-claude-code.md) | 自动权限 / 分类器 / 默认设置 |
 | 32 | 2026-08-07 | [Running Auto Mode in Production](auto-mode-in-production.md) | 生产实践 / 企业部署 / 长时 Agent |
+| 33 | 2026-08-11 | [How Claude's Text Watermarking Works](claude-text-watermarking.md) | 内容溯源 / 水印 / EU AI Act / C2PA |
+| 34 | 2026-08-11 | [Compliance API Coverage Extends to Cowork and Claude Code](compliance-api-cowork-claude-code.md) | 合规审计 / eDiscovery / 企业治理 |
+| 35 | 2026-08-12 | [Claude Cowork Comes to the Chrome Side Panel](cowork-chrome-side-panel.md) | 浏览器 Agent / 跨设备延续 |
+| 36 | 2026-08-13 | [Securing the Frontier: How JetBrains Evaluates and Deploys Claude Fable 5](jetbrains-evaluates-claude-fable-5.md) | 企业评估 / 模型选型 / 数据保留 |
+| 37 | 2026-08-13 | [Self-service Data Analytics in Slack with Claude Tag](claude-tag-self-service-data-analytics.md) | 数据分析 / 治理一致 / 自助服务 |
+| 38 | 2026-08-14 | [Maximizing the Value of Your Claude Code Sessions](maximizing-value-of-claude-code-sessions.md) | Token 优化 / 会话管理 / Prompt Cache |
+| 39 | 2026-08-17 | [How ABC Legal Turned Every Employee into a Builder](abc-legal-managed-agents.md) | 全员采用 / Managed Agents / 法律科技 |
+| 40 | 2026-08-18 | [Claude on Call: CI/CD First Responder](claude-tag-ci-cd-on-call.md) | 运维 Agent / CI/CD 值班 / 第一响应者 |
+| 41 | 2026-08-19 | [Turning Conversation into Knowledge: Slack Human-Agent Teams](slack-human-agent-teams.md) | 人机团队 / 知识管理 / 开放频道 |
+| 42 | 2026-08-20 | [Build Production Agents with Computer Use, Skills API, Files API](computer-use-skills-api-files-api.md) | Agent 三件套 GA / 浏览器工具 |
+| 43 | 2026-08-20 | [The Claude Code Guide For Startups](claude-code-guide-for-startups.md) | 创业公司 / 效率原则 / 最佳实践 |
+| 44 | 2026-08-20 | [How monday.com Transformed Its Platform into an Agent-First Product](monday-com-agent-first-platform.md) | Agent-first 重构 / 人机协作 / 企业案例 |
+| 45 | 2026-08-20 | [Anthropic's Approach to Teaching and Learning AI](anthropics-approach-to-teaching-and-learning-ai.md) | Claude Academy / AI 教育 / 自主性 |

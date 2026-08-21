@@ -1,6 +1,6 @@
 # Google DeepMind — 核心观点总结
 
-> 汇总自 [Google DeepMind Blog](https://deepmind.google/blog/) 的 24 篇文章，涵盖 2026 年 3 月至 8 月。
+> 汇总自 [Google DeepMind Blog](https://deepmind.google/blog/) 的 29 篇文章，涵盖 2026 年 3 月至 8 月。
 
 ## 一、总体脉络
 
@@ -10,7 +10,7 @@ Google DeepMind 在 2026 年呈现五大战略方向：
 模型突破 → Agent 平台 → 科学发现 → 具身智能 → AGI 评估与治理
 ```
 
-Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发平台，Gemini for Science 将 AI 深度嵌入科学研究。Google 的差异化在于"模型 + 平台 + 科学"三位一体。7 月新动态把版图继续外扩：Gemini Robotics 2 系列实现全身控制人形机器人，3.6 Flash / 3.5 Flash-Lite / 3.5 Flash Cyber 三模型齐发主打 Agent 效率与网络安全垂直场景，Managed Agents 升级为"可编程的云上自动化层"；3-4 月补齐的 AlphaGo 十周年、AGI 认知框架、韩国国家合作与 AI co-clinician 则展示了"技术谱系叙事 + 国家级落地 + 医疗新模式"的治理与生态纵深。6-7 月的扩展进一步把科研模型推向"基础设施化"：DeepMind 与 Isomorphic Labs 联合发布"生物韧性"框架把 AlphaFold/AlphaGenome/AlphaEvolve 从科研突破转化为生物安全基础设施；Nano Banana 2 Lite 与 Gemini Omni Flash 两款开发者媒体模型把图像与视频生成管线打通；Genesis Mission 的 4000 万美元承诺则把五大科研模型投放到 DOE 国家实验室的实际科研流水线。8 月初 [WeatherNext 气旋预测突破](weathernext-cyclones-breakthrough.md) 在《Nature》发表——单一 AI 模型同时预测热带气旋路径、强度和风场结构，三天预报达到此前模型两天预报水平（约等于过去十年气象学进展），同步开源 WeatherNext 2 与 WeatherNext Cyclones 模型代码及权重。
+Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发平台，Gemini for Science 将 AI 深度嵌入科学研究。Google 的差异化在于"模型 + 平台 + 科学"三位一体。7 月新动态把版图继续外扩：Gemini Robotics 2 系列实现全身控制人形机器人，3.6 Flash / 3.5 Flash-Lite / 3.5 Flash Cyber 三模型齐发主打 Agent 效率与网络安全垂直场景，Managed Agents 升级为"可编程的云上自动化层"；3-4 月补齐的 AlphaGo 十周年、AGI 认知框架、韩国国家合作与 AI co-clinician 则展示了"技术谱系叙事 + 国家级落地 + 医疗新模式"的治理与生态纵深。6-7 月的扩展进一步把科研模型推向"基础设施化"：DeepMind 与 Isomorphic Labs 联合发布"生物韧性"框架把 AlphaFold/AlphaGenome/AlphaEvolve 从科研突破转化为生物安全基础设施；Nano Banana 2 Lite 与 Gemini Omni Flash 两款开发者媒体模型把图像与视频生成管线打通；Genesis Mission 的 4000 万美元承诺则把五大科研模型投放到 DOE 国家实验室的实际科研流水线。8 月初 [WeatherNext 气旋预测突破](weathernext-cyclones-breakthrough.md) 在《Nature》发表——单一 AI 模型同时预测热带气旋路径、强度和风场结构，三天预报达到此前模型两天预报水平（约等于过去十年气象学进展），同步开源 WeatherNext 2 与 WeatherNext Cyclones 模型代码及权重。8 月 6 日 [Google 领导层重组](next-chapter-ai-momentum.md)——Demis Hassabis 卸任 DeepMind CEO 转任 Alphabet 首席科学家兼 DeepMind 主席，27 年老将 Jeff Dean 离职创业，Koray Kavukcuoglu 接任 CEO，研究（AGI/科学）与应用（Gemini 产品化）分线管理；同日发布 [Veo 3.1](veo-3-1.md)——4K 输出 + 原生竖屏视频 + 改进的素材转视频，直接回应 Sora 2 竞争。8 月中旬研究 [SkillSmith](skillsmith.md) 把模型权重当作"可读写模态"，通过 KV-cache 层组合参数化技能与文本知识，在 Gemma 3 4B 上小模块反超全量微调。
 
 ## 二、核心主题
 
@@ -80,6 +80,22 @@ Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发
 
 [Gemini Robotics ER 2](gemini-robotics-er-2.md) 定位机器人的"高层大脑"：相比 ER 1.6 的阶跃变化是时序智能——连续视频流追踪自身进度（进度分类 57.4%）、关键时刻定位（91.3% 准确率、0.96s 误差、4× 速度）、出错自我纠正，并首次引入多机器人协作；接入 Live API 双向流式消除"停下-思考-再行动"顿挫，Boston Dynamics Spot 演示代码已开源。
 
+### 10. 组织与领导力
+
+[The next chapter of our AI momentum](next-chapter-ai-momentum.md)（2026-08-06）是 Pichai 给团队的内部信公开版：Demis Hassabis 卸任 DeepMind CEO，转任 Alphabet 首席科学家并担任 DeepMind 主席，聚焦 AGI 级研究方向；Koray Kavukcuoglu 接任 DeepMind CEO 掌舵 Gemini 产品化；27 年老将 Jeff Dean 携三位顶尖科学家离职创业。研究（AGI、科学发现）与应用（Gemini 产品化）分线管理，消息公布后 Alphabet 股价一度下跌超 4%——市场对核心科学家流失的担忧直接反映在估值上。与 OpenAI 通过外部董事强化治理（David Vélez 等）形成对比，Google 选择让研究者回归研究的组织路线。
+
+### 11. 视频生成
+
+[Introducing Veo 3.1](veo-3-1.md)（2026-08-06）是视频生成模型的工业级升级：4K 输出 + 高保真超分、原生 9:16 竖屏视频适配短视频生态、改进的"Ingredients to Video"（素材转视频）提升角色一致性与音视频同步，Flow 创作工具同步获得新能力。Veo 3.1 同步在 Gemini API 提供，支持程序化调用。与 Gemini Omni 打通多模态生成形成组合，直接对标 OpenAI Sora 2，控制性（一致性、格式、素材）成为关键差异点。
+
+### 12. 技能组合研究
+
+[SkillSmith](skillsmith.md)（arXiv 2607.27497）把"参数化技能"（写入权重的技能）与"文本知识"（自然语言描述）在 KV-cache 层组合成新技能，把模型权重当作"可读写的输入模态"。在 Gemma 3 4B 上验证：组合的小模块在目标任务上超越全量微调且保持通用能力，计算成本远低于完整微调。与 Anthropic Agent Skills（SKILL.md 文本封装）、MCP（服务层标准化）形成"文本、文件、权重"三种技能封装路线。
+
+### 13. 气候行动与开源生态
+
+[Operation Blue Skies](operation-blue-skies.md)（2026-08-19）是 Google 与英国政府合作的首个国家级 AI 试验：AI 为飞行员选择产生更少凝结尾迹的飞行路线，在 Shanwick 北大西洋空域真实运行——凝结尾迹的变暖效应与航空碳排放相当，AI 以极小燃油代价换取显著气候收益，是"天气预测能力（WeatherNext）转化为气候干预"的标志。[Gemmaverse：Gemma 十亿下载](gemma-one-billion-downloads.md)（2026-08-21）庆祝 Gemma 累计下载突破 10 亿次、开发者构建 10 万+ 变体，覆盖太空任务到医疗健康——与 HF 报告显示的 Qwen 30 亿下载共同勾勒开源模型生态头部格局。
+
 ## 三、关键数据点
 
 | 指标 | 数值 | 来源 |
@@ -119,6 +135,14 @@ Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发
 | WeatherNext 集成规模 | 1000 成员（去年 50） | 同上 |
 | WeatherNext 单块 TPU 15 天预报生成时间 | <1 分钟 | 同上 |
 | WeatherNext Cyclones 数据分辨率 | 28×28km（比传统模型粗 100 倍） | 同上 |
+| Veo 3.1 输出分辨率 | 4K + 原生 9:16 竖屏 | Veo 3.1 |
+| Veo 3.1 关键升级 | 角色一致性 / 素材转视频 / 音视频同步 | Veo 3.1 |
+| SkillSmith 验证模型 | Gemma 3 4B（小模块反超全量微调） | SkillSmith |
+| SkillSmith 技能组合层 | KV-cache（无需修改基础权重） | SkillSmith |
+| Operation Blue Skies 试验空域 | Shanwick 北大西洋（英国国家级） | Operation Blue Skies |
+| 凝结尾迹变暖效应 | 与航空碳排放相当（部分估算） | Operation Blue Skies |
+| Gemma 累计下载 | 10 亿+ | Gemma One Billion |
+| Gemma 开发者变体 | 100,000+ | Gemma One Billion |
 
 ## 四、贯穿始终的原则
 
@@ -159,3 +183,8 @@ Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发
 | 22 | 2026-07-16 | [Our approach to bioresilience](our-approach-to-bioresilience.md) | 生物安全 / CBRN / AlphaFold |
 | 23 | 2026-07-22 | [Genesis Mission $40M commitment](accelerating-the-frontiers-of-scientific-discovery-googles-40m-commitment-to-the-genesis-mission.md) | AI for Science / DOE 国家实验室 |
 | 24 | 2026-08-06 | [WeatherNext Cyclones Breakthrough](weathernext-cyclones-breakthrough.md) | 天气预报 / 气旋预测 / 开源模型 |
+| 25 | 2026-08-06 | [The Next Chapter of Our AI Momentum](next-chapter-ai-momentum.md) | 领导层 / 组织变革 / Hassabis |
+| 26 | 2026-08-06 | [Introducing Veo 3.1](veo-3-1.md) | 视频生成 / 4K / 竖屏 |
+| 27 | 2026-07-28 | [SkillSmith: Composing Parametric Skills](skillsmith.md) | 技能组合 / KV-cache / 权重即模态 |
+| 28 | 2026-08-19 | [Operation Blue Skies: Reducing Aviation Climate Impact with AI](operation-blue-skies.md) | 气候行动 / 凝结尾迹 / 航线优化 |
+| 29 | 2026-08-21 | [Inside the Gemmaverse: One Billion Gemma Downloads](gemma-one-billion-downloads.md) | 开源生态 / 里程碑 / 开发者社区 |

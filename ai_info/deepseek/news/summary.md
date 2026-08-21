@@ -18,7 +18,7 @@
 正式版 GA（DSpark 推测解码标配 + 后训练驱动的 Agent 跃升）
 ```
 
-核心差异化：用 MIT 开源 + 极致性价比，对闭源模型形成"Opus 级能力、1/7 价格"的钳形攻势。7 月中旬 V4 全量转正（GA），揭晓此前的"预览即生产"发布策略；7 月 31 日 [V4-Flash 正式版](deepseek-v4-flash-official-release.md)（v4-flash-0731）仅靠重新后训练就在 Agent 基准上全面超越 V4-Pro 预览版，原生支持 Responses API 并适配 Codex 生态。
+核心差异化：用 MIT 开源 + 极致性价比，对闭源模型形成"Opus 级能力、1/7 价格"的钳形攻势。7 月中旬 V4 全量转正（GA），揭晓此前的"预览即生产"发布策略；7 月 31 日 [V4-Flash 正式版](deepseek-v4-flash-official-release.md)（v4-flash-0731）仅靠重新后训练就在 Agent 基准上全面超越 V4-Pro 预览版，原生支持 Responses API 并适配 Codex 生态。8 月 13 日 [V4-Pro GA 与 API 调价](deepseek-api-price-adjustment-2026-08.md) 正式落地：新价格 8 月 16 日 16:00 UTC 生效（北京时间 8 月 17 日），部分模型涨幅最高 1100%，峰谷分时计费全面执行——低峰时段价格为高峰的 50%；V4-Pro GA 本身带来推理 effort 三档（low/high/max）与原生 Responses API。"价格屠夫"开始"收刀"，低价红利期结束，国产大模型商业化进入新阶段。
 
 ## 二、核心主题
 
@@ -62,7 +62,11 @@
 
 首次引入峰谷计费：高峰时段（每日 9:00-12:00、14:00-18:00）价格 ×2。旧模型名 `deepseek-chat` / `deepseek-reasoner` 将于 2026-07-24 15:59 UTC 废弃。
 
-### 5. 国产算力优先策略
+### 5. V4-Pro GA 与 2026-08 调价落地
+
+[V4-Pro GA 与 API 调价](deepseek-api-price-adjustment-2026-08.md)（2026-08-13 公告，8 月 16-17 日生效）是 6 月定价预告的正式落地：V4-Pro 转正带来重大 Agent 升级（推理 effort 三档可调：low 简单任务 / high 日常 Agent 工作流 / max 复杂任务；原生 OpenAI Responses API 支持，为 Codex 优化一键配置；App/Web "Expert Mode" 可用），同时更新 API 定价——部分模型涨幅最高 1100%，低峰时段价格为高峰的 50%，鼓励开发者错峰调度批处理任务。调价标志 DeepSeek 从"以低价换规模"转向"合理定价换可持续"，与 GLM Coding Plan 涨价、Kimi 商业化并行，国产大模型"集体变贵"成为 2026 年下半年的行业趋势。
+
+### 6. 国产算力优先策略
 
 V4 优先适配华为昇腾等国产 AI 芯片，未向美国芯片供应商开放测试。但 R2 的延期也暴露了昇腾训练稳定性不足的问题——训练阶段仍部分依赖英伟达。
 
@@ -87,6 +91,10 @@ V4 优先适配华为昇腾等国产 AI 芯片，未向美国芯片供应商开�
 | V4-Flash-0731 NL2Repo / Cybergym / DeepSWE | 54.2 / 76.7 / 54.4 | V4-Flash 正式版 |
 | V4-Flash-0731 Toolathlon verified / Agent Last Exam | 70.3 / 25.2 | 同上 |
 | V4-Flash-0731 DSBench-FullStack / DSBench-Hard | 68.7 / 59.6 | 同上 |
+| 2026-08 调价最高涨幅 | 1100% | V4-Pro GA 与调价 |
+| 峰谷定价低峰价格 | 高峰的 50% | 同上 |
+| 新价格生效时间 | 2026-08-16 16:00 UTC | 同上 |
+| V4-Pro 推理 effort 档位 | low / high / max 三档 | 同上 |
 
 ## 四、与 OpenAI / Anthropic / Kimi / GLM 的对比
 
@@ -118,5 +126,6 @@ V4 优先适配华为昇腾等国产 AI 芯片，未向美国芯片供应商开�
 | 2 | 2026-06-29 | [DeepSeek-V4 API 定价](deepseek-v4-api-pricing.md) | 峰谷计费 / 旧模型废弃 / 成本工程 |
 | 3 | 2026-07-15 | [DeepSeek-V4 正式版 GA](deepseek-v4-ga.md) | 正式版转正 / DSpark 推测解码 / Agent 跃升 |
 | 4 | 2026-07-31 | [DeepSeek-V4-Flash 正式版发布](deepseek-v4-flash-official-release.md) | V4-Flash 公测 / Agent 基准 / Responses API / Codex 适配 |
+| 5 | 2026-08-13 | [V4-Pro GA 与 API 调价](deepseek-api-price-adjustment-2026-08.md) | V4-Pro 转正 / 调价 1100% / 峰谷计费 |
 
 > **说明**：mHC、Engram、CSA/HCA、Muon 优化器部分均基于 arXiv 论文原文（2026-07-20 检索），包括 DeepSeek-V4 完整技术报告（arXiv:2606.19348，55+ 页）；定价信息直接来自官方 API 文档，可交叉验证。

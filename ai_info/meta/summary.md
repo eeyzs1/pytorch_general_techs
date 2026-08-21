@@ -1,6 +1,6 @@
 # Meta AI — 核心观点总结
 
-> 汇总 Meta AI 近期重大动态，9 篇文章，涵盖 2025 年 4 月至 2026 年 8 月。
+> 汇总 Meta AI 近期重大动态，13 篇文章，涵盖 2025 年 4 月至 2026 年 8 月。
 
 ## 一、总体脉络
 
@@ -10,7 +10,7 @@ Meta AI 在 2025-2026 年经历了剧烈的战略转变：
 Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark → Brain2Qwerty v2 → SAM 3.1 → Muse Image / Spark 1.1 → Meta AI Agent 化 → Muse Code 编码 Agent
 ```
 
-从开源旗手到闭源转向，从 Llama 品牌危机到 MSL 重建，Meta 用一年时间完成了 AI 战略的彻底重构。2026 年 6 月底，Meta 又发布 [Brain2Qwerty v2](brain2qwerty-v2.md)——非侵入式脑机接口的端到端 LLM 解码 pipeline，在 Nature Neuroscience 发表并开源全部训练代码与数据集，标志 Meta 在"AI + 神经科学"方向继续深入，与主流 LLM 产品形成"产品 + 科学"双轨。7 月 MSL 进入收获期：[Muse Image](muse-image.md) 图像生成进入 Instagram/WhatsApp 社交生态，[Muse Spark 1.1](muse-spark-1-1.md) 升级"主-子 Agent 编排"并开启 Meta Model API 公测（Meta 首次直接售卖旗舰模型调用），[Meta AI 获得 Agent 化能力](meta-ai-muse-spark-doesnt-just-think-it-acts.md)——定时任务、邮件日历连接、可引导深度研究，官方称"迈向个人超级智能的下一步"。开源侧 [SAM 3.1](sam-3-1.md) 用 Object Multiplex 把 128 目标视频分割推理提速约 7 倍，开源视觉基础模型竞争从精度转向部署效率。8 月 5 日 MSL 发布 [Muse Code](introducing-muse-code-muse-spark-1-2.md)——Meta 首个终端编码 Agent，由新模型 Muse Spark 1.2 驱动，正式加入由 Anthropic（Claude Code）与 OpenAI（Codex）主导的编码 Agent 赛道，差异化在于"模型与 harness 协同训练"和持久化后台 Agent + append-only 事件日志。
+从开源旗手到闭源转向，从 Llama 品牌危机到 MSL 重建，Meta 用一年时间完成了 AI 战略的彻底重构。2026 年 6 月底，Meta 又发布 [Brain2Qwerty v2](brain2qwerty-v2.md)——非侵入式脑机接口的端到端 LLM 解码 pipeline，在 Nature Neuroscience 发表并开源全部训练代码与数据集，标志 Meta 在"AI + 神经科学"方向继续深入，与主流 LLM 产品形成"产品 + 科学"双轨。7 月 MSL 进入收获期：[Muse Image](muse-image.md) 图像生成进入 Instagram/WhatsApp 社交生态，[Muse Spark 1.1](muse-spark-1-1.md) 升级"主-子 Agent 编排"并开启 Meta Model API 公测（Meta 首次直接售卖旗舰模型调用），[Meta AI 获得 Agent 化能力](meta-ai-muse-spark-doesnt-just-think-it-acts.md)——定时任务、邮件日历连接、可引导深度研究，官方称"迈向个人超级智能的下一步"。开源侧 [SAM 3.1](sam-3-1.md) 用 Object Multiplex 把 128 目标视频分割推理提速约 7 倍，开源视觉基础模型竞争从精度转向部署效率。8 月 5 日 MSL 发布 [Muse Code](introducing-muse-code-muse-spark-1-2.md)——Meta 首个终端编码 Agent，由新模型 Muse Spark 1.2 驱动，正式加入由 Anthropic（Claude Code）与 OpenAI（Codex）主导的编码 Agent 赛道，差异化在于"模型与 harness 协同训练"和持久化后台 Agent + append-only 事件日志。8 月 10 日 Meta 双线发力：发布 [Muse Glimmer](introducing-muse-glimmer.md)——30B 参数、Apache 2.0 许可的开源端侧 Agent 模型（约 24GB 显存可运行），从闭源旗舰 Muse Spark 1.2 蒸馏而来，时隔 16 个月重返开源；同日 Zuckerberg 发布 [《The Future is for Everyone》](the-future-is-for-everyone.md)——6510 字长文系统阐述"多超智能 + 开源防集中"的 AI 世界观，并宣布 10 亿美元开放模型基金，"理念 + 产品"组合拳直面 OpenAI/Anthropic 的闭源路线。
 
 ## 二、核心事件
 
@@ -61,6 +61,18 @@ Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark
 
 [Muse Code 与 Muse Spark 1.2](introducing-muse-code-muse-spark-1-2.md)（2026-08-05）是 MSL 正式进入编码 Agent 赛道的标志。Muse Code 是运行于终端的 AI 编码 Agent，由新模型 Muse Spark 1.2 驱动，面向大型代码仓库的复杂软件工程任务。两大核心设计：**持久化异步后台 Agent**（整个会话期间持续运行，大任务可拆分为多个子 Agent 在独立 git worktree 中并行工作）和**本地 append-only 事件日志**（记录每次模型调用、工具运行、审批与编辑，可精确重放且崩溃后可恢复，使 24 小时、1000+ 次工具调用的长时程任务能存活于故障）。Muse Spark 1.2 与 Muse Code 协同训练——引入拒绝采样的 Agent 轨迹、目标执行/上下文压缩/子 Agent 配方优化，并将 Muse Code 工具集纳入训练。内置三个默认技能：`/plan`（生成需审批的计划）、`/grill`（对计划反复压力测试）、`/goal`（围绕目标持续推进直至完成）。Terminal-Bench 2.1 得分 82.9%（第二，仅次于 Claude Code on Opus 5 的 86.7%，高于 Codex on GPT-5.6 Terra 的 81.8%），DeepSWE 1.1 得 59.3%（第三），Meta 内部 Coding Bench 70.6%（低于 Claude Opus 5 的 79.4%）。模型未开放权重，通过 Meta Model API 提供，定价与 Spark 1.1 一致（输入 $1.25/输出 $4.25 每百万 token）。Meta 自评在长时程与内部基准上仍落后于 Claude Opus 5，说明编码 Agent 的前沿仍在别处。
 
+### 10. Muse Glimmer：重返开源与端侧 Agent
+
+[Muse Glimmer](introducing-muse-glimmer.md)（2026-08-10）是 Meta 时隔 16 个月重返开源模型赛道的标志：30B 参数、Apache 2.0 许可的开放权重 Agent 模型，约 24GB 显存可运行在消费级 PC/Mac，多模态 + 函数调用 + Agent 任务优化，声称在 30B 档位优于 Gemma 4 31B。关键设计是"蒸馏即战略"——从闭源旗舰 Muse Spark 1.2 蒸馏，与闭源旗舰形成"云端闭源 + 端侧开源"双轨。Apache 2.0 许可消除商用顾虑，是继 Llama 时代后的开源策略延续但聚焦 Agent 场景。
+
+### 11. Zuckerberg 的开放 AI 愿景宣言
+
+[The Future is for Everyone](the-future-is-for-everyone.md)（2026-08-10，6510 字）是 2026 年 AI 产业路线之争的标志性文本：Zuckerberg 主张未来应存在多个独立超智能而非"单一仁慈独裁者"，开放权重是防止算力与智能权力集中的结构性机制，超智能将增加而非消灭就业，并宣布 10 亿美元基金支持开放模型生态。与 Muse Glimmer 同日发布构成"理念 + 产品"闭环，与 OpenAI"充裕智能"（集中式算力投资）形成 2026 年最清晰的路线对立，也与 Meta 数据中心投资布局直接呼应。
+
+### 12. Muse Spark 1.1 第三方评估事件与 1.2 多模态评估
+
+[回应 Muse Spark 1.1 第三方评估配置问题](addressing-third-party-testing-muse-spark-1-1.md)（8/14）是 Meta 对评估越界事件的公开复盘：Irregular 在移除生产防护的封闭测试环境中评估预发布版 Muse Spark 1.1，因配置错误导致模型行为超出预期边界——与 OpenAI/HF 事件同属"评估环境安全"这一行业共同短板。[Muse Spark 1.2 多模态智能](multimodal-intelligence-muse-spark-1-2.md)（8/20）在开源权重前发布多模态评估：视觉推理、图表理解、视频转代码（视频 → 可运行网页），关键发现是多模态增益在**模型可使用工具**时最显著。
+
 ## 三、关键数据点
 
 | 指标 | 数值 | 来源 |
@@ -86,6 +98,14 @@ Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark
 | Muse Spark 1.2 DeepSWE 1.1 | 59.3%（第三） | Muse Code |
 | Muse Spark 1.2 Meta Internal Coding Bench | 70.6%（Opus 5 为 79.4%） | Muse Code |
 | Muse Code 定价（输入/输出） | $1.25 / $4.25 每百万 token（与 Spark 1.1 一致） | Muse Code |
+| Muse Glimmer 参数规模 / 许可 | 30B / Apache 2.0 | Muse Glimmer |
+| Muse Glimmer 运行显存 | ~24GB（消费级 PC/Mac） | Muse Glimmer |
+| Muse Glimmer 对标模型 | Gemma 4 31B（声称更优） | Muse Glimmer |
+| Zuckerberg 长文字数 | 6,510 字 | The Future is for Everyone |
+| 开放模型基金规模 | $10 亿 | The Future is for Everyone |
+| Muse Spark 1.1 评估事件时间 | 2026 年 7 月初（Irregular 封闭测试） | Addressing Third-Party Testing |
+| Muse Spark 1.2 多模态增益条件 | 模型可使用工具时最显著 | Multimodal Intelligence |
+| Muse Spark 1.2 视频转代码示例 | 视频 → 功能性家居预订网页 | 同上 |
 
 ## 四、关键洞察
 
@@ -111,3 +131,7 @@ Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark
 | 7 | 2026-07-09 | [Muse Spark 1.1 and the Meta Model API](muse-spark-1-1.md) | Agent 模型 / API 公测 |
 | 8 | 2026-07-24 | [Meta AI Doesn't Just Think, It Acts](meta-ai-muse-spark-doesnt-just-think-it-acts.md) | Agent 化 / 定时任务 / 个人超级智能 |
 | 9 | 2026-08-05 | [Introducing Muse Code and Muse Spark 1.2](introducing-muse-code-muse-spark-1-2.md) | 编码 Agent / 终端工具 / 协同训练 |
+| 10 | 2026-08-10 | [Introducing Muse Glimmer](introducing-muse-glimmer.md) | 开源模型 / 端侧 Agent / Apache 2.0 |
+| 11 | 2026-08-10 | [The Future Is for Everyone](the-future-is-for-everyone.md) | AI 愿景 / 开源宣言 / 多超智能 |
+| 12 | 2026-08-14 | [Addressing Third-Party Testing of Muse Spark 1.1](addressing-third-party-testing-muse-spark-1-1.md) | 网络安全评估 / 配置错误 / 复盘 |
+| 13 | 2026-08-20 | [The Multimodal Intelligence of Muse Spark 1.2](multimodal-intelligence-muse-spark-1-2.md) | 多模态评估 / 工具增强 / 视频转代码 |

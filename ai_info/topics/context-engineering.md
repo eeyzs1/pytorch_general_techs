@@ -20,6 +20,8 @@
 - [GLM-5.2](../glm/blog/glm-5-2.md)：1M 无损上下文针对长任务的目标保持与上下文漂移专门优化——国产旗舰把"长上下文不丢目标"作为主战场，长程任务评测达开源 SOTA。
 - [How GPT-5.6 fuses frontier intelligence with frontier efficiency](../openai/research/gpt-5-6-frontier-intelligence-efficiency.md)：harness 层的上下文工程——延迟发现（集成、MCP 工具、技能仅在需要时呈现，防止上下文膨胀）+ 精确前缀保留（append-only 历史、工具确定性排序，维持高 prompt 缓存命中率）。
 - [mDenseOn with the mLateOn: Multilingual Retrieval Models](../huggingface/blog/mdenseon-mlateon-retrieval-models.md)：307M 参数开源多语言检索模型——mLateOn（late-interaction）在 BEIR 得分 57.56 达 SOTA；token 级匹配避免单向量池化过度压缩，泛化到训练中完全未见的语言与文字体系（俄语 +28、中文 +36），为多语言 RAG 管道提供小模型底座。
+- [SkillSmith: Learning to Compose Parametric Skills and Textual Knowledge](../google/deepmind/skillsmith.md)：把"技能上下文"沉入权重层——参数化技能（KV-cache 激活）与文本知识在运行时组合，模型无需微调即可按需获得新能力；与文本型技能（SKILL.md 渐进式披露）形成对照：一个把技能放在上下文/文件里，一个把技能放进模型内部表示。
+- [Maximizing the value of your Claude Code sessions](../anthropic/engineering/maximizing-value-of-claude-code-sessions.md)：会话级上下文管理——`/clear` 防止无关上下文回流、effort 与模型前置设置保持 prompt cache 命中、`/compact` 在缓存过期前压缩、`@-mention` 直接附加文件内容省 Read 调用；"最小高信号 token 集合"原则的 CLI 落地。
 
 ## 长视野任务的上下文延续
 

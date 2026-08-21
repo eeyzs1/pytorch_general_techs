@@ -1,6 +1,6 @@
 # Anthropic Research — 核心观点总结
 
-> 汇总自 [Anthropic Research](https://www.anthropic.com/research) 页面的 20 篇文章，涵盖 2026 年 5 月至 8 月。
+> 汇总自 [Anthropic Research](https://www.anthropic.com/research) 页面的 21 篇文章，涵盖 2026 年 5 月至 8 月。
 
 ## 一、总体脉络
 
@@ -10,7 +10,7 @@ Anthropic 的 Research 博客呈现九条主线：
 可解释性突破 → 对齐工程 → 科学应用 → 经济影响 → 网络安全防御 → 物理 Agent → 价值观测量 → 能力控制 → 旗舰模型
 ```
 
-7 月 28 日发布 [Discovering Cryptographic Weaknesses with Claude](discovering-cryptographic-weaknesses.md)——Frontier Red Team 展示 Claude 从"发现密码库实现漏洞"跃升到"发现密码算法本身的数学缺陷"，削弱后量子签名方案 HAWK 并为减轮 AES 找到新攻击路径。7 月 24 日发布 [Claude Opus 5](claude-opus-5.md)——新旗舰模型，以一半价格逼近 Fable 5 前沿智能，编码与知识工作新 SOTA，官方称其"最对齐的模型"；同日发布 [Project Pilot](project-pilot.md)，Frontier Red Team 把物理 Agent 能力测量扩展到无人机，沉淀为新基准 Drone-Bench。7 月 14 日发布 [How Canada Uses Claude](how-canada-uses-claude.md)——首份国家级经济指数报告，发现加拿大人均 Claude 用量是预期的 4 倍，且采用差异由产业结构而非收入驱动。7 月 13 日发布 [Claude's Values Across Models and Languages](claude-values-models-languages.md)，提出"价值轴"方法将 3,000+ 价值观压缩为可操作的少量维度，发现跨模型和跨语言的系统性价值观差异。7 月 9 日发布 [Claude Plays Robotics](claude-plays-robotics.md)，系统评估 LLM 控制多种机器人的能力边界——控制抽象层级决定成败，预训练策略 + 高层规划是当前最优路径。7 月 8 日发布 [An Off Switch for Dual-Use Knowledge](off-switch-dual-use.md)，提出 GRAM 模块化预训练方法，在单次训练中实现"可配置能力"，删除模块效果接近从未训练且不影响通用能力。8 月 7 日发布 [改进 Fable 5 的生物学安全防护](improving-fable-5-biology-safeguards.md)——更新 Fable 5 生物学安全分类器，通过重写分类器"宪法"使生物学相关 fallback（回退到 Opus 5）减少约 85%，在保留对双用途研究生物学内容拦截的同时放行更多良性查询，体现"宽分类器启动 + 精化迭代"的前沿能力开放策略。
+7 月 28 日发布 [Discovering Cryptographic Weaknesses with Claude](discovering-cryptographic-weaknesses.md)——Frontier Red Team 展示 Claude 从"发现密码库实现漏洞"跃升到"发现密码算法本身的数学缺陷"，削弱后量子签名方案 HAWK 并为减轮 AES 找到新攻击路径。7 月 24 日发布 [Claude Opus 5](claude-opus-5.md)——新旗舰模型，以一半价格逼近 Fable 5 前沿智能，编码与知识工作新 SOTA，官方称其"最对齐的模型"；同日发布 [Project Pilot](project-pilot.md)，Frontier Red Team 把物理 Agent 能力测量扩展到无人机，沉淀为新基准 Drone-Bench。7 月 14 日发布 [How Canada Uses Claude](how-canada-uses-claude.md)——首份国家级经济指数报告，发现加拿大人均 Claude 用量是预期的 4 倍，且采用差异由产业结构而非收入驱动。7 月 13 日发布 [Claude's Values Across Models and Languages](claude-values-models-languages.md)，提出"价值轴"方法将 3,000+ 价值观压缩为可操作的少量维度，发现跨模型和跨语言的系统性价值观差异。7 月 9 日发布 [Claude Plays Robotics](claude-plays-robotics.md)，系统评估 LLM 控制多种机器人的能力边界——控制抽象层级决定成败，预训练策略 + 高层规划是当前最优路径。7 月 8 日发布 [An Off Switch for Dual-Use Knowledge](off-switch-dual-use.md)，提出 GRAM 模块化预训练方法，在单次训练中实现"可配置能力"，删除模块效果接近从未训练且不影响通用能力。8 月 7 日发布 [改进 Fable 5 的生物学安全防护](improving-fable-5-biology-safeguards.md)——更新 Fable 5 生物学安全分类器，通过重写分类器"宪法"使生物学相关 fallback（回退到 Opus 5）减少约 85%，在保留对双用途研究生物学内容拦截的同时放行更多良性查询，体现"宽分类器启动 + 精化迭代"的前沿能力开放策略。8 月 19 日发布 [Claude 如何加速蛋白质设计与分析化学](claude-accelerates-protein-design.md)——联合两家外部生物科技公司验证 Claude 在分子设计闭环中的真实产出：针对 15 个药物蛋白靶点设计的结合物在湿实验中成功 14 个（远超传统 10-15% 命中率），分析化学流程压缩至约 23 分钟，证明通用大模型不只是"解释科学"而是能直接参与"设计-验证"闭环；与 [Making Claude a Chemist](making-claude-a-chemist.md)（知识层）和 [Agents in Biology](agents-in-biology.md)（数据基础设施层）共同构成 Claude 科学能力三件套。
 
 ## 二、核心主题
 
@@ -117,6 +117,8 @@ Anthropic 的 Research 博客呈现九条主线：
 | Drone-Bench 评估载体 | 真实飞行 + 仿真"定位-跟随"任务 | Project Pilot |
 | Fable 5 生物学相关 fallback 减少 | ~85% | Improving Fable 5 Biology Safeguards |
 | Fable 5 总 fallback 减少（Claude.ai / Cowork / Code / Platform） | ~67% / ~55% / ~17% / ~7% | 同上 |
+| 蛋白质结合物设计靶点命中 | 14/15（传统方法 10-15% 命中率） | Claude Accelerates Protein Design |
+| 分析化学流程完成时间 | ~23 分钟（传统数小时至数天） | 同上 |
 
 ## 四、与 OpenAI 的对比
 
@@ -167,3 +169,4 @@ Anthropic 的 Research 博客呈现九条主线：
 | 18 | 2026-07-24 | [Project Pilot](project-pilot.md) | 物理 Agent / 无人机 / 双重用途 |
 | 19 | 2026-07-28 | [Discovering Cryptographic Weaknesses with Claude](discovering-cryptographic-weaknesses.md) | 网络安全 / 密码学 |
 | 20 | 2026-08-07 | [Improving Fable 5's Biology Safeguards](improving-fable-5-biology-safeguards.md) | 生物安全 / 分类器 / 双用途 |
+| 21 | 2026-08-19 | [How Claude Is Accelerating Protein Design and Analytical Chemistry](claude-accelerates-protein-design.md) | 科学应用 / 蛋白质设计 / 湿实验 |

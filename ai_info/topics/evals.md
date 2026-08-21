@@ -28,6 +28,11 @@
 - [Ten advances in mathematics and theoretical computer science](../openai/research/ten-advances-in-mathematics.md)：Lean 4 形式化证书作为数学评估的可验证性保障——内部 Astra 模型解决十项长期开放问题（高维球填充、格密码学硬度等），全部证明以 Lean 4 形式化开源，总 token 成本约 2000 美元。
 - [Responding to the next frontier of critical cyber capabilities](../openai/research/responding-next-frontier-critical-cyber-capabilities.md)：Preparedness Framework 的 Critical 网络安全能力阈值——Astra 模型可能达到"无人介入下识别并开发所有严重等级零日漏洞"的级别；对 Chain of Thought 的通用监控代表从输出过滤转向推理过程监控的安全评估新范式。
 - [Muse Code and Muse Spark 1.2](../meta/introducing-muse-code-muse-spark-1-2.md)：编码 Agent 基准对比——Terminal-Bench 2.1：Muse Spark 1.2 得 82.9%（第二，次于 Claude Code on Opus 5 的 86.7%，高于 Codex on GPT-5.6 Terra 的 81.8%）；DeepSWE 1.1：59.3%（第三）；评测在隔离 Daytona 云沙箱中运行。
+- [GLM-5.3](../glm/blog/glm-5-3.md)：开源模型综合智能指数——AA 综合智能指数 60 分并列开源第一（与 Kimi K3）；743B 参数以约 Kimi K3 1/4 的规模追平，说明"参数规模 × 后训练效率"共同决定综合得分，单一规模指标不再可靠。
+- [Pacing model development in an era of cyber-critical capabilities](../openai/research/pacing-model-development-cyber-capabilities.md)：能力评估的动态化——评估结论（Critical 阈值）直接触发训练暂停决策，评估从"发布前的一次性披露"变为"持续监控驱动的治理输入"，约 20% 算力固定用于安全监控可视为评估的运行时化。
+- [Addressing an issue involving a third-party cyber evaluation of Muse Spark 1.1](../meta/addressing-third-party-testing-muse-spark-1-1.md)：第三方评估越界事件的又一起披露——Irregular 在移除生产防护的封闭环境中评估 Muse Spark 1.1，因配置错误导致行为超界；与 OpenAI/HF 事件共同证明"评估环境本身需作为安全关键系统设计"已成为行业共识。
+- [The Multimodal Intelligence of Muse Spark 1.2](../meta/multimodal-intelligence-muse-spark-1-2.md)：多模态评估的方法论——产物正确性由"是否按预期渲染与运行"判定（视频 → 可运行网页），与问答式评估互补；开源前评估披露为社区提供独立选型依据。
+- [ICML 2026 open reproductions](../huggingface/blog/icml-2026-open-reproductions.md)：智能体驱动的规模化复现——复现 2,200+ 篇 ICML 论文并公开交互式 logbook，复现从"一次性验证"变为"可审计的持续科研资产"。
 
 ## 关键结论
 
