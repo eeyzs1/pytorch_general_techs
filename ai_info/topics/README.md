@@ -9,3 +9,6 @@
 - [工具使用与 ACI](tool-use.md)
 - [Codex 与 Claude Code 对比](codex-vs-claude-code.md)
 - [企业 AI 经济学](enterprise-ai-economics.md)
+- [教育 AI](education.md)
+- [新闻业与 AI](news-media.md)
+- [国际拓展与采用](international.md)

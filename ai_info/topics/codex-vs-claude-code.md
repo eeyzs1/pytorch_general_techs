@@ -41,6 +41,7 @@
 - [Auto mode is now the default in Claude Code](../anthropic/engineering/auto-mode-default-in-claude-code.md)：Claude Code auto mode 成为默认——1,053 人对照实验显示分类器拦截 89% 危险命令远超人工 13.6%；Teams & Enterprise 采纳者 PR 产出增加约 25%，分类器开销不再收费。
 - [Running auto mode in production](../anthropic/engineering/auto-mode-in-production.md)：Claude Code 生产案例——Nuro 夜间长时研究 Agent、Gusto 纵深防御 + 敏感操作降级、Garner Health 标准化 SDLC 流水线；两次中断间工作时长提升 9 倍，验证分类器在不同行业的适用性。
 - [Run Claude Code sessions on your own compute](../anthropic/engineering/run-claude-code-sessions-on-your-own-compute.md)：自托管 Claude Code——会话在客户网络内运行，仓库检出、构建产物、密钥留在自有基础设施；Runner 架构（Fixed/On-demand）支持会话隔离与按需伸缩，与 inference hooks 和 auto mode 构成"数据驻留 + 内容检查 + 操作决策"三层企业安全栈。
+- [The AI-Native SDLC playbook](../anthropic/engineering/the-ai-native-sdlc-playbook.md)：Anthropic 的 AI 原生软件生命周期手册——六阶段闭环 + 可机读工件链（intent→spec→plan→diff→PR→事件），skills 咨询性控制 + hooks 确定性闸门；与 OpenAI Harness Engineering 路线互补，把"Agent 参与开发"从实践指南上升为可审计的工程规范。
 
 ## 物理 Agent 与跨域延伸
 
@@ -66,6 +67,12 @@
 - 国产第三极：[GLM-5.2](../glm/blog/glm-5-2.md) 以约 7400 亿参数成为首个编程能力追上 Claude Opus 级别的国产模型，GLM Coding Plan 订阅制 + 兼容 Claude Code 与 VS Code——为企业提供 Claude Code 之外的合规可选项。
 - 新进入者：[Muse Spark 1.1](../meta/muse-spark-1-1.md) 是 Meta 首次直接售卖旗舰模型 API（输入 $1.25 / 输出 $4.25 每百万 token），主-子 Agent 编排 + 务实 Computer Use，官方目标对标 Claude 与 GPT 旗舰——编码 Agent 竞争从两强走向多极。
 - 新进入者深化：[Muse Code and Muse Spark 1.2](../meta/introducing-muse-code-muse-spark-1-2.md) 是 Meta 首个终端编码 Agent——Terminal-Bench 2.1 得 82.9%（次于 Claude Code on Opus 5 的 86.7%，高于 Codex on GPT-5.6 Terra 的 81.8%）；持久化后台 Agent + append-only 事件日志 + 模型与 harness 协同训练是架构差异点，但 DeepSWE 1.1（59.3%）仍落后 Claude（65.0%）与 Codex（64.8%）。
+- 新进入者登顶：[Muse Spark 1.3](../meta/introducing-muse-spark-1-3.md) 编码基准超 GPT-5.6 Sol 与 Claude Opus 5、AA Intelligence Index 62 追平 Claude Fable 5，较 1.2 工具调用 -20%/token -25%（同价 $1.25/$4.25）；Zuckerberg 预告开放权重——编码 Agent 竞争进入"Meta 第三极逼近榜首"阶段。
+- 旗舰跃迁：[GPT-6 Astra](../openai/research/gpt-6-astra.md) Terminal-Bench 57.9%（Fable 5.1 为 55.8%）、OSWorld 72.6% 且每任务时间比 Sol 少约 47%，API $10/$50 每百万 token——Astra 时代 Codex 的上限模型换代。
+- 内部规模化：[Research acceleration: the view inside OpenAI](../openai/research/research-acceleration-view-inside-openai.md) 披露研究组织达 3.1 agent-工作日/人类工作日、中位研究者日耗 >$600 API 价、4-8 小时任务过半仍需人工干预——"Agent 改变研究本身"的第一手账本。
+- 第三方工具生态：[GPT-5.6 in Kiro](../openai/research/gpt-5-6-in-kiro.md) 上线 AWS Kiro，Terminal-Bench 2.1 上 Terra 完成任务成本约 -82%（OpenAI+AWS 联合测试）；Codex 模型家族进入竞品 IDE 的分发深化。
+- 企业 ROI 样本：[1Password](../openai/research/1password.md) 生产力 +20.9%、PR 周期 -10.9%、50 用户年容量价值 $783,750（ROI 553%）；[loveholidays](../openai/research/loveholidays.md) AI 辅助代码变更 7%→79%（11×）、部署 +73% 而人数持平；[Gilbert + Tobin](../openai/research/gilbert-tobin.md) 87% 席位活跃（其他工具 2 倍+）、KYC/AML 检查 3-8 小时→5 分钟——三家覆盖安全/旅游/法律行业的量化对比。
+- 供应变局：[Our decision on Cursor following its acquisition by SpaceX](../openai/research/our-decision-on-cursor-following-its-acquisition-by-spacex.md) 终止向 Cursor 供应 OpenAI 模型（提议 2026-11-12 关停、不再提供 Astra 等未来模型）——控制权变更触发 ToS 条款；编码工具的"模型供应"成为竞争变量，第三方 IDE 对模型多源化的需求上升。
 - 端侧开源竞争者：[Muse Glimmer](../meta/introducing-muse-glimmer.md) 以 30B 参数 + Apache 2.0 开源 Agent 模型重返开源——约 24GB 显存即可本地运行，专为函数调用与工具使用优化；"云端闭源旗舰 + 端侧开源"双轨为编码 Agent 提供"本地部署 + 数据不出设备"的选项，与自托管 Claude Code（数据驻留）形成不同技术路线。
 - 国产第三极深化：[GLM-5.3](../glm/blog/glm-5-3.md) 以 743B 参数将 AA 综合智能指数推到 60 分（并列开源第一），编程能力较前代提升约 50% 并涌现防御性网络安全能力——暂缓开源但 API 即日上线且价格不变，开源与闭源之间的发布节奏控制成为国产厂商的差异化治理手段。
 - 效率新维度：[Maximizing the value of your Claude Code sessions](../anthropic/engineering/maximizing-value-of-claude-code-sessions.md) 展示会话级 token 优化（`/clear`、effort 前置、`/compact`）如何显著降低成本——Agent 编码的竞争从"模型能力"延伸到"会话成本工程"。

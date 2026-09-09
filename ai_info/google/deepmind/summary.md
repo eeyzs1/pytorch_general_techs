@@ -1,6 +1,6 @@
 # Google DeepMind — 核心观点总结
 
-> 汇总自 [Google DeepMind Blog](https://deepmind.google/blog/) 的 29 篇文章，涵盖 2026 年 3 月至 8 月。
+> 汇总自 [Google DeepMind Blog](https://deepmind.google/blog/) 的 37 篇文章，涵盖 2026 年 3 月至 9 月。
 
 ## 一、总体脉络
 
@@ -11,6 +11,8 @@ Google DeepMind 在 2026 年呈现五大战略方向：
 ```
 
 Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发平台，Gemini for Science 将 AI 深度嵌入科学研究。Google 的差异化在于"模型 + 平台 + 科学"三位一体。7 月新动态把版图继续外扩：Gemini Robotics 2 系列实现全身控制人形机器人，3.6 Flash / 3.5 Flash-Lite / 3.5 Flash Cyber 三模型齐发主打 Agent 效率与网络安全垂直场景，Managed Agents 升级为"可编程的云上自动化层"；3-4 月补齐的 AlphaGo 十周年、AGI 认知框架、韩国国家合作与 AI co-clinician 则展示了"技术谱系叙事 + 国家级落地 + 医疗新模式"的治理与生态纵深。6-7 月的扩展进一步把科研模型推向"基础设施化"：DeepMind 与 Isomorphic Labs 联合发布"生物韧性"框架把 AlphaFold/AlphaGenome/AlphaEvolve 从科研突破转化为生物安全基础设施；Nano Banana 2 Lite 与 Gemini Omni Flash 两款开发者媒体模型把图像与视频生成管线打通；Genesis Mission 的 4000 万美元承诺则把五大科研模型投放到 DOE 国家实验室的实际科研流水线。8 月初 [WeatherNext 气旋预测突破](weathernext-cyclones-breakthrough.md) 在《Nature》发表——单一 AI 模型同时预测热带气旋路径、强度和风场结构，三天预报达到此前模型两天预报水平（约等于过去十年气象学进展），同步开源 WeatherNext 2 与 WeatherNext Cyclones 模型代码及权重。8 月 6 日 [Google 领导层重组](next-chapter-ai-momentum.md)——Demis Hassabis 卸任 DeepMind CEO 转任 Alphabet 首席科学家兼 DeepMind 主席，27 年老将 Jeff Dean 离职创业，Koray Kavukcuoglu 接任 CEO，研究（AGI/科学）与应用（Gemini 产品化）分线管理；同日发布 [Veo 3.1](veo-3-1.md)——4K 输出 + 原生竖屏视频 + 改进的素材转视频，直接回应 Sora 2 竞争。8 月中旬研究 [SkillSmith](skillsmith.md) 把模型权重当作"可读写模态"，通过 KV-cache 层组合参数化技能与文本知识，在 Gemma 3 4B 上小模块反超全量微调。
+
+8 月下旬至 9 月上旬 Google 六周内第三次 Flash 迭代并横向铺开产品线。[Gemini 3.5 Transcribe](gemini-3-5-transcribe.md)（8/26）把"智能转写"（去填充词/自我纠正/自动格式化）带入 85+ 语言与 Gboard/Chrome 等平台界面；[Gemini Omni 1.1 Flash](gemini-omni-1-1-flash.md)（8/27）给开发者视频生成加参考视频与增量续拍控制；[双盲 AI 评估试点](piloting-double-blind-ai-evaluations.md)（8/27）用机密计算让评估方与被评模型互不知情，把"评估条件本身"变成可信度的一部分；[智能体式视频理解](introducing-agentic-video-in-gemini.md)（9/1）让模型自选片段/速度/模态处理视频，token 降 58.4%–88%、成本最多降 66%；[Gemini 3.8 Flash 与 3.8 Flash Cyber](gemini-3-8-flash-and-3-8-flash-cyber.md)（9/2）以小搏大（DeepSWE v1.1、CWE-Bench 47.2% pass@1 近前沿但成本显著更低），配套 [Fairwind 有限访问计划](fairwind-program.md)把网络安全模型的准入制度化；[WeatherNext 3](introducing-weathernext-3.md)（9/3）逐小时更新、最高 5 公里分辨率并进入 Search/Maps/Cloud 全产品线；[AlphaGenome Atlas](alphagenome-atlas.md)（9/8）以 1 PB 数据集预测约 90 亿个 DNA 单字母变异的分子效应，把 AI for Science 推进到基因组规模。
 
 ## 二、核心主题
 
@@ -143,6 +145,17 @@ Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发
 | 凝结尾迹变暖效应 | 与航空碳排放相当（部分估算） | Operation Blue Skies |
 | Gemma 累计下载 | 10 亿+ | Gemma One Billion |
 | Gemma 开发者变体 | 100,000+ | Gemma One Billion |
+| 3.5 Transcribe WER（流式 / 非流式） | 4% / 2.6% | Gemini 3.5 Transcribe |
+| 3.5 Transcribe 语言数 | 85+（自动检测） | 同上 |
+| 双盲评估被评模型 | Gemini Flash Lite（Confidential Space 机密计算） | Double-Blind Evaluations |
+| 智能体式视频理解 token 降幅 | 58.4%–88%（成本最多 -66%，准确率最高 +7%） | Agentic Video |
+| 3.8 Flash Cyber CWE-Bench | 47.2% pass@1（前沿模型 47.8%，成本显著更低） | Gemini 3.8 Flash |
+| 3.8 Flash Cyber 内部 20 语言基准成功率 | >70% | 同上 |
+| 3.8 Flash 定价（2026 年底前） | $0.75 / $3.75 每百万 token | 同上 |
+| Fairwind 准入 | 申请 + 背景审查 + 义务条款（无公开 API/定价） | Fairwind |
+| WeatherNext 3 更新频率 / 分辨率 | 逐小时 / 最高 5 公里（上代 6 小时 / 25 公里） | WeatherNext 3 |
+| WeatherNext 3 中期概率降水提升 | 最高 +60%（NASA IMERG） | 同上 |
+| AlphaGenome Atlas 数据规模 | 1 PB / 约 90 亿单字母变异 | AlphaGenome Atlas |
 
 ## 四、贯穿始终的原则
 
@@ -188,3 +201,11 @@ Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发
 | 27 | 2026-07-28 | [SkillSmith: Composing Parametric Skills](skillsmith.md) | 技能组合 / KV-cache / 权重即模态 |
 | 28 | 2026-08-19 | [Operation Blue Skies: Reducing Aviation Climate Impact with AI](operation-blue-skies.md) | 气候行动 / 凝结尾迹 / 航线优化 |
 | 29 | 2026-08-21 | [Inside the Gemmaverse: One Billion Gemma Downloads](gemma-one-billion-downloads.md) | 开源生态 / 里程碑 / 开发者社区 |
+| 30 | 2026-08-26 | [Intelligent Transcription with Gemini 3.5 Transcribe](gemini-3-5-transcribe.md) | 语音转写 / 智能清理 / 85+ 语言 |
+| 31 | 2026-08-27 | [Gemini Omni 1.1 Flash: More Control](gemini-omni-1-1-flash.md) | 生成式视频 / 创意控制 / 开发者 |
+| 32 | 2026-08-27 | [Piloting the World's First Double-Blind AI Evaluations](piloting-double-blind-ai-evaluations.md) | 评估方法 / 机密计算 / 基准污染 |
+| 33 | 2026-09-01 | [Introducing Agentic Video Understanding with Gemini](introducing-agentic-video-in-gemini.md) | 视频理解 / token 效率 / Agentic |
+| 34 | 2026-09-02 | [Introducing Gemini 3.8 Flash and 3.8 Flash Cyber](gemini-3-8-flash-and-3-8-flash-cyber.md) | Flash 迭代 / 网络安全 / 以小搏大 |
+| 35 | 2026-09-02 | [Proactive Cyber Defense: Fairwind Program](fairwind-program.md) | 主动防御 / 有限访问 / 政企 |
+| 36 | 2026-09-03 | [Introducing WeatherNext 3](introducing-weathernext-3.md) | 天气 AI / 逐小时 / 全产品线 |
+| 37 | 2026-09-08 | [AlphaGenome Atlas](alphagenome-atlas.md) | 基因组 / 变异效应预测 / 1PB 数据集 |

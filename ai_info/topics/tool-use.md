@@ -9,6 +9,7 @@
 ## 规模化工具
 
 - [Advanced Tool Use](../anthropic/engineering/advanced-tool-use.md)：工具搜索、程序化工具调用和工具示例。
+- [DeepSeek V4-Flash-Vision-Exp](../deepseek/news/deepseek-v4-flash-vision-exp.md)：多模态工具接口的兼容性设计——单图 384 tokens 封顶按 token 计费、Files API 以 file_id 跨请求复用图片、Chat Completions / Messages / Responses 三种 API 格式并存，OpenAI 与 Anthropic 生态的存量 Agent 工具近零改造即可获得视觉能力。
 - [Code Execution with MCP](../anthropic/engineering/code-execution-with-mcp.md)：用代码执行降低工具调用 token 成本。
 - [The Next Evolution of the Agents SDK](../openai/research/the-next-evolution-of-the-agents-sdk.md)：Agents SDK 对 MCP 的支持。
 - [Advancing Voice Intelligence with New Models in the API](../openai/research/advancing-voice-intelligence-with-new-models-in-the-api.md)：实时语音模型如何把工具调用和 Agent 行为带入 voice interface。
@@ -28,6 +29,12 @@
 - [Open-Source Codex Orchestration with Symphony](../openai/research/open-source-codex-orchestration-symphony.md)：把 Codex 接入企业自建协调器，多 Agent 调度的开源实现。
 - [Codex-Maxxing for Long-Running Work](../openai/research/codex-maxxing-long-running-work.md)：把"工作树 + 测试 + Git"作为可验证工具组合，让 Agent 的执行可观测、可回滚。
 - [New ways to learn and teach with ChatGPT Work and Codex](../openai/research/learn-teach-chatgpt-work-codex.md)：教育插件作为垂直化工具——K-12 教师、大学教师、大学生三款插件把应用、角色技能、指令和工作流打包，让用户无需构建复杂提示即可上手；插件化策略将"如何提示"的负担从用户转移到预配置工作流。
+- [Fine-tuning a 350M Model for Better Structured Outputs in 100 GRPO Steps](../huggingface/blog/grpo-with-trl-ifstruct.md)：结构化输出作为工具调用契约——350M 小模型用 500 样本 / 100 步 GRPO 把 IFStruct 从 22.6% 提到 29.7%，JSON 子项 +13.9；结构化输出是把 LLM 接入工具与系统的"接口层"，小模型 + 定向 RL 即可逼近 6 倍大模型的水平。
+- [Wire It, Run It, Deploy It: AI Workflows in Gradio](../huggingface/blog/gradio-workflow-guide.md)：gr.Workflow 把工具链变成可视化资产——typed 节点图同时渲染为拖拽画布与 REST API（每输出一端点），三类节点 × 四种 operator（函数 / 模型 / Space / 数据集行）一键部署 Spaces；工具编排的产物从代码变为可分享、可直接调用的工作流对象。
+- [Building commerce agents with Claude](../anthropic/engineering/claude-for-commerce-agents.md)：垂直行业工具链打包——商业 Agent 蓝图含四行业参考实现 + Claude Code 插件，购物 Agent 调商家工具、商家 Agent 管目录与订单且变更须人工批准；工具权限按角色分层的生产范式。
+- [Intelligent transcription with Gemini 3.5 Transcribe](../google/deepmind/gemini-3-5-transcribe.md)：语音作为 Agent 入口的生产化——智能转写（去填充词/自我纠正/自动格式化）+ function calling 委派图像生成、文件分析等任务给其他 Gemini 模型；Live API 亚秒级双向流 + Interactions API 说话人归属与词级时间戳，落地 Gboard/Antigravity/Gemini app/Chrome。
+- [Introducing the Admin plugin for ChatGPT Work and Codex](../openai/research/introducing-admin-plugin.md)：管理操作的工具化——一个对话完成用量/成员/权限/限额四类操作且权限感知不越权，审批自动路由 Slack/Teams 并按条件自动批准；OpenAI IT 自用 45% 工单自动解决、支持量翻倍下积压清零。
+- [How GPT-5.6 Sol helps run quantum computing experiments](../openai/research/codex-quantum-computing-experiments.md)：实验室工具的 Agent 封装——MIT EQuS 把 GPT-5.6 Sol 接入 Codex 连接实验室软件，对未校准 6 比特芯片近自主完成标准校准链；measurement-specific skills 把实验操作封装为可通宵运行、手机异步抽查的技能，弱信号场景仍需资深研究者指导。
 
 ## 网络安全与安全工具
 

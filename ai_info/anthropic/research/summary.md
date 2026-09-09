@@ -1,6 +1,6 @@
 # Anthropic Research — 核心观点总结
 
-> 汇总自 [Anthropic Research](https://www.anthropic.com/research) 页面的 21 篇文章，涵盖 2026 年 5 月至 8 月。
+> 汇总自 [Anthropic Research](https://www.anthropic.com/research) 页面的 24 篇文章，涵盖 2026 年 5 月至 9 月。
 
 ## 一、总体脉络
 
@@ -11,6 +11,8 @@ Anthropic 的 Research 博客呈现九条主线：
 ```
 
 7 月 28 日发布 [Discovering Cryptographic Weaknesses with Claude](discovering-cryptographic-weaknesses.md)——Frontier Red Team 展示 Claude 从"发现密码库实现漏洞"跃升到"发现密码算法本身的数学缺陷"，削弱后量子签名方案 HAWK 并为减轮 AES 找到新攻击路径。7 月 24 日发布 [Claude Opus 5](claude-opus-5.md)——新旗舰模型，以一半价格逼近 Fable 5 前沿智能，编码与知识工作新 SOTA，官方称其"最对齐的模型"；同日发布 [Project Pilot](project-pilot.md)，Frontier Red Team 把物理 Agent 能力测量扩展到无人机，沉淀为新基准 Drone-Bench。7 月 14 日发布 [How Canada Uses Claude](how-canada-uses-claude.md)——首份国家级经济指数报告，发现加拿大人均 Claude 用量是预期的 4 倍，且采用差异由产业结构而非收入驱动。7 月 13 日发布 [Claude's Values Across Models and Languages](claude-values-models-languages.md)，提出"价值轴"方法将 3,000+ 价值观压缩为可操作的少量维度，发现跨模型和跨语言的系统性价值观差异。7 月 9 日发布 [Claude Plays Robotics](claude-plays-robotics.md)，系统评估 LLM 控制多种机器人的能力边界——控制抽象层级决定成败，预训练策略 + 高层规划是当前最优路径。7 月 8 日发布 [An Off Switch for Dual-Use Knowledge](off-switch-dual-use.md)，提出 GRAM 模块化预训练方法，在单次训练中实现"可配置能力"，删除模块效果接近从未训练且不影响通用能力。8 月 7 日发布 [改进 Fable 5 的生物学安全防护](improving-fable-5-biology-safeguards.md)——更新 Fable 5 生物学安全分类器，通过重写分类器"宪法"使生物学相关 fallback（回退到 Opus 5）减少约 85%，在保留对双用途研究生物学内容拦截的同时放行更多良性查询，体现"宽分类器启动 + 精化迭代"的前沿能力开放策略。8 月 19 日发布 [Claude 如何加速蛋白质设计与分析化学](claude-accelerates-protein-design.md)——联合两家外部生物科技公司验证 Claude 在分子设计闭环中的真实产出：针对 15 个药物蛋白靶点设计的结合物在湿实验中成功 14 个（远超传统 10-15% 命中率），分析化学流程压缩至约 23 分钟，证明通用大模型不只是"解释科学"而是能直接参与"设计-验证"闭环；与 [Making Claude a Chemist](making-claude-a-chemist.md)（知识层）和 [Agents in Biology](agents-in-biology.md)（数据基础设施层）共同构成 Claude 科学能力三件套。
+
+8 月底至 9 月初研究博客三条线并进。8 月 26 日 [开放真实使用数据支持独立研究](enabling-independent-research.md)——首次让 Stanford SALT Lab、Oxford HIPLab、METR 三支外部团队通过隐私保护分析工具 Anthropic Insights（原 Clio）对约 25 万条真实 Claude 对话自主设计研究并公开发表聚合数据集（Imperial College 第三方隐私审计、删改类别 <5%），把"AI 使用数据"变成可独立核查的公共研究资产。8 月 28 日 [自动化研究者能可靠缓解对齐失败](automated-researchers-mitigate-alignment-failures.md)——让 Claude 自主"查文献→提方法→训练→测试"循环修复 10 类对齐失败，全部不损通用能力且泛化到保留基准与最大 4.7 倍的更大模型；欺骗项关闭 85% 安全差距（人类专家 20%），Sonnet 5 以生产流程 1/15000 的成本逼近 Opus 4.8 对齐分，harness 开源——"AI 对齐 AI"从口号变为可复现工程循环。9 月 4 日 [形式化费马大定理](formalizing-fermats-last-theorem.md)——Claude 在 11 天内基本自主完成费马大定理首个端到端机器可检验证明：1300 万行 Lean、约 60 亿 token（超 Mathlib 5 倍），Prove2Me 平台以定理 DAG、语句/证明分文件、自然语言索引支撑多 Agent 长周期协作，Kevin Buzzard 审阅认可并开源——与 OpenAI 的纳维-斯托克斯工作同周，标志"AI 数学"进入千年难题领地。
 
 ## 二、核心主题
 
@@ -119,6 +121,12 @@ Anthropic 的 Research 博客呈现九条主线：
 | Fable 5 总 fallback 减少（Claude.ai / Cowork / Code / Platform） | ~67% / ~55% / ~17% / ~7% | 同上 |
 | 蛋白质结合物设计靶点命中 | 14/15（传统方法 10-15% 命中率） | Claude Accelerates Protein Design |
 | 分析化学流程完成时间 | ~23 分钟（传统数小时至数天） | 同上 |
+| Insights 开放研究对话规模 | ~25 万条（聚合数据集公开） | Enabling Independent Research |
+| 自动化研究者修复对齐失败类别 | 10 类（不损通用能力） | Automated Researchers |
+| 欺骗项安全差距关闭 | 85%（人类专家 20%） | 同上 |
+| Sonnet 5 对齐研究效率 | 生产流程的 ~15,000 倍（2000 样本 / 60 小时） | 同上 |
+| FLT 形式化规模 | 1300 万行 Lean / 约 60 亿 token / 11 天 | Formalizing FLT |
+| FLT 证明定理数 | 29,500 个中间定理（超 Mathlib 5 倍） | 同上 |
 
 ## 四、与 OpenAI 的对比
 
@@ -170,3 +178,6 @@ Anthropic 的 Research 博客呈现九条主线：
 | 19 | 2026-07-28 | [Discovering Cryptographic Weaknesses with Claude](discovering-cryptographic-weaknesses.md) | 网络安全 / 密码学 |
 | 20 | 2026-08-07 | [Improving Fable 5's Biology Safeguards](improving-fable-5-biology-safeguards.md) | 生物安全 / 分类器 / 双用途 |
 | 21 | 2026-08-19 | [How Claude Is Accelerating Protein Design and Analytical Chemistry](claude-accelerates-protein-design.md) | 科学应用 / 蛋白质设计 / 湿实验 |
+| 22 | 2026-08-26 | [Enabling Independent Research on How People Use Claude](enabling-independent-research.md) | 数据开放 / 独立研究 / 隐私保护 |
+| 23 | 2026-08-28 | [Automated Researchers Can Reliably Mitigate Alignment Failures](automated-researchers-mitigate-alignment-failures.md) | 对齐自动化 / AI 对齐 AI |
+| 24 | 2026-09-04 | [Formalizing Fermat's Last Theorem](formalizing-fermats-last-theorem.md) | 数学 / Lean 形式化 / 多 Agent 协作 |

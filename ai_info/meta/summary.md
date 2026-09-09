@@ -1,13 +1,13 @@
 # Meta AI — 核心观点总结
 
-> 汇总 Meta AI 近期重大动态，13 篇文章，涵盖 2025 年 4 月至 2026 年 8 月。
+> 汇总 Meta AI 近期重大动态，17 篇文章，涵盖 2025 年 4 月至 2026 年 9 月。
 
 ## 一、总体脉络
 
 Meta AI 在 2025-2026 年经历了剧烈的战略转变：
 
 ```
-Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark → Brain2Qwerty v2 → SAM 3.1 → Muse Image / Spark 1.1 → Meta AI Agent 化 → Muse Code 编码 Agent
+Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark → Brain2Qwerty v2 → SAM 3.1 → Muse Image / Spark 1.1 → Meta AI Agent 化 → Muse Code 编码 Agent → Muse 个人智能体
 ```
 
 从开源旗手到闭源转向，从 Llama 品牌危机到 MSL 重建，Meta 用一年时间完成了 AI 战略的彻底重构。2026 年 6 月底，Meta 又发布 [Brain2Qwerty v2](brain2qwerty-v2.md)——非侵入式脑机接口的端到端 LLM 解码 pipeline，在 Nature Neuroscience 发表并开源全部训练代码与数据集，标志 Meta 在"AI + 神经科学"方向继续深入，与主流 LLM 产品形成"产品 + 科学"双轨。7 月 MSL 进入收获期：[Muse Image](muse-image.md) 图像生成进入 Instagram/WhatsApp 社交生态，[Muse Spark 1.1](muse-spark-1-1.md) 升级"主-子 Agent 编排"并开启 Meta Model API 公测（Meta 首次直接售卖旗舰模型调用），[Meta AI 获得 Agent 化能力](meta-ai-muse-spark-doesnt-just-think-it-acts.md)——定时任务、邮件日历连接、可引导深度研究，官方称"迈向个人超级智能的下一步"。开源侧 [SAM 3.1](sam-3-1.md) 用 Object Multiplex 把 128 目标视频分割推理提速约 7 倍，开源视觉基础模型竞争从精度转向部署效率。8 月 5 日 MSL 发布 [Muse Code](introducing-muse-code-muse-spark-1-2.md)——Meta 首个终端编码 Agent，由新模型 Muse Spark 1.2 驱动，正式加入由 Anthropic（Claude Code）与 OpenAI（Codex）主导的编码 Agent 赛道，差异化在于"模型与 harness 协同训练"和持久化后台 Agent + append-only 事件日志。8 月 10 日 Meta 双线发力：发布 [Muse Glimmer](introducing-muse-glimmer.md)——30B 参数、Apache 2.0 许可的开源端侧 Agent 模型（约 24GB 显存可运行），从闭源旗舰 Muse Spark 1.2 蒸馏而来，时隔 16 个月重返开源；同日 Zuckerberg 发布 [《The Future is for Everyone》](the-future-is-for-everyone.md)——6510 字长文系统阐述"多超智能 + 开源防集中"的 AI 世界观，并宣布 10 亿美元开放模型基金，"理念 + 产品"组合拳直面 OpenAI/Anthropic 的闭源路线。
@@ -73,6 +73,8 @@ Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark
 
 [回应 Muse Spark 1.1 第三方评估配置问题](addressing-third-party-testing-muse-spark-1-1.md)（8/14）是 Meta 对评估越界事件的公开复盘：Irregular 在移除生产防护的封闭测试环境中评估预发布版 Muse Spark 1.1，因配置错误导致模型行为超出预期边界——与 OpenAI/HF 事件同属"评估环境安全"这一行业共同短板。[Muse Spark 1.2 多模态智能](multimodal-intelligence-muse-spark-1-2.md)（8/20）在开源权重前发布多模态评估：视觉推理、图表理解、视频转代码（视频 → 可运行网页），关键发现是多模态增益在**模型可使用工具**时最显著。
 
+9 月上旬 MSL 三连发完成"模型 → 语音 → 个人智能体"产品闭环：9 月 1 日 [Muse Voice Transcribe](introducing-muse-voice-transcribe.md)——MSL 首个实时语音感知模型（流式 ASR + 20+ 说话人分离，词错率 3.1% 登顶 Artificial Analysis 流式转写榜，$0.18/小时）；9 月 2 日 [Muse Spark 1.3](introducing-muse-spark-1-3.md)——编码基准超 GPT-5.6 Sol 与 Claude Opus 5、AA 指数 62 追平 Claude Fable 5，较 1.2 工具调用 -20%/token -25%，Zuckerberg 预告开放权重；9 月 8 日 [Muse 个人智能体](introducing-muse-personal-ai-agent.md)——美国 iOS/Android/Web/WhatsApp 上线的首个个人 AI 智能体，每用户独立 Muse Secure VM + Sentinel 权限管理 AI + Stripe Link 一次性卡号支付。同日配套发布 [How We Built Safety Into Muse](security-and-safety-for-ai-agents-our-approach-with-muse.md)——迄今对个人 Agent 安全架构最完整的公开工程叙述（内部代号 Hatch）：systemd-nspawn 双安全域、凭据代理化（模型只见 surrogate token，真实凭据在网络边界替换）、Sentinel 网络出口 4/7 层管控、eBPF 内核级"污点出口"数据流追踪、浏览器子 Agent 只见无障碍树、一次性卡号绑定商家+金额+时限，同步开放最高 $300,000 漏洞赏金并预告密码学防 Meta 自身的 Muse Confidential VM。
+
 ## 三、关键数据点
 
 | 指标 | 数值 | 来源 |
@@ -106,6 +108,20 @@ Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark
 | Muse Spark 1.1 评估事件时间 | 2026 年 7 月初（Irregular 封闭测试） | Addressing Third-Party Testing |
 | Muse Spark 1.2 多模态增益条件 | 模型可使用工具时最显著 | Multimodal Intelligence |
 | Muse Spark 1.2 视频转代码示例 | 视频 → 功能性家居预订网页 | 同上 |
+| Muse Voice Transcribe 词错率 | 3.1%（Artificial Analysis 流式转写榜首） | Muse Voice Transcribe |
+| Muse Voice Transcribe 说话人分离 / 语言 | 20+ 说话人 / 70+ 语言训练（25 种深度验证） | 同上 |
+| Muse Voice Transcribe 定价 | $0.18/小时 | 同上 |
+| Muse Spark 1.3 AA Intelligence Index | 62（追平 Claude Fable 5） | Muse Spark 1.3 |
+| Muse Spark 1.3 vs 1.2 效率 | 工具调用 -20% / token -25% | 同上 |
+| Muse Spark 1.3 定价（输入/缓存/输出） | $1.25 / $0.15 / $4.25 每百万 token | 同上 |
+| Muse 个人智能体安全架构 | 每用户独立 Muse Secure VM + Sentinel 权限 AI | Muse 个人智能体 |
+| Muse 支付方式 | Stripe Link 一次性卡号 | 同上 |
+| Muse 运行时隔离 | systemd-nspawn 双安全域（单元内 root ≠ 宿主 root） | How We Built Safety Into Muse |
+| 凭据保护 | 模型只见 surrogate token，真实凭据网络边界替换 | 同上 |
+| Tainted egress 实现 | eBPF cgroup 程序 + 自研 LSM 钩子（内核级数据流追踪） | 同上 |
+| 浏览器子 Agent 可见面 | 无障碍树快照（非原始 DOM，无 JS 执行） | 同上 |
+| Muse 漏洞赏金上限 | $300,000（单用户 prompt injection 最高 $130,000） | 同上 |
+| Muse Confidential VM | 年内推出，密码学+可验证阻止 Meta 访问用户 VM | 同上 |
 
 ## 四、关键洞察
 
@@ -135,3 +151,9 @@ Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark
 | 11 | 2026-08-10 | [The Future Is for Everyone](the-future-is-for-everyone.md) | AI 愿景 / 开源宣言 / 多超智能 |
 | 12 | 2026-08-14 | [Addressing Third-Party Testing of Muse Spark 1.1](addressing-third-party-testing-muse-spark-1-1.md) | 网络安全评估 / 配置错误 / 复盘 |
 | 13 | 2026-08-20 | [The Multimodal Intelligence of Muse Spark 1.2](multimodal-intelligence-muse-spark-1-2.md) | 多模态评估 / 工具增强 / 视频转代码 |
+| 14 | 2026-09-01 | [Introducing Muse Voice Transcribe](introducing-muse-voice-transcribe.md) | 实时语音感知 / 说话人分离 / 转写榜首 |
+| 15 | 2026-09-02 | [Introducing Muse Spark 1.3](introducing-muse-spark-1-3.md) | 新旗舰 / AA 62 / 长时程编码 |
+| 16 | 2026-09-08 | [Introducing Muse: Personal AI Agent](introducing-muse-personal-ai-agent.md) | 个人智能体 / Secure VM / Sentinel |
+| 17 | 2026-09-08 | [How We Built Safety Into Muse](security-and-safety-for-ai-agents-our-approach-with-muse.md) | 安全架构 / 凭据代理化 / eBPF 污点出口 / 漏洞赏金 |
+
+> **说明**：ai.meta.com 与 research.meta.ai 在首轮检索环境不可达，9 月初四篇经 GIGAZINE 等二手信源与官方推文交叉验证入库；2026-09-09 经 VPN 复核 research.meta.ai 官方列表：08/21–08/31 窗口确认无遗漏，各条目官方 URL 已逐一验证有效，其中"How We Built Safety Into Muse"经官方全文抓取补录。

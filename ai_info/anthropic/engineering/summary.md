@@ -1,6 +1,6 @@
 # Anthropic Engineering Blog — 核心观点总结
 
-> 汇总自 [Anthropic Engineering](https://www.anthropic.com/engineering) 博客的 45 篇文章，涵盖 2024 年 9 月至 2026 年 8 月。
+> 汇总自 [Anthropic Engineering](https://www.anthropic.com/engineering) 与 [claude.com/blog](https://claude.com/blog) 的 58 篇文章，涵盖 2024 年 9 月至 2026 年 9 月。
 
 ## 一、总体脉络
 
@@ -17,6 +17,8 @@ Anthropic 的工程博客呈现了一条清晰的技术演进路径：
 8 月 11 日发布 [Claude 文本水印的工作原理](claude-text-watermarking.md)——为 Claude 生成的所有文本与文件嵌入隐形水印，水印在模型生成阶段嵌入（而非事后附加），对人类不可见但可被检测器识别，即使复制粘贴或轻量编辑仍可追溯；配套 C2PA 元数据与检测 API，回应欧盟 AI 法案对 AI 内容标识的要求。与 [Inference Hooks](claude-enterprise-inference-hooks.md)（管"谁用了数据"）互补，水印管"内容来自哪里"，共同构成企业合规闭环。
 
 8 月中旬起 Anthropic 工程博客进入"企业 Agent 平台化 + 全员采用"爆发期，一周内发布 12 篇新文章。**Agent 构建三件套 GA**：[Computer Use + Skills API + Files API](computer-use-skills-api-files-api.md)（8/20）让开发者构建"能操作软件 + 注入团队经验 + 返回成品文件"的生产级 Agent，新增 browser use tool 按页面结构而非屏幕坐标操作。[Compliance API 覆盖 Cowork 与 Claude Code](compliance-api-cowork-claude-code.md)（8/11）以增量端点把审计能力扩展到 Agent 产品，与推理钩子构成"事前 + 事后"治理闭环。[Claude Cowork 进 Chrome 侧边栏](cowork-chrome-side-panel.md)（8/12）让浏览器内 Agent 任务跨桌面/移动/Web 延续。**全员采用案例**：[monday.com agent-first 重构](monday-com-agent-first-platform.md)（8/20）——25 万公司平台两个月 500 万次 Agent 交互，五条转型经验；[Slack 人机团队](slack-human-agent-teams.md)（8/19）——"工作即对话"的开放频道协作；[ABC Legal 全员构建者](abc-legal-managed-agents.md)（8/17）——1,100 名法律公司员工用 Managed Agents 自建自动化；[JetBrains 评估 Fable 5](jetbrains-evaluates-claude-fable-5.md)（8/13）——私有仓库评估 + 护栏数据保留优先。**内部实践**：[Claude Tag CI/CD 值班](claude-tag-ci-cd-on-call.md)（8/18）——Agent 作为 CI/CD 故障第一响应者；[Claude Tag 自助数据分析](claude-tag-self-service-data-analytics.md)（8/13）——约 95% 准确率的治理一致数据问答。**效率与教学**：[Claude Code 会话价值最大化](maximizing-value-of-claude-code-sessions.md)（8/14）——`/clear`、`/compact`、缓存友好的会话卫生；[创业公司 Claude Code 指南](claude-code-guide-for-startups.md)（8/20）——五条运营原则 + 可量化效率（功能交付 +30%、生产力 2-3 倍）；[Anthropic 教学 AI 方法](anthropics-approach-to-teaching-and-learning-ai.md)（8/20）——Claude Academy 与"增加自主性"的教学哲学。
+
+8 月 21 日至 9 月 8 日工程博客进入新一轮产品化浪潮。**工程方法论**：[AI 原生 SDLC 手册](the-ai-native-sdlc-playbook.md)（8/21）把六阶段生命周期改为闭环、每阶段提交可机读工件（"提交链即审计链"），skills 咨询性控制 + hooks 确定性闸门。**商业 Agent**：[商业 Agent 蓝图](claude-for-commerce-agents.md)（9/2）+ [商业 Agent 解剖指南](the-anatomy-of-effective-commerce-agents.md)（9/2）双文发布——四行业参考实现、购物车 +35%、成交概率 +60%；单 Agent + skills 优于子 Agent、90–99% prompt cache 命中率作为设计目标。**浏览器与记忆**：[Claude in Chrome GA](claude-in-chrome-generally-available.md)（8/26）免逐步确认执行浏览器任务（红队披露：全防线下 Fable 5 注入成功率仅 0.3%）；[Cowork 内置专属浏览器](cowork-built-in-browser.md)（8/26）不碰用户标签页与登录态；[记忆全入口生效](claudes-memory-works-everywhere.md)（8/25）聊天与 Cowork 共享同一份记忆、Topics 可逐条管控。**成本**：[Claude Platform 降本增效](reducing-cost-and-improving-performance-with-claude-platform.md)（9/8）——prompt-audit 迁移实测成本 -14.6% 且准确率 +5.3%。**安全生态**：[Mythos 5 网络能力开放](bringing-claude-mythos-5-to-more-defenders.md)（8/21）进入 Claude Security 公测并设 3500 万美元 Defender Advantage Fund。**案例与生态**：[Warp 自我改进 Agent](how-warp-builds-self-improving-agents.md)（8/26）双技能循环（1000 万次 Claude Code 会话规模验证）；[Bain 加入 Partner Network](bain-company-joins-claude-partner-network.md)（8/25）19,000 人部署、客户项目 30–50% 生产力提升；[Claude for Teachers](claude-for-teachers.md)（8/28）免费 Enterprise 开放美国 K-12 学区；[Anthropic 员工用 Claude Tag](how-anthropic-employees-use-claude-tag.md)（8/28）法务审查从 1 天+ 降至 30 分钟；[市场人员用 Claude Code 发个性化简报](anthropic-field-marketer-claude-code.md)（8/24）非工程师采纳样本。
 
 ## 二、七大核心主题
 
@@ -96,6 +98,17 @@ Anthropic 的工程博客呈现了一条清晰的技术演进路径：
 | 水印嵌入时机 | 模型生成阶段（非事后附加） | [Claude 文本水印](claude-text-watermarking.md) |
 | 水印覆盖内容 | 全部文本与文件（含代码） | 同上 |
 | 水印检测能力 | 编辑/复制粘贴后仍可追溯 | 同上 |
+| 商业 Agent 购物车 / 成交提升 | +35% / +60% | [商业 Agent 蓝图](claude-for-commerce-agents.md) |
+| 商业 Agent prompt cache 命中率目标 | 90–99% | [商业 Agent 解剖](the-anatomy-of-effective-commerce-agents.md) |
+| 异步记忆抽取召回提升 | +13%（vs 存事实工具） | 同上 |
+| Chrome 红队注入成功率（无防御） | Opus 4.5 17.6% / Opus 5 3.8% | [Claude in Chrome GA](claude-in-chrome-generally-available.md) |
+| Chrome 红队注入成功率（全防线） | Sonnet 5/Opus 5/Mythos 5 零、Fable 5 0.3% | 同上 |
+| prompt-audit 迁移效果 | 成本 -14.6% / 准确率 +5.3% | [降本增效](reducing-cost-and-improving-performance-with-claude-platform.md) |
+| cost-optimize 四基准降幅 | 52%–73% | 同上 |
+| Mythos 5 防御者基金 | $35M（0xDAF） | [Mythos 5 开放](bringing-claude-mythos-5-to-more-defenders.md) |
+| Warp 规模 | 1000 万次 Claude Code 会话 / 4000 万 Agent 对话 | [Warp 自改进](how-warp-builds-self-improving-agents.md) |
+| Bain 部署规模 / 客户生产力提升 | 19,000 员工 / 30–50% | [Bain 伙伴](bain-company-joins-claude-partner-network.md) |
+| Claude Tag 内部法务审查 | 1 天+ → 30 分钟/件 | [员工用 Claude Tag](how-anthropic-employees-use-claude-tag.md) |
 
 ## 四、贯穿始终的原则
 
@@ -157,3 +170,16 @@ Anthropic 的工程博客呈现了一条清晰的技术演进路径：
 | 43 | 2026-08-20 | [The Claude Code Guide For Startups](claude-code-guide-for-startups.md) | 创业公司 / 效率原则 / 最佳实践 |
 | 44 | 2026-08-20 | [How monday.com Transformed Its Platform into an Agent-First Product](monday-com-agent-first-platform.md) | Agent-first 重构 / 人机协作 / 企业案例 |
 | 45 | 2026-08-20 | [Anthropic's Approach to Teaching and Learning AI](anthropics-approach-to-teaching-and-learning-ai.md) | Claude Academy / AI 教育 / 自主性 |
+| 46 | 2026-08-21 | [The AI-Native SDLC Playbook](the-ai-native-sdlc-playbook.md) | AI 原生 SDLC / 可机读工件 / hooks 闸门 |
+| 47 | 2026-08-21 | [Bringing Claude Mythos 5 to More Defenders](bringing-claude-mythos-5-to-more-defenders.md) | 网络安全 / Claude Security / 0xDAF |
+| 48 | 2026-08-24 | [How an Anthropic Field Marketer Uses Claude Code](anthropic-field-marketer-claude-code.md) | 非工程师采纳 / 个性化简报 |
+| 49 | 2026-08-25 | [Bain & Company Joins the Claude Partner Network](bain-company-joins-claude-partner-network.md) | Premier 伙伴 / 19000 人部署 |
+| 50 | 2026-08-25 | [Claude's Memory Works Everywhere](claudes-memory-works-everywhere.md) | 跨产品记忆 / 用户主权 / 敏感分级 |
+| 51 | 2026-08-26 | [Claude in Chrome Is Generally Available](claude-in-chrome-generally-available.md) | 浏览器 Agent GA / 注入防御披露 |
+| 52 | 2026-08-26 | [Claude Gets Its Own Browser in Cowork](cowork-built-in-browser.md) | 隔离浏览器 / 登录态管理 |
+| 53 | 2026-08-26 | [How Warp Builds Self-Improving Agents on Claude](how-warp-builds-self-improving-agents.md) | 自改进 Agent / 双技能循环 |
+| 54 | 2026-08-28 | [Claude for Teachers](claude-for-teachers.md) | K-12 教育 / 免费 Enterprise / FERPA |
+| 55 | 2026-08-28 | [How Anthropic Employees Use Claude Tag](how-anthropic-employees-use-claude-tag.md) | 内部采纳 / 法务审查提效 |
+| 56 | 2026-09-02 | [Building Commerce Agents with Claude](claude-for-commerce-agents.md) | 商业 Agent 蓝图 / 四行业参考 |
+| 57 | 2026-09-02 | [The Anatomy of Effective Commerce Agents](the-anatomy-of-effective-commerce-agents.md) | 架构实证 / 缓存命中率 / 评估配方 |
+| 58 | 2026-09-08 | [Reducing Cost and Improving Performance with Claude Platform](reducing-cost-and-improving-performance-with-claude-platform.md) | 成本优化 / prompt-audit / effort 校准 |
