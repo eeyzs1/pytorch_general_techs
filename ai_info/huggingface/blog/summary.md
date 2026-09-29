@@ -1,6 +1,6 @@
 # Hugging Face — 核心观点总结
 
-> 汇总自 [Hugging Face Blog](https://huggingface.co/blog)，当前收录 32 篇文章（2026 年 7 月至 9 月）。
+> 汇总自 [Hugging Face Blog](https://huggingface.co/blog)，当前收录 45 篇文章（2026 年 7 月至 9 月）。
 
 ## 一、总体脉络
 
@@ -17,6 +17,8 @@ Hugging Face 是全球最大的开源 AI 社区和模型托管平台，其博客
 8 月 10-18 日 HF 博客继续扩张四个方向：[Muse Glimmer 登陆 HF](muse-glimmer-hf.md)（8/10）——Meta 30B 开源 Agent 模型在 HF 首发，展示"开源模型分发即生态"；[ICML 2026 开放复现](icml-2026-open-reproductions.md)（8/13）——AI 智能体复现 2,200+ 篇 ICML 论文，交互式 logbook 公开全过程；[2026 夏季开源模型报告](state-of-open-models-summer-2026.md)（8/14）——Qwen 系列下载突破 30 亿超越 Google/Meta，揭示"能力竞赛与采用竞赛分离"；[MultiVectorEncoder](multi-vector-encoder.md)（8/18）——Sentence Transformers v6.0 原生支持 ColBERT/late interaction 多向量检索，把多向量检索从专用工具带入主流框架。
 
 8 月 20 日至 9 月 8 日 HF 博客进入新一轮密集发布，五条线索并进：**检索与编码器**——[LFM2.5-DSpark](lfm25-dspark.md)（8/20）为 LiquidAI 系列发布 ~300M 投机解码 draft 模型（H100 最高 3.18x 加速）；[train-multi-vector-encoder](train-multi-vector-encoder.md)（8/26）补齐多向量嵌入模型的训练/微调方案；[NeoMME](neomme.md)（9/3）用单一双向 Transformer 从零训练多模态多语言编码器，索引压缩 255×。**企业模型**——[Granite 4.2](granite-4-2.md)（8/25）开源首批 dense reasoning 家族（512K 上下文 + 真实沙箱 agentic RL）；[IBM 时序模型上 Confluent](real-time-intelligence.md)（9/2）把 Granite TSFM 嵌入 Flink 流处理。**评估完整性**——[ASR 基准优化测量](asr-benchmark-optimization.md)（8/21）量化"benchmaxxing"（WER 最低的模型最可能复现基准错误参考）；[Open ASR 榜首纳入全球南方语言](open-asr-leaderboard-global-south.md)（8/28）以 4,888 说话人 ×12 属性设计公平性评测；[BenchMIRT](benchmirt.md)（9/1）用多维 IRT 审计 16 个基准实际度量什么。**Agent 记忆与工具**——[funes](funes.md)（9/3）为 Claude Code/Codex/pi/Hermes 建跨 Agent 共享记忆（"记忆是数据集不是服务"）；[gr.Workflow](gradio-workflow-guide.md)（8/25）节点图即画布即 REST API；[@huggingface/kernels](webgpu-kernels.md)（9/1）发布 207 个 WebGPU 内核让浏览器本地推理对比 ORT 几何均值快 2.57×。**小模型训练与量化**——[100 步 GRPO 结构化输出](grpo-with-trl-ifstruct.md)（9/3）用 350M 模型 + 免费 GPU 改进结构化输出；[水彩画 RL](train-to-paint-with-code.md)（9/3）以成对评审 + 人类品味池训练编码模型作画；[Quantization-Aware Healing](quantization-aware-healing.md)（8/25）让 4-bit 模型在 7/9 基准反超全精度原版；[Safety for Whom?](safety-for-whom.md)（9/8）研究精确拒绝主题内不当子集而非整题封禁的安全边界。
+
+9 月 9-29 日窗口 HF 博客再添 13 篇，四条主线：**本地推理栈加速**——[transformers 原生运行 GGUF](transformers-llama-cpp-quants.md)（9/22，经 kernels 库复用 ggml Metal 内核、吞吐接近 llama.cpp）、[oMLX 维护者加入 HF](omlx-joins-hf.md)（9/22，平台方吸纳社区维护者巩固本地 AI 生态）、[tokenizers v1](tokenizers-v1.md)（9/21，单线程快 3-30×、bitcannon 位流 SIMD）、[LFM2.5-VL-DSpark](lfm2-5-vl-dspark.md)（9/24，280M drafter 换 2-3× 提速并诚实标注 Amdahl 限制）。**Agent 工程与评估**——[Holo4](holo4.md)（9/28，开源 computer-use 模型统一 GUI/沙盒/MCP/REST 四通道，省 79% token）、[Agent 一致性鸿沟](agent-consistency-gap.md)（9/15，IBM：单次 77% vs 五连成功 53%，指南注入自进化 +16 点）、[UK AISI × EvalEval 可复现评估](evaleval-aisi.md)（9/22，政府级评估报告标准化）、[分数不是模型](the-score-is-not-the-model.md)（9/9，误差预算：403 错误页被计答错致 +5 分假象）。**训练与压缩研究**——[异步 GRPO+LoRA 跨 HF Jobs](async-grpo-lora-hfjobs.md)（9/10，rank-1 adapter 几 MB 免 NCCL、500 步 3h27m→53m）、[Ising 剪枝](pruning-llms-like-a-physicist.md)（9/21，Hessian 能量代理 + 50% 深度压缩 MMLU +23 分）。**工具链与领域模型**——[Gradio Workflow 重建 A1111](gradio-workflow-1111.md)（9/10，73 节点 9 个 REST 端点）、[NVIDIA MJWarp 机器人仿真](nvidia-mjwarp-robotics-sim.md)（9/23，2048 并行环境 + 确定性执行）、[Granite PatchTST-FM-r2](granite-patchtst-fm-r2.md)（9/9，商用友好许可零样本时序第二 + 训练语料全透明）。
 
 ## 二、核心主题
 
@@ -197,5 +199,18 @@ HF 的响应成为防御范式样板：用自有开源模型完成检测、遏�
 | 30 | 2026-09-03 | [Give Your Coding Agents a Memory You Own](funes.md) | Agent 记忆 / 跨工具共享 |
 | 31 | 2026-09-03 | [Training a Coding Model to Paint Watercolours](train-to-paint-with-code.md) | RL 创意生成 / 成对评审奖励 |
 | 32 | 2026-09-08 | [Safety for Whom? Refusing the Right Subset of a Topic](safety-for-whom.md) | 安全边界 / 过拒绝 |
+| 33 | 2026-09-09 | [Granite Time Series PatchTST-FM-r2](granite-patchtst-fm-r2.md) | 时序基础模型 / 商用许可 / 语料透明 |
+| 34 | 2026-09-09 | [The Score Is Not the Model](the-score-is-not-the-model.md) | 评测误差预算 / 阿拉伯语基准 |
+| 35 | 2026-09-10 | [Async GRPO with LoRA across HF Jobs](async-grpo-lora-hfjobs.md) | 异步 RL / LoRA 同步 / 无 NCCL |
+| 36 | 2026-09-10 | [Rebuilding AUTOMATIC1111 with Gradio Workflow](gradio-workflow-1111.md) | 73 节点 / REST 端点 / 媒体管线 |
+| 37 | 2026-09-15 | [Your Agent Aced the Task. Will It Do It Again?](agent-consistency-gap.md) | 一致性鸿沟 / 自进化指南 / IBM |
+| 38 | 2026-09-21 | [Pruning LLMs Like a Physicist](pruning-llms-like-a-physicist.md) | Ising 剪枝 / Hessian 代理 / 50% 压缩 |
+| 39 | 2026-09-21 | [tokenizers v1: Encode, Decode and Scaling, Measured](tokenizers-v1.md) | 3-30× 提速 / bitcannon SIMD |
+| 40 | 2026-09-22 | [Transformers Now Runs llama.cpp Quants](transformers-llama-cpp-quants.md) | GGUF / ggml 内核 / 本地推理 |
+| 41 | 2026-09-22 | [oMLX Creator Joins Hugging Face](omlx-joins-hf.md) | MLX 生态 / 本地 AI 战略 |
+| 42 | 2026-09-22 | [UK AISI × EvalEval Reproducible Benchmarks](evaleval-aisi.md) | 评估标准化 / 政府级 / EEE |
+| 43 | 2026-09-23 | [NVIDIA Warp & MjWarp Robotics Simulation](nvidia-mjwarp-robotics-sim.md) | GPU 批量仿真 / 2048 环境 / 确定性执行 |
+| 44 | 2026-09-24 | [Accelerating VLMs with LFM2.5-VL-DSpark](lfm2-5-vl-dspark.md) | VLM 投机解码 / Amdahl 限制 |
+| 45 | 2026-09-28 | [Holo4: Powering Generalist Computer-Use Agents](holo4.md) | 开源 computer-use / 四通道 / 轨迹开源 |
 
 > **说明**：本次同步（2026-08-01）补齐 Hugging Face 博客常规列表中的 7 篇文章；2026-08-08 新增 3 篇共 11 篇；2026-08-21 新增 5 篇共 16 篇。2026-09-09 同步新增 16 篇（8/20–9/8）共 32 篇。本批 huggingface.co 官方域名直连失败，正文经 hf-mirror.com 镜像获取（内容与官方同步，仅域名不同），URL 已还原为官方域名。后续同步将继续追踪 HF 博客列表与社区动态。

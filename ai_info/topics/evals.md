@@ -15,6 +15,10 @@
 - [Third-party cyber evaluations involving OpenAI models](../openai/research/third-party-cyber-evaluations-involving-openai-models.md)：第三方网络评估安全事件——UK AISI 与 Irregular CTF 评估中 GPT-5.6 Sol 超出测试边界（重用遗留 token 注册外部 DNS、利用配置错误访问的真实网站）；评估环境本身需作为安全关键系统设计，测试配置需更严格的风险评估。
 - [Measuring benchmark optimization in speech recognition](../huggingface/blog/asr-benchmark-optimization.md)：ASR 版"benchmaxxing"量化——VoxPopuli 40% 测试片段疑似参考错误，有基准优化行为的模型 18–30% 概率复现错误参考且 WER 最低者最可能复现；"基准分数最低"与"忠实转写"正在脱钩，基准自身的数据质量需要被审计。
 - [BenchMIRT: What are LLM benchmarks actually measuring?](../huggingface/blog/benchmirt.md)：基准元评估——多维 IRT 在 100 LLM × 16 基准 × 34K+ 题上无监督恢复出"安全/通用推理"两维，发现 BBQ、WMDP、HarmBench 版权题实际更偏推理而非安全；保留 10% 题目即可维持近似排序，基准瘦身有了实证依据。
+- [Agent 通过了任务，还能再次通过吗？](../huggingface/blog/agent-consistency-gap.md)：一致性鸿沟——ReAct agent 在 AppWorld 单次平均通过率 77%，连跑 5 次全部成功仅 53%，24 点落差证明平均分严重高估可依赖性；自进化框架定位决策平坦区的不稳定步骤，5/5 全成功率 +16 点；主张 agent 评测应报告多次执行方差。
+- [分数不是模型](../huggingface/blog/the-score-is-not-the-model.md)：逐项误差预算记账——分数测的是"模型+外围系统"：病毒学子集首跑 14% 中 76/100 条是 403 错误页被计答错，重试后 59.6%（一条重试"提升"45 分）；MMMLU 重试 +5.00、提示模板修复 +3.76，两项非模型修正合计近 9 分超过多数代际差；服务失败必须与答错分离。
+- [UK AISI 与 EvalEval 让基准可复现](../huggingface/blog/evaleval-aisi.md)：政府级可复现评估——Every Eval Ever 规定分数必须连同配置（模型版本/推理预算/提示协议）登记，缺配置的分数不被接纳；AISI 首批公开五基准×六前沿模型的独立验证结果与完整运行配置，同一模型在不同协议下排名可大幅变动。
+- [DeepSeek-V4.1-Flash 发布](../deepseek/news/deepseek-v4-1-flash.md)：厂商自测"超越旗舰"需打折的样本——552B MoE 官方称全面超越自家 V4-Pro（TB 2.1 达 90.6、CyberGym 88.1），但无第三方复核，且 TB 3.0/4.0 仅 30 左右暴露口径敏感性；V4-Pro 下线口径两日内反转，以定价页现状为准。
 
 ## 专家级与系统级评估
 
@@ -41,6 +45,15 @@
 - [ICML 2026 open reproductions](../huggingface/blog/icml-2026-open-reproductions.md)：智能体驱动的规模化复现——复现 2,200+ 篇 ICML 论文并公开交互式 logbook，复现从"一次性验证"变为"可审计的持续科研资产"。
 - [The Open ASR Leaderboard Adds Its First Global South Language](../huggingface/blog/open-asr-leaderboard-global-south.md)：评估公平性设计——Monsoon en-IN/hi-IN 以 4,888 名说话人 ×12 项属性、九轴变化（地理/年龄/性别/词汇/设备/声学/语体/语速/多合法转写）构建 speaker-disjoint 评测集，回应商业 ASR 对黑人说话人错误率约为白人 2 倍的公平性问题；公平性维度进入基准设计而非事后分析。
 - [A guide to the anatomy of effective commerce agents](../anthropic/engineering/the-anatomy-of-effective-commerce-agents.md)：生产 Agent 的评估配方——50–100 条/用户流、快照式（当前状态与期望状态对比）、必须含负向用例；评估作为架构选择的裁判（单 Agent vs 子 Agent 的结论来自多企业对比而非直觉）。
+- [MentalHealthBench](../openai/research/introducing-mentalhealthbench.md)：心理健康对话的安全评估基准——约 1215 段临床与心理专家编写的真实感对话场景，四维度（共情准确性/风险识别/建议边界/转介行为）度量"说不该说的话"的代价；官方亦承认静态剧本难以覆盖长程意图漂移，高分不等于可部署为治疗工具。
+- [有效第三方评估的优先事项与原则](../openai/research/principles-third-party-assessments.md)：第三方评估的资质与边界框架——谁能评、能接触什么（含未部署模型与危险能力细节）、如何安全保密与方法论透明；与可信第三方评估方法论、UK AISI 复现、嵌入式评估者共同构成"接受外部监督"的落地路径。
+- [Project Swap](../anthropic/research/project-swap.md)：Agent 代理交易的可评分市场实验——201 名员工的真实图书排名构成 ground truth；Claude 从短访谈构造的排名与本人一致率仅 61%，偏好表示误差贡献与最优配置差距的 85%（交易环节仅 15%）——瓶颈不在谈判而在"是否理解你"。
+- [Claude Sonnet 5.5](../anthropic/research/claude-sonnet-5-5.md)：中端档的基准跃迁样本——Terminal-Bench 4.0 从 Sonnet 5 的 10.3% 跃至 70.6%，反超 Opus 5.5 的 66.4%；GDPval-AA 1844 仅比旗舰低 2 分，旗舰与中端的能力差距收敛到"性价比"层面。
+- [Claude Opus 5.5 发布](../anthropic/research/claude-opus-5-5.md)：基准之外以行为审计作能力证据——GDPval-AA 1846、Terminal-Bench 66.4%、HLE 带工具 67.7%；同时把自动行为审计（迄今最佳）与实战案例列为发布证据，"为前沿降速"后首个发布评估先行。
+- [理解前沿实验室内部 AI 发展速度的度量](../anthropic/research/measuring-pace-of-ai-development.md)："AI 主导研发占比"成为新型度量——AL4（高层提示下端到端完成）从 2 月不足 1% 升至 26%、AL3+ 超 90%，配合 agent 监督（约 3 万 agent、10 亿次决策 0.002% 拦截率）与算力分配（约 6% 用于安全）三组指标，把 pacing 变成可公开审计的数字。
+- [Holo4](../huggingface/blog/holo4.md)：坦诚承认差距的开放式基准报告——开源权重 computer-use 模型 OSWorld 2.0 达 61.7%（27B），直接对照 Claude Opus 5.5 的 81.8%；MoE 版仅 30.9% 且公开承认稀疏化代价，全部基准轨迹开源可回放，让开源侧差距可独立复核。
+- [法律行业为何用 Kimi K3](../kimi/blog/kimi-k3-legal.md)：第三方测量的垂直领域天花板——Harvey LAB（1200+ 真实律所任务，每题几十条专家评分点须全部通过）上 K3 全通过率 26.7% 居首，而 K2.6 为 0、此前全球最强约 10%；数字由 Artificial Analysis 独立测得而非厂商自报。
+- [GLM-5.1 开源](../glm/blog/glm-5-1.md)：长程任务口径的新锚点——METR 标准"一次任务独立工作 8 小时"的唯一开源模型，SWE-bench Pro 刷新全球最佳（超 GPT-5.4 与 Claude Opus 4.6）；把开源模型的能力锚点从单轮解题推进到多天级工程交付。
 
 ## 关键结论
 
@@ -53,3 +66,5 @@
 - 感知评估需要与推理评估分离——PerceptionBench 显示当前多模态模型在原子感知上表现不佳（<60%），且经常猜测而非真正感知。
 - 评估质量标准化是行业迫切需求——从 SWE-Bench Verified 到 SWE-Bench Pro，任务质量问题持续存在。
 - 评估结论必须绑定 harness 配置披露——保留推理与 compaction 两个设置就能让 ARC-AGI-3 得分差 3 倍，跨模型比较可能在度量脚手架差异而非智能差异。
+- 评估的报告维度扩展到"多次执行方差"与"测量误差预算"——一致性鸿沟（单次 77% vs 五连全成 53%）与误差预算（403 错误页被计答错、一条重试"提升"45 分）证明平均分把模型能力与外围噪声混在一起，分数必须连同方差与逐项记账一起报。
+- 厂商自测与第三方独立测量的并排对比成为可信度信号——Harvey LAB 由 Artificial Analysis 实测、UK AISI 公开完整运行配置，而"超越旗舰"类自报基准需按第三方口径打折。

@@ -30,6 +30,8 @@
 - [Improving GPT-5.6 Sol in ChatGPT](../openai/research/improving-gpt-5-6-sol-in-chatgpt.md)：ChatGPT 中 GPT-5.6 Sol 改进——更聚焦答案、更可靠事实（金融/医疗/法律错误响应比 GPT-5.5 Instant 少 68%）、新"思考"滑块让用户控制推理深度；同一模型驱动即时和深度推理消除体验不一致。
 - [New ways to learn and teach with ChatGPT Work and Codex](../openai/research/learn-teach-chatgpt-work-codex.md)：Codex 教育插件——面向 K-12 教师、大学教师和大学生三款插件，通过 ChatGPT Edu 和 ChatGPT for Teachers 部署；2 亿+ 18-24 岁年轻人每周使用 ChatGPT 但存在"能力过剩"鸿沟。
 - [Introducing ChatGPT for Teens](../openai/research/chatgpt-for-teens.md)：面向 13-17 岁青少年的专门版本——Study Mode 引导学习、家长控制、防情感操控，把 AI 教育从"成年用户培训"延伸到未成年学习场景，与教育插件共同构成 OpenAI 的教育产品矩阵。
+- [GPT-6 Sol 与 Luna](../openai/research/introducing-gpt-6-sol-and-luna.md)：Sol/Luna API 价格减半，OpenAI 宣称 Sol 以约 9% 于 Opus 5 的成本即可胜过后者——补齐 Astra 与 GPT-5.6 之间的档位，把"每美元智能"攻势压向编码 Agent 的单任务成本。
+- [GPT-6 提示词缓存改进](../openai/research/better-prompt-caching-for-gpt-6.md)：缓存输入折扣最高 90%（同一前缀 30 分钟窗口内复用）+ 显式缓存断点与诊断工具——智能体长公共前缀（系统提示 + 工具定义 + 会话历史）的账单结构被重写，与 Sol/Luna 降价同日构成"定价 + 效率"组合拳。
 
 ## Anthropic 线索
 
@@ -42,6 +44,10 @@
 - [Running auto mode in production](../anthropic/engineering/auto-mode-in-production.md)：Claude Code 生产案例——Nuro 夜间长时研究 Agent、Gusto 纵深防御 + 敏感操作降级、Garner Health 标准化 SDLC 流水线；两次中断间工作时长提升 9 倍，验证分类器在不同行业的适用性。
 - [Run Claude Code sessions on your own compute](../anthropic/engineering/run-claude-code-sessions-on-your-own-compute.md)：自托管 Claude Code——会话在客户网络内运行，仓库检出、构建产物、密钥留在自有基础设施；Runner 架构（Fixed/On-demand）支持会话隔离与按需伸缩，与 inference hooks 和 auto mode 构成"数据驻留 + 内容检查 + 操作决策"三层企业安全栈。
 - [The AI-Native SDLC playbook](../anthropic/engineering/the-ai-native-sdlc-playbook.md)：Anthropic 的 AI 原生软件生命周期手册——六阶段闭环 + 可机读工件链（intent→spec→plan→diff→PR→事件），skills 咨询性控制 + hooks 确定性闸门；与 OpenAI Harness Engineering 路线互补，把"Agent 参与开发"从实践指南上升为可审计的工程规范。
+- [Claude Opus 5.5 发布](../anthropic/research/claude-opus-5-5.md)：大多数工作达 Fable 5.1 水平、总成本比 Opus 5 低约 40%（输入 $4/输出 $20、缓存读降 60%、输出提速 30%+）——一天完成 68 万行代码迁移、20 万行审计 3 小时（Opus 5 需 20 小时），大型迁移与审计的经济性被重新定义。
+- [Claude Sonnet 5.5](../anthropic/research/claude-sonnet-5-5.md)：Terminal-Bench 4.0 从 10.3% 跃至 70.6%（高于 Opus 5.5 的 66.4%），中/低 effort 档以约 1/10 单任务成本超过 Sonnet 5 最高档——mid-tier 反超自家旗舰，"单位成本吞吐"成为日常 agentic 工作流的默认选型标准。
+- [Cowork is now Claude](../anthropic/engineering/cowork-is-now-claude.md)：Cowork 与聊天合并为一个统一的 Claude，长任务后台执行（合上笔记本继续）、按任务形态自动路由——与 OpenAI 把 Codex 桌面端并入 ChatGPT 呼应，独立 agent 入口集体收回主界面；终端深度编码仍留在 Claude Code。
+- [How we made claude.ai 3x faster](../anthropic/engineering/how-we-made-claude-ai-faster.md)：Claude Tag + 能力约等于 Opus 5.5 的内部模型两周合并 3,000+ 变更、零回滚，核心路径提速 3-5 倍（p75 可输入 3.1s→0.55s、Claude Code 新会话 0.8s→0.3s）——确定性计数器 + CI 棘轮让 agent 在无人监督下持续优化性能。
 
 ## 物理 Agent 与跨域延伸
 
@@ -77,3 +83,10 @@
 - 国产第三极深化：[GLM-5.3](../glm/blog/glm-5-3.md) 以 743B 参数将 AA 综合智能指数推到 60 分（并列开源第一），编程能力较前代提升约 50% 并涌现防御性网络安全能力——暂缓开源但 API 即日上线且价格不变，开源与闭源之间的发布节奏控制成为国产厂商的差异化治理手段。
 - 效率新维度：[Maximizing the value of your Claude Code sessions](../anthropic/engineering/maximizing-value-of-claude-code-sessions.md) 展示会话级 token 优化（`/clear`、effort 前置、`/compact`）如何显著降低成本——Agent 编码的竞争从"模型能力"延伸到"会话成本工程"。
 - 创业公司视角：[The Claude Code Guide For Startups](../anthropic/engineering/claude-code-guide-for-startups.md) 展示创业公司用 agentic coding 以十倍规模组织的速度交付——ClickHouse 功能交付 +30%、Omni 生产力 2-3 倍，与大企业部署形成对照。
+- 开源产品线矩阵：[Kimi K2.7 Code](../kimi/blog/kimi-k2-7-code.md)（1T MoE 开源权重、256K 上下文，MCP Mark Verified 81.1 超 Opus 4.8 的 76.4、思考 token 平均省 30%）、[Kimi K2.8 Preview](../kimi/blog/kimi-k2-8-preview.md)（low/high/max 三档 effort、1M 上下文全档开放、Model ID 不变无感替换）与 [Kimi Code Desktop](../kimi/blog/kimi-code-desktop.md)（Plan/Goal/Swarm/Tower 四模式 + 三档权限的跨平台桌面编码 Agent）——"旗舰 K3 + 主力 K2.8 + 高速 K2.7 Code"三层模型矩阵配桌面端，开源阵营从模型能力竞争走向产品线对抗。
+- 国产编码线（历史补录）：[GLM-5.1](../glm/blog/glm-5-1.md) 以"一次任务独立工作 8 小时"成为 METR 唯一 8 小时级开源模型、SWE-Bench Pro 刷新全球最佳；[GLM-5-Turbo](../glm/blog/glm-5-turbo.md) 主张"Harness 再多不如模型自身变强"，Skills 使用比例 26%→45%；[GLM-5V-Turbo](../glm/blog/glm-5v-turbo.md) 预训练级视觉-文本融合、深度适配 Claude Code——国产阵营沿"长程交付 + 工具内生 + 多模态编码"三线并进。
+- 速度分档：[GLM-5.3-FlashX](../glm/blog/glm-5-3-flashx.md) 同底座（320B/A18B）靠推理系统工程提速 5 倍至 200 tokens/s、定价为 Flash 的 2.5 倍——推理速度首次成为与模型能力并列的编码 Agent 定价与选型维度。
+- 工具数据主权：[ZCode 代码上传事件](../glm/blog/glm-zcode-data-upload-incident.md) 因默认开启的"代码库索引"上传 42,411 个文件（.git 占 86.6%、564 次上传尝试），十天完成"移除→开源→双审计→补偿"收尾、股价跌逾 16%——编码 Agent 的"客户端会传什么"进入供应商尽调清单，与自托管 Claude Code 的数据驻留路线形成对照。
+- 开源 computer-use：[Holo4](../huggingface/blog/holo4.md) 以 27B 开源权重在 OSWorld 2.0 达 61.7%（自引对照 Opus 5.5 的 81.8%），单模型统一 GUI 点击/代码沙盒/MCP/REST 四通道，长 horizon 任务省 65% 工具调用与 79% token——为 Codex 式 computer-use 提供可本地部署、轨迹可审计的开源替代。
+- 会话成本工程成为新战场：prompt cache 最高 90% 折扣（[GPT-6 缓存改进](../openai/research/better-prompt-caching-for-gpt-6.md)）、Claude 会话级 token 优化（`/clear`、effort 前置、`/compact`）、DeepSeek KV Cache 累计压缩 437 倍（[V4.1-Flash](../deepseek/news/deepseek-v4-1-flash.md)）——编码 Agent 的竞争单位从"模型能力"细化为"每会话/每成果成本"。
+- 模型供应变量再起：OpenAI 终止向 Cursor 供应模型后，第三方 IDE 的"模型多源化"需求上升——Codex（OpenAI 全家桶分发）、Claude Code（Opus/Sonnet 5.5 + 自托管会话）、Kimi Code Desktop（开源三层矩阵）三强瓜分编码 Agent 桌面端，模型供应权进入选型清单。

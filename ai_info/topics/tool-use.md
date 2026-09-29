@@ -18,10 +18,17 @@
 - [Muse Spark 1.1 and the Meta Model API](../meta/muse-spark-1-1.md)：务实的 Computer Use——按场景自选执行方式（写脚本更快就写脚本、点 GUI 更省事就点界面），批量场景一次生成多步操作统一执行，解决"每步重新看屏-推理-点击"的低效。
 - [Gemini API Managed Agents: 3.6 Flash, hooks, and more](../google/deepmind/expanding-managed-agents-gemini-api-3-6-flash-hooks.md)：环境 hooks 治理工具调用——`.agents/hooks.json` 在 pre/post_tool_execution 事件执行自定义脚本，可按正则匹配工具进行阻断、lint 或审计，拒绝理由直接注入模型上下文。
 - [Continuous Voice Interaction with GPT-Live](../openai/research/continuous-voice-interaction-with-gpt-live.md)：语音作为工具接口——全双工语音模型同时听和说，深度推理和工具调用走异步路径不阻塞对话流；会话开始即创建前沿模型推理会话并预填充初始上下文，用稳定会话亲和性和 prompt caching 降低延迟。
+- [Agents API：OpenAI 把 Codex 智能体骨架产品化](../openai/research/introducing-the-agents-api.md)：托管 harness 的工具层——编排、长时会话与工具使用由 Codex harness 以云服务开放，沙盒与权限边界由平台负责；Data agent 等开箱即用角色直接构建其上，验证托管编排的生产可用性。
+- [GPT-Live-1 进入 API](../openai/research/introducing-gpt-live-1-in-the-api.md)：语音即工具接口——全双工可打断对话 + 自定义音色 + telephony 电话网直连；工程重心从"拼装 ASR+LLM+TTS"转移到打断策略、延迟预算、音色合规与电话网对接，瞄准呼叫中心替换市场。
+- [Holo4：驱动通用 computer-use agent](../huggingface/blog/holo4.md)：四通道统一——GUI 点击、代码沙盒、MCP、REST API 由同一开源权重模型驱动，环境覆盖桌面、浏览器、Android 与终端；Agentic Task Factory 从软件文档与截图合成约 1 万个可自动验证任务，部分任务暴露 GUI/MCP 双路径训练模型"择路"。
+- [Kimi Code Desktop 正式发布](../kimi/blog/kimi-code-desktop.md)：内置浏览器与终端工具——浏览器支持截图标注、划词评论、@文件与元素点选，内置终端让命令执行不离开应用；审阅粒度到文件与页面元素，三档权限控制调节自主程度。
+- [Muse Realtime Avatar](../meta/muse-realtime-avatar.md)：共享 token 流驱动双输出——一条语音 token 流同时驱动音频解码器与视频生成器，口型、韵律与表情天然对齐、无需后处理对齐管线；guidance-aware 蒸馏 + self-forcing 把交互式化身压进 870ms 首响预算。
 
 ## 协议与标准
 
 - [The 2026-07-28 MCP Specification](../community/specification/mcp-2026-07-28-specification.md)：MCP 问世以来最大修订——无状态协议核心（移除 initialize 握手，每请求自描述，普通负载均衡即可水平扩展）、MRTR 多轮往返替代长连接 elicitation、HTTP 头部路由（网关/WAF 无需解析 JSON body 即可鉴权）、可缓存列表响应（ttlMs + cacheScope 保持 prompt cache 跨重连稳定）、OAuth 授权加固（RFC 9207 iss 校验 + localhost 重定向 + 凭据绑定签发方）；Tasks 移入扩展框架，Roots/Sampling/Logging 进入弃用期。
+- [MCP 新路线图：Agent 消息原语与统一传输](../community/specification/mcp-roadmap.md)：下一程五大优先领域——Agent 消息原语（服务器发起事件免轮询）、HTTP 原生传输统一（本地服务器也走 Streamable HTTP）、Agent 身份与企业安全（DPoP、Workload Identity Federation、ID-JAG）、改进原语（统一 tools/call 结果契约 + 渐进式发现）、SDK 开发者体验。
+- [MCP 官方 Ruby SDK 达到 1.0](../community/blog/ruby-sdk-1-0.md)：SDK 分级体系与 100% 一致性——服务端与客户端一致性测试场景全部通过，满足 Tier 2 全部要求并朝 Tier 1 推进；HTTP 传输即标准 Rack 应用，Rails 加一条路由即可挂载 MCP 服务器，SDK 成熟度成为可比较的工程指标。
 
 ## 工具组合与垂直化
 
@@ -35,6 +42,12 @@
 - [Intelligent transcription with Gemini 3.5 Transcribe](../google/deepmind/gemini-3-5-transcribe.md)：语音作为 Agent 入口的生产化——智能转写（去填充词/自我纠正/自动格式化）+ function calling 委派图像生成、文件分析等任务给其他 Gemini 模型；Live API 亚秒级双向流 + Interactions API 说话人归属与词级时间戳，落地 Gboard/Antigravity/Gemini app/Chrome。
 - [Introducing the Admin plugin for ChatGPT Work and Codex](../openai/research/introducing-admin-plugin.md)：管理操作的工具化——一个对话完成用量/成员/权限/限额四类操作且权限感知不越权，审批自动路由 Slack/Teams 并按条件自动批准；OpenAI IT 自用 45% 工单自动解决、支持量翻倍下积压清零。
 - [How GPT-5.6 Sol helps run quantum computing experiments](../openai/research/codex-quantum-computing-experiments.md)：实验室工具的 Agent 封装——MIT EQuS 把 GPT-5.6 Sol 接入 Codex 连接实验室软件，对未校准 6 比特芯片近自主完成标准校准链；measurement-specific skills 把实验操作封装为可通宵运行、手机异步抽查的技能，弱信号场景仍需资深研究者指导。
+- [GLM-5V-Turbo：多模态 Coding 基座](../glm/blog/glm-5v-turbo.md)：多模态 Coding 工具链（历史补录）——预训练级视觉-文本融合直接"看懂"设计稿、截图与网页生成可运行代码，200k 上下文；深度适配 Claude Code 与 OpenClaw/AutoClaw，"股票分析师"Skill 读 K 线 60 秒产出图文研报。
+- [GLM-OCR：SOTA 复杂文档解析](../glm/blog/glm-ocr.md)：垂直专业工具（历史补录）——0.9B 参数在 OmniDocBench V1.5 以 94.6 分登顶、整体接近 Gemini-3-Pro，复杂表格直接输出 HTML；1.86 页/秒、约 1 元处理 2000 张 A4，兼容 vLLM/SGLang/Ollama 可端侧部署。
+- [GLM-TTS：工业级语音合成](../glm/blog/glm-tts.md)：语音输出侧专用工具（历史补录）——10 万小时数据即具备 3 秒音色复刻，GRPO 同时优化字错率、说话人相似度、情感、笑声四个奖励；seed-tts-eval 中文 CER 0.89% 为开源 SOTA，LoRA 定制仅需 15% 参数 + 约 1 小时音频。
+- [GLM-ASR-Nano：高鲁棒性语音识别](../glm/blog/glm-asr-nano.md)：语音输入侧专用工具（历史补录）——1.5B 参数取得开源最低平均错误率 4.10（Whisper V3 为 6.93），方言、中英同句混说、耳语音量、嘈杂环境与自定义热词直击真实"不完美语音"；智谱 AI 输入法为首个生产部署。
+- [Gemini 3.8 Flash TTS 与 Flash-Lite TTS 发布](../google/deepmind/gemini-3-8-tts.md)：语音输出工具从"可导演"到"可选角"——单行舞台指示精细控制语气、单一脚本生成双说话人对话、凭文字描述合成新声音或 30 秒样本克隆，覆盖 100+ 语言；与 3.8 Live、Live Avatar 同月拼齐实时语音全栈。
+- [刚果埃博拉响应中的 Claude](../anthropic/research/ebola-response.md)：Skill 汇总疫情数据——WHO AFRO 用 Claude Skill 自动汇总各区 PowerPoint 疫情数据、与前一日对比并解释趋势，把一整天的 sitrep 压缩到 1 小时以内；领域工作流"技能化"交付的高风险场景样本。
 
 ## 网络安全与安全工具
 
@@ -56,6 +69,7 @@
 - [Introducing Muse Glimmer](../meta/introducing-muse-glimmer.md)：端侧 Agent 的工具调用——30B 参数、Apache 2.0、专为函数调用与工具使用优化的开源模型，约 24GB 显存本地运行；把"工具调用能力"从云端 API 下沉到消费级硬件，工具使用不再依赖云端连接。
 - [Build production agents with computer use, the Skills API, and the Files API](../anthropic/engineering/computer-use-skills-api-files-api.md)：Agent 工具三件套 GA——Computer Use 新增 browser use tool（读页面结构操作具体元素而非屏幕坐标），Skills API 打包团队方法论按需注入，Files API 交付结构化成品；"操作 + 方法 + 产出"的完整工具闭环。
 - [The Multimodal Intelligence of Muse Spark 1.2](../meta/multimodal-intelligence-muse-spark-1-2.md)：工具增强的多模态推理——多模态增益在模型可调用工具时最显著，视觉检查 → 工具调用 → 推理的闭环让视频可直接转化为可运行代码产物。
+- [NVIDIA Warp 与 MjWarp 加速机器人仿真](../huggingface/blog/nvidia-mjwarp-robotics-sim.md)：GPU 批量仿真 + 确定性执行——SO-101 机械臂仿真从 MuJoCo CPU 单环境扩展到 2048 个并行环境，优化目标从"单个世界跑多快"变成"同时能跑多少个世界"；1.15 确定性执行模式让 GPU 原子操作可复现，用少量性能换可信的回归测试。
 
 ## 关键结论
 
@@ -64,3 +78,5 @@
 - 工具输出要返回可行动上下文，而不是把无关日志倾倒给模型。
 - 工具的"工业化组合"是 Codex 多角色插件、Symphony 协调器、Daybreak 安全工具链的共同方向——把单点能力变为可重复的端到端工作流。
 - 垂直工具（化学/生物/安全）比通用工具更专业——把领域工具作为 ACI 一部分，模型才能在该领域达到专家级。
+- MCP 把"百级工具列表导致选择退化"列为协议层优先项——渐进式发现与统一 tools/call 结果契约进入路线图，与模型侧工具搜索（Anthropic Advanced Tool Use）双轨并行，上下文工程问题上升为协议特性。
+- 行动通道向"单模型多通道"与"语音即接口"收敛——Holo4 用单一模型统一 GUI/沙盒/MCP/REST 四通道，GPT-Live-1 与 Muse Realtime Avatar 把语音与化身纳入工具调用界面，外围两套技能栈的维护开始被内化进模型。

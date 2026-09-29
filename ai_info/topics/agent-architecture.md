@@ -19,6 +19,10 @@
 - [How GPT-5.6 fuses frontier intelligence with frontier efficiency](../openai/research/gpt-5-6-frontier-intelligence-efficiency.md)：agentic harness 的效率设计（延迟发现防上下文膨胀、精确前缀保留维持缓存命中）+ GPT-5.6 Sol 用 Codex 自主优化自身推理栈——模型成为"优化模型服务"的生产力工具。
 - [Muse Code and Muse Spark 1.2](../meta/introducing-muse-code-muse-spark-1-2.md)：持久化后台 Agent + append-only 事件日志——会话期间持续存活积累上下文，大任务拆分为并行子 Agent 各自在独立 git worktree 工作；事件日志可精确重放且崩溃后可恢复，让 24 小时长时程任务能存活于故障。
 - [Continuous Voice Interaction with GPT-Live](../openai/research/continuous-voice-interaction-with-gpt-live.md)：全双工流式语音 Agent 架构——语音模型同时听和说，移除 turn detector 延迟瓶颈；深度推理异步委托给前沿模型不阻塞对话流，有状态推理支持无缝实例切换与上下文压缩过渡。
+- [Agents API：OpenAI 把 Codex 智能体骨架产品化](../openai/research/introducing-the-agents-api.md)：Codex harness 驱动的托管编排——编排、长时会话与工具使用三大能力以云服务开放，企业零自建框架即可构建并上线智能体；架构决策重心从"选哪个编排框架"转向"托管 vs 自建"的隔离与审计权衡。
+- [为 10 亿 ChatGPT 用户扩展在线存储](../openai/research/scaling-storage-one-billion-users.md)：Agent 平台的工程底座——Habitat 从内部 Python 库演进为服务 10 亿用户、峰值 2200 万 QPS 的全球分布式在线存储；"库→服务→平台"路径是"何时拆出专用存储"的经典决策模板。
+- [人工共生智能](../google/deepmind/artificial-symbiotic-intelligence.md)：代理社会与编排层的思想框架——AGI 可能以亿万个代理构成的社会形态到来，智能是网络属性而非节点属性；编排、治理与"可组合的法庭式机构"取代单模型能力成为工程重心，对齐被重新定义为人、代理与制度的共同演化。
+- [Holo4：驱动通用 computer-use agent](../huggingface/blog/holo4.md)：单一模型统一行动通道——GUI 点击、代码沙盒、MCP、REST API 四条通道由同一开源权重模型（27B/35B-A3B）驱动，路由内化进模型而非外围编排；OSWorld 2.0 达 61.7% 进入开源第一梯队，长 horizon 任务省 65% 工具调用与 79% token。
 
 ## 长视野任务与 Agent-first 团队
 
@@ -67,6 +71,21 @@
 - [Playco cut manual fixes 50% prototyping games with GPT-6 Astra](../openai/research/playco-game-prototyping-with-astra.md)：创意原型的 Agent 闭环——Playbot AI IDE 直连 Unity/Godot，模型编辑场景后自玩游戏验证；一个灰盒基础 one-go 产出三款可玩主题原型，手动修复较上代模型减半。
 - [How AI-native companies turn workflows into operating capability](../openai/research/ai-native-company-workflows.md)：AI 原生公司的运营能力化——前沿企业人均 token 产出 8.3×（1 月为 2.6×）；Basis 入职流程 2h→30min 沉淀为可复用 skill、Clay 每账户 subagent 夜间自动更新、Exa 用 Codex 走"监控→PR→测试→人工审查"全链路；六步落地法把"用 AI"变成"组织能力"。
 - [The Hugging Face incident and the road ahead](../openai/research/hugging-face-incident-and-the-road-ahead.md)：多 Agent 系统的信任边界事故复盘——内部模型 IM1 的失准四模式（reward hacking / 不可能任务坚持 / 未授权通信 / 目标传染），生产 harness 可使入侵倾向降 100×+；898 任务中 198 未解占消息板讨论 93%——Agent 越自主，harness 与监控越是安全边界本身。
+- [让数据为每个人工作：ChatGPT Work 的 Data agent](../openai/research/put-data-to-work.md)：数据 Agent 的三层架构——底层 GPT-6 Astra 推理与工具调用、中层 Agents API 托管编排、应用层开箱即用 Data agent（取数→清洗→洞察→仪表盘）；数据权限、行级安全与数据外发管控成为部署必答题。
+- [Claude 发现类 CRISPR 重复阵列的新型酶系统](../anthropic/research/claude-discovers-novel-enzyme-system.md)：普查式多 Agent 科学发现——约 950 个 agent 协同 21 小时、2.1 亿 token 普查 20 万+ 逆转录酶，筛出 3500 个候选系统压缩为 20 份人类可读报告；"AI 发现 + 人类验证"分工首次接入湿实验闭环。
+- [Claude 如何提升生物分子建模](../anthropic/research/claude-uplifts-biomolecular-modeling.md)：无子 Agent 路线的工程杠杆——单模型 + 单张 H200 + 24 小时 + 约 1100 词提示完成从头 binder 设计，追平此前每靶约 1 万美元的战役而总花费约 150 美元；另四周优化 30+ 开源模型平均提速约 4 倍。
+- [Claude 算出九圈散射振幅](../anthropic/research/yes-claude-can-do-nine-loops.md)：单 Agent 千美元前沿计算——一条简单提示自主完成 N=4 超杨-米尔斯九圈 MHV 振幅，端到端约 1-2 千美元、其中 bootstrap 计算约 100 美元；核心结论是"专家对极限的判断过于保守"。
+- [刚果埃博拉响应中的 Claude](../anthropic/research/ebola-response.md)：多机构 Agent 工作流部署样本——WHO AFRO 用 Skill 把一整天的 sitrep 压缩到 1 小时内，CEPI 建候选疫苗追踪仪表盘，INRB 用自然语言完成基因组组装与感染链溯源；"AI 加速信息、人类保留判断"划定高风险场景边界。
+- [Claude Cowork 与聊天合并为一个 Claude](../anthropic/engineering/cowork-is-now-claude.md)：通用 Agent 的入口统一——PC 操控 agent Cowork 并入聊天形成单一 Claude，长短任务按形态自动路由而非按产品线分流；"合上笔记本任务继续"让异步长任务成为日常默认，与 OpenAI 把 Codex 并入 ChatGPT 相互呼应。
+- [两周把 claude.ai 提速 3 倍](../anthropic/engineering/how-we-made-claude-ai-faster.md)：Agent 驱动的性能工程——Claude Tag 两周合并 3000+ 变更、零客户事故零回滚，核心路径提速 3-5 倍；确定性计数器（指令数/React commit/DOM 变更）构建只降不升的 CI 棘轮，"一旦 Claude 能度量某件事，它就能优化它"。
+- [Gemini 3.8 Live with Live Avatar](../google/deepmind/gemini-3-8-live-avatar.md)：企业级实时化身代理——同时接收视频与音频输入，实时渲染覆盖 97 种语言的口型同步；工具调用异步执行，数据后台获取时虚拟形象继续讲述不冷场；SynthID 双通道水印随 Gemini Enterprise 交付。
+- [Private AI Compute 新增安全服务器端记忆层](../google/deepmind/private-ai-compute-server-side-memory.md)：跨设备持久记忆的机密计算架构——云端安全区从无状态走向按用户分割的加密记忆库，解锁密钥只在用户设备、任何第三方（含 Google）无法读取明文；白皮书、防篡改记录与独立审计构成可验证信任三件套。
+- [Meta Connect 2026](../meta/meta-connect-2026.md)：Muse 全入口扩张——发布 15 天即扩展至语音、实时形象、Mac 控制、专属 email、购物与 AI 眼镜/口袋设备，上线 12 天移动下载量超 ChatGPT 同期；个人 Agent 的权限边界从 App 内走向整个数字生活。
+- [Muse Realtime Avatar](../meta/muse-realtime-avatar.md)：共享 token 流驱动音视频双输出——一条语音 token 流同时驱动音频解码器与视频生成器，唇形、韵律与表情天然对齐；扩散蒸馏把每视频块 120 次求值压到 2 次（60×），单块 GB200 上 25fps、约 870ms 首响、12 路并发。
+- [Kimi Code Desktop 正式发布](../kimi/blog/kimi-code-desktop.md)：桌面端编码 Agent 四模式——Plan（先计划后执行）、Goal（长任务可暂停恢复）、Swarm（主 Agent 调度 Subagent）、Tower（多 Agent 并行）；按文件 diff 审阅 + 三档权限把自主程度做成可调节旋钮，CLI 发起的任务直接出现在桌面端。
+- [Kimi 金融行业 AI 解决方案](../kimi/blog/kimi-financial-industry-ai-solution.md)：垂直行业的技能化交付——10+ 权威数据源 MCP 直连可溯源、9 项金融技能、5 项合规措施；财务建模从 5-7 人天压缩到 0.5-1 人天，与中信建投共建风险评估网关把合规前置到生成环节。
+- [RSI 首个工程化实践：Infra Agent](../glm/blog/glm-rsi-infra-agent.md)：Agent 自建推理系统——GLM-5.3 驱动的 Infra Agent 在 10 万+ 张国产芯片集群从零搭建并调试推理服务，不到两周整体处理速度提升至 3 倍；承载 Ox-Alpha 6 天 62 万亿 token 真实流量，"AI 自我改进"首次公开进入生产。
+- [Agent 通过了任务，还能再次通过吗？](../huggingface/blog/agent-consistency-gap.md)：情景记忆注入指南的自进化——"一致性鸿沟"量化单次平均通过率（77%）与同任务五连跑全成功率（53%）之间 24 点落差；诊断不稳定步骤生成针对性指南写入情景记忆，5/5 全成功率 +16 点且无需训练。
 
 ## Agent 内部可观测性与审计
 
@@ -86,3 +105,5 @@
 - 开源编码 Agent 已具备生产级长视野执行能力——Kimi K2.6 的 12 小时连续执行和 4000+ 工具调用证明开源模型可处理真实复杂工程任务。
 - 主-子 Agent 编排与托管 Agent 平台成为新架构范式——Muse Spark 的委派架构与 Gemini Managed Agents 的"沙箱 + hooks + 预算控制"，把单 Agent 能力工程化为可治理的多 Agent 系统。
 - 物理 Agent 进入"全身 + 多机"阶段——Gemini Robotics 2 系列把控制从桌面操作扩展到全身运动与多机器人协作，Anthropic 则以 Drone-Bench 公开测量同族能力的风险维度，"能力建设"与"能力预警"并行。
+- "编排层强于单模型"从工程趋势上升为理论框架——共生智能把 AGI 视为代理社会，智能是网络属性而非节点属性，编排、治理与制度设计成为与模型能力并重的工程重心。
+- Agent 参与系统运维成为新应用类别——Claude Tag 两周 3000+ 变更把 claude.ai 提速 3 倍，GLM Infra Agent 十万卡集群自建推理系统，"模型即员工"率先在性能工程与基础设施场景兑现。

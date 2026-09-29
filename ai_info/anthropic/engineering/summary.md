@@ -1,6 +1,6 @@
 # Anthropic Engineering Blog — 核心观点总结
 
-> 汇总自 [Anthropic Engineering](https://www.anthropic.com/engineering) 与 [claude.com/blog](https://claude.com/blog) 的 58 篇文章，涵盖 2024 年 9 月至 2026 年 9 月。
+> 汇总自 [Anthropic Engineering](https://www.anthropic.com/engineering) 与 [claude.com/blog](https://claude.com/blog) 的 61 篇文章，涵盖 2024 年 9 月至 2026 年 9 月。
 
 ## 一、总体脉络
 
@@ -183,3 +183,6 @@ Anthropic 的工程博客呈现了一条清晰的技术演进路径：
 | 56 | 2026-09-02 | [Building Commerce Agents with Claude](claude-for-commerce-agents.md) | 商业 Agent 蓝图 / 四行业参考 |
 | 57 | 2026-09-02 | [The Anatomy of Effective Commerce Agents](the-anatomy-of-effective-commerce-agents.md) | 架构实证 / 缓存命中率 / 评估配方 |
 | 58 | 2026-09-08 | [Reducing Cost and Improving Performance with Claude Platform](reducing-cost-and-improving-performance-with-claude-platform.md) | 成本优化 / prompt-audit / effort 校准 |
+| 59 | 2026-09-15 | [Salesforce in Claude](salesforce-in-claude.md) | Claudeforce 双向整合 / CRM 入口 |
+| 60 | 2026-09-16 | [Claude Cowork and Chat Are Now One Claude](cowork-is-now-claude.md) | 产品合并 / 通用 agent / Docs 与 Slides |
+| 61 | 2026-09-23 | [How We Made claude.ai 3x Faster in Two Weeks](how-we-made-claude-ai-faster.md) | Claude Tag 性能冲刺 / CI 棘轮 / 3000+ 变更 |

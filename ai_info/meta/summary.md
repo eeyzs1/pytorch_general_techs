@@ -1,6 +1,6 @@
 # Meta AI — 核心观点总结
 
-> 汇总 Meta AI 近期重大动态，17 篇文章，涵盖 2025 年 4 月至 2026 年 9 月。
+> 汇总 Meta AI 近期重大动态，19 篇文章，涵盖 2025 年 4 月至 2026 年 9 月。
 
 ## 一、总体脉络
 
@@ -75,6 +75,8 @@ Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark
 
 9 月上旬 MSL 三连发完成"模型 → 语音 → 个人智能体"产品闭环：9 月 1 日 [Muse Voice Transcribe](introducing-muse-voice-transcribe.md)——MSL 首个实时语音感知模型（流式 ASR + 20+ 说话人分离，词错率 3.1% 登顶 Artificial Analysis 流式转写榜，$0.18/小时）；9 月 2 日 [Muse Spark 1.3](introducing-muse-spark-1-3.md)——编码基准超 GPT-5.6 Sol 与 Claude Opus 5、AA 指数 62 追平 Claude Fable 5，较 1.2 工具调用 -20%/token -25%，Zuckerberg 预告开放权重；9 月 8 日 [Muse 个人智能体](introducing-muse-personal-ai-agent.md)——美国 iOS/Android/Web/WhatsApp 上线的首个个人 AI 智能体，每用户独立 Muse Secure VM + Sentinel 权限管理 AI + Stripe Link 一次性卡号支付。同日配套发布 [How We Built Safety Into Muse](security-and-safety-for-ai-agents-our-approach-with-muse.md)——迄今对个人 Agent 安全架构最完整的公开工程叙述（内部代号 Hatch）：systemd-nspawn 双安全域、凭据代理化（模型只见 surrogate token，真实凭据在网络边界替换）、Sentinel 网络出口 4/7 层管控、eBPF 内核级"污点出口"数据流追踪、浏览器子 Agent 只见无障碍树、一次性卡号绑定商家+金额+时限，同步开放最高 $300,000 漏洞赏金并预告密码学防 Meta 自身的 Muse Confidential VM。
 
+9 月 24 日 Meta Connect 2026 把 Muse 从聊天助手扩展为全场景消费级 AI 系统（发布仅 15 天）：[Meta Connect 2026 汇总](meta-connect-2026.md)——Muse Realtime Voice（长对话中 Agent 后台继续干活、声音可文字描述定制）、经许可的 Mac 控制、专属 email 地址、更多第三方连接器与购物整合，硬件侧预告口袋设备 Muse Charm 并延续 AI 眼镜与 100g 级超轻头显；Muse 上线 12 天移动下载量超 ChatGPT 同期、登顶 App Store。同日 MSL 发布 [Muse Realtime Avatar](muse-realtime-avatar.md)——研究性具身层：Muse Realtime Voice 的一条共享语音 token 流同时驱动音频与视频输出，40 步三向 CFG 教师（120 次求值/块）蒸馏为 2 步因果学生（60× 削减），guidance-aware distribution matching + self-forcing 抗长会话漂移；448×768@25fps、首响约 870ms、单 GB200 12 路并发；盲测偏好率 78% vs Runway Characters、88% vs HeyGen；每帧嵌 Video Seal 水印，无公开 API、仅 Muse 应用（18+）。
+
 ## 三、关键数据点
 
 | 指标 | 数值 | 来源 |
@@ -122,6 +124,11 @@ Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark
 | 浏览器子 Agent 可见面 | 无障碍树快照（非原始 DOM，无 JS 执行） | 同上 |
 | Muse 漏洞赏金上限 | $300,000（单用户 prompt injection 最高 $130,000） | 同上 |
 | Muse Confidential VM | 年内推出，密码学+可验证阻止 Meta 访问用户 VM | 同上 |
+| Muse 前 12 天移动下载 | 超 ChatGPT 发布同期，App Store 榜首 | Connect 2026 |
+| Muse Realtime Avatar 求值削减 | 120 次/块 → 2 次/块（60×） | Muse Realtime Avatar |
+| Muse Realtime Avatar 首响延迟 / 帧率 | ~870ms / 25fps（448×768） | 同上 |
+| Muse Realtime Avatar 单 GB200 并发 | 12 路会话（较 2 步 BF16 基线容量 8×） | 同上 |
+| Muse Realtime Avatar 盲测偏好 | 78% vs Runway Characters / 88% vs HeyGen | 同上 |
 
 ## 四、关键洞察
 
@@ -155,5 +162,7 @@ Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark
 | 15 | 2026-09-02 | [Introducing Muse Spark 1.3](introducing-muse-spark-1-3.md) | 新旗舰 / AA 62 / 长时程编码 |
 | 16 | 2026-09-08 | [Introducing Muse: Personal AI Agent](introducing-muse-personal-ai-agent.md) | 个人智能体 / Secure VM / Sentinel |
 | 17 | 2026-09-08 | [How We Built Safety Into Muse](security-and-safety-for-ai-agents-our-approach-with-muse.md) | 安全架构 / 凭据代理化 / eBPF 污点出口 / 漏洞赏金 |
+| 18 | 2026-09-24 | [Meta Connect 2026 汇总](meta-connect-2026.md) | 全场景扩张 / Realtime Voice / Mac 控制 / Muse Charm |
+| 19 | 2026-09-24 | [Muse Realtime Avatar](muse-realtime-avatar.md) | 实时具身化身 / 扩散蒸馏 / 870ms |
 
 > **说明**：ai.meta.com 与 research.meta.ai 在首轮检索环境不可达，9 月初四篇经 GIGAZINE 等二手信源与官方推文交叉验证入库；2026-09-09 经 VPN 复核 research.meta.ai 官方列表：08/21–08/31 窗口确认无遗漏，各条目官方 URL 已逐一验证有效，其中"How We Built Safety Into Muse"经官方全文抓取补录。

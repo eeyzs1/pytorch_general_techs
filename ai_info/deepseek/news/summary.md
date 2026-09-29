@@ -1,6 +1,6 @@
 # DeepSeek（深度求索）— 核心观点总结
 
-> 汇总自 [DeepSeek API 文档](https://api-docs.deepseek.com/)、[官网](https://www.deepseek.com/) 及公开报道，当前覆盖 2026 年 4 月至 9 月。
+> 汇总自 [DeepSeek API 文档](https://api-docs.deepseek.com/)、[官网](https://www.deepseek.com/) 及公开报道，当前覆盖 2026 年 4 月至 9 月，共 7 篇。
 
 ## 一、总体脉络
 
@@ -70,7 +70,9 @@
 
 V4 优先适配华为昇腾等国产 AI 芯片，未向美国芯片供应商开放测试。但 R2 的延期也暴露了昇腾训练稳定性不足的问题——训练阶段仍部分依赖英伟达。
 
-### 7. V4-Flash-Vision-Exp：渐进式多模态
+### 7. V4.1-Flash：Flash 级成本超越旗舰的新架构家族
+
+[DeepSeek-V4.1-Flash 发布](deepseek-v4-1-flash.md)（2026-09-10）是全新架构家族的首个成员：552B MoE、Causal Encoder–Decoder 非对称结构（输入激活 8B / 输出 16B）、原生多模态视觉。官方基准显示其智能水平超越 V4-Pro（GPQA 90.9、Terminal-Bench 2.1 达 90.6、DeepSWE v1.1 74.2、CyberGym 88.1），KV Cache 压缩至 HBM 需求 1/4、SSD 1/8（相对初代累计 437 倍）。模型名切换为 `deepseek-flash`，旧 V4-Flash 与 Vision-Exp 名称仍被接受但模型已退役（视觉并入原生多模态，Vision-Exp 实验线终结）；定价同步下调（输入未命中 $0.15-0.30、输出 $0.60-1.20 峰谷区间），权重与技术报告开源。V4-Pro 下线口径一波三折：新闻页原称 9 月 14 日起路由至新模型，同日 Change Log 改口"继续提供服务"，当前以 V4 Pro 继续服务为准。当前 API 在售仅 `deepseek-flash` 与 `deepseek-v4-pro` 两个模型名。
 
 [V4-Flash-Vision-Exp 上线](deepseek-v4-flash-vision-exp.md)（2026-08-21）以"实验版本外挂模态"的渐进方式补齐视觉能力：纯文本能力与 V4-Flash 正式版持平，视觉 Agent 基准大幅跃升、多模态 Agent 能力接近 Opus-4.8。一张图片最多占 384 tokens、计价与 V4-Flash 一致，把带图 Agent 请求的边际成本压到可预算水平；同日免费上线 Files API（`file_id` 跨请求复用），并同步支持 Chat Completions / Messages / Responses 三种 API 格式——OpenAI、Anthropic 与 Responses 生态的存量 Agent 工具近零改造即可获得视觉能力。官方未公布开源计划，实验性质提示生产系统需预留兜底。
 
@@ -102,6 +104,11 @@ V4 优先适配华为昇腾等国产 AI 芯片，未向美国芯片供应商开�
 | V4-Flash-Vision-Exp 单图 token 上限 | 384 tokens（计价与 V4-Flash 一致） | V4-Flash-Vision-Exp |
 | V4-Flash-Vision-Exp 多模态 Agent 能力 | 接近 Opus-4.8 | 同上 |
 | Files API | 免费（file_id 跨请求复用） | 同上 |
+| V4.1-Flash 总参数 / 激活（输入/输出侧） | 552B MoE / 8B、16B（Causal Encoder–Decoder 非对称） | V4.1-Flash |
+| V4.1-Flash Terminal-Bench 2.1 / GPQA Diamond | 90.6 / 90.9（官方称超越 V4-Pro） | 同上 |
+| V4.1-Flash KV Cache 压缩（vs 上代 / vs 初代） | HBM 1/4、SSD 1/8 / 累计 437× | 同上 |
+| V4.1-Flash 定价（输入未命中 / 输出，峰谷区间） | $0.15-0.30 / $0.60-1.20 每百万 token | 同上 |
+| 当前在售模型名 | deepseek-flash 与 deepseek-v4-pro 两个 | 同上 |
 
 ## 四、与 OpenAI / Anthropic / Kimi / GLM 的对比
 
@@ -135,5 +142,6 @@ V4 优先适配华为昇腾等国产 AI 芯片，未向美国芯片供应商开�
 | 4 | 2026-07-31 | [DeepSeek-V4-Flash 正式版发布](deepseek-v4-flash-official-release.md) | V4-Flash 公测 / Agent 基准 / Responses API / Codex 适配 |
 | 5 | 2026-08-13 | [V4-Pro GA 与 API 调价](deepseek-api-price-adjustment-2026-08.md) | V4-Pro 转正 / 调价 1100% / 峰谷计费 |
 | 6 | 2026-08-21 | [V4-Flash-Vision-Exp 上线](deepseek-v4-flash-vision-exp.md) | 多模态 API / Files API / 三格式兼容 |
+| 7 | 2026-09-10 | [DeepSeek-V4.1-Flash 发布](deepseek-v4-1-flash.md) | 新架构家族 / 原生多模态 / KV Cache 437× / 超旗舰基准 |
 
 > **说明**：mHC、Engram、CSA/HCA、Muon 优化器部分均基于 arXiv 论文原文（2026-07-20 检索），包括 DeepSeek-V4 完整技术报告（arXiv:2606.19348，55+ 页）；定价信息直接来自官方 API 文档，可交叉验证。

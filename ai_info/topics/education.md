@@ -11,6 +11,9 @@
 - [Bringing ChatGPT for Teachers to more U.S. school districts](../openai/research/bringing-chatgpt-for-teachers-to-more-us-school-districts.md)：扩展至 55 学区/10 万+教职工（累计 100+ 组织/30 州），16 州全国数据隐私协议为业界首例；教师省时消息 190 万+条/学期。
 - [Introducing ChatGPT for Teens](../openai/research/chatgpt-for-teens.md)：13-17 岁专门版本——Study Mode 引导思考而非直接给答案、防情感操控、家长指南，把青少年安全从政策落地为产品。
 - [OpenAI Academy 课程](../openai/research/academy-courses-applying-ai-at-work.md)：职场应用课程——与 Claude Academy 共同标志 AI 教育从"社区自发生成"走向"厂商系统化投入"。
+- [OpenAI Academy 新增结构化学习路径](../openai/research/openai-academy-learning-paths.md)：面向员工/开发者/领导者/教育者/学生五类人群的结构化路径与"实用 AI 技能"认证——从内容库升级为课程体系（先后依赖、能力目标、可评估），回应岗位边界漂移下的培训供给缺口。
+- [OpenAI Academy 两周年](../openai/research/two-years-of-openai-academy.md)：两年从课程库成长为按五类人群分层的学习体系，多语言、全球免费开放、与公共图书馆及社区组织合作下沉——教育公益与 ChatGPT 的用户漏斗、正当性叙事一体两面。
+- [帮助老年人在日常生活中使用 AI](../openai/research/helping-older-adults-use-ai.md)：与 AARP 在 10 个美国城市为 1000 名老年人办免费动手式工作坊——健康查询、家人沟通、防诈骗三大场景，语音优先降低门槛，普及战略沿人群维度补上"数字弱势群体"一环。
 
 ## 研究与证据
 
@@ -23,6 +26,7 @@
 - [Why teens deserve access to safe AI](../openai/research/why-teens-deserve-access-safe-ai.md)："广泛可及 + 年龄适配保护"路线——年龄预测自动切换适龄体验、家长控制、Study Mode，并开源青少年安全政策工具。
 - [OpenAI and APA partner to advance responsible AI](../openai/research/openai-and-apa-partner-to-advance-responsible-ai.md)：与 APA 合作把发展心理学引入产品设计，与 260+ 心理健康专家优化困境识别与关怀回应。
 - [OpenAI supports California's bill to advance youth AI safety](../openai/research/supporting-california-bill-advance-ai-youth-safety.md)：支持 SB 1119——七项要求（年龄判定、事前风险评估、独立审计、有害内容防护、家长工具、危机资源、广告与隐私限制），13-17 岁自动生效；厂商从"产品内自律"走向"接受法定护栏"。
+- [澳大利亚青年安全蓝图](../openai/research/australian-youth-safety-blueprint.md)：六支柱路线图（适龄防护、教育与数字素养、家长控制、心理健康支持、内容治理、本地合作）——首次为单一国家市场定制完整青年安全框架，合规打法从"全球统一政策"转向"国别本地化承诺"。
 
 ## 关键结论
 

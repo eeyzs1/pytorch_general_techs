@@ -4,6 +4,7 @@
 
 - [Supporting journalism from classrooms to newsrooms](../openai/research/supporting-journalism-from-classrooms-to-newsrooms.md)：OpenAI 新闻业支持的全景——400+ ChatGPT Edu 订阅进入 Newmark/Medill 等新闻院校（2026-27 学年）、AJP 50+ 机构获企业版与 API 额度、WAN-IFRA Catalyst 已服务 165+ 编辑部。
 - [Supporting independent journalism in Ukraine](../openai/research/supporting-independent-journalism-in-ukraine.md)：与 AIRPPU、WAN-IFRA 的联合项目——Masterclass 8 月开课、Catalyst 9 月启动，覆盖 10 家乌克兰新闻机构 + API 额度；双组件设计（Newsroom AI + Business Transformation）同时强化新闻生产与机构韧性。
+- [Lenfest AI Collaborative 扩展](../openai/research/lenfest-ai-collaborative.md)：追加 500 万美元资金 + 最高 500 万美元软件额度与工程支持，帮地方新闻机构应用 AI——"共享工具（Collaborative）+ 人才培养（Fellowship）+ 工程"三位一体，在版权诉讼与抓取争议中以生态投资对冲"AI 毁灭新闻业"批评。
 
 ## 影响力行动与信息生态
 

@@ -1,6 +1,6 @@
 # Google DeepMind — 核心观点总结
 
-> 汇总自 [Google DeepMind Blog](https://deepmind.google/blog/) 的 37 篇文章，涵盖 2026 年 3 月至 9 月。
+> 汇总自 [Google DeepMind Blog](https://deepmind.google/blog/) 与 [DeepMind Institute](https://institute.deepmind.com/) 的 49 篇文章，涵盖 2026 年 3 月至 9 月。
 
 ## 一、总体脉络
 
@@ -13,6 +13,8 @@ Google DeepMind 在 2026 年呈现五大战略方向：
 Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发平台，Gemini for Science 将 AI 深度嵌入科学研究。Google 的差异化在于"模型 + 平台 + 科学"三位一体。7 月新动态把版图继续外扩：Gemini Robotics 2 系列实现全身控制人形机器人，3.6 Flash / 3.5 Flash-Lite / 3.5 Flash Cyber 三模型齐发主打 Agent 效率与网络安全垂直场景，Managed Agents 升级为"可编程的云上自动化层"；3-4 月补齐的 AlphaGo 十周年、AGI 认知框架、韩国国家合作与 AI co-clinician 则展示了"技术谱系叙事 + 国家级落地 + 医疗新模式"的治理与生态纵深。6-7 月的扩展进一步把科研模型推向"基础设施化"：DeepMind 与 Isomorphic Labs 联合发布"生物韧性"框架把 AlphaFold/AlphaGenome/AlphaEvolve 从科研突破转化为生物安全基础设施；Nano Banana 2 Lite 与 Gemini Omni Flash 两款开发者媒体模型把图像与视频生成管线打通；Genesis Mission 的 4000 万美元承诺则把五大科研模型投放到 DOE 国家实验室的实际科研流水线。8 月初 [WeatherNext 气旋预测突破](weathernext-cyclones-breakthrough.md) 在《Nature》发表——单一 AI 模型同时预测热带气旋路径、强度和风场结构，三天预报达到此前模型两天预报水平（约等于过去十年气象学进展），同步开源 WeatherNext 2 与 WeatherNext Cyclones 模型代码及权重。8 月 6 日 [Google 领导层重组](next-chapter-ai-momentum.md)——Demis Hassabis 卸任 DeepMind CEO 转任 Alphabet 首席科学家兼 DeepMind 主席，27 年老将 Jeff Dean 离职创业，Koray Kavukcuoglu 接任 CEO，研究（AGI/科学）与应用（Gemini 产品化）分线管理；同日发布 [Veo 3.1](veo-3-1.md)——4K 输出 + 原生竖屏视频 + 改进的素材转视频，直接回应 Sora 2 竞争。8 月中旬研究 [SkillSmith](skillsmith.md) 把模型权重当作"可读写模态"，通过 KV-cache 层组合参数化技能与文本知识，在 Gemma 3 4B 上小模块反超全量微调。
 
 8 月下旬至 9 月上旬 Google 六周内第三次 Flash 迭代并横向铺开产品线。[Gemini 3.5 Transcribe](gemini-3-5-transcribe.md)（8/26）把"智能转写"（去填充词/自我纠正/自动格式化）带入 85+ 语言与 Gboard/Chrome 等平台界面；[Gemini Omni 1.1 Flash](gemini-omni-1-1-flash.md)（8/27）给开发者视频生成加参考视频与增量续拍控制；[双盲 AI 评估试点](piloting-double-blind-ai-evaluations.md)（8/27）用机密计算让评估方与被评模型互不知情，把"评估条件本身"变成可信度的一部分；[智能体式视频理解](introducing-agentic-video-in-gemini.md)（9/1）让模型自选片段/速度/模态处理视频，token 降 58.4%–88%、成本最多降 66%；[Gemini 3.8 Flash 与 3.8 Flash Cyber](gemini-3-8-flash-and-3-8-flash-cyber.md)（9/2）以小搏大（DeepSWE v1.1、CWE-Bench 47.2% pass@1 近前沿但成本显著更低），配套 [Fairwind 有限访问计划](fairwind-program.md)把网络安全模型的准入制度化；[WeatherNext 3](introducing-weathernext-3.md)（9/3）逐小时更新、最高 5 公里分辨率并进入 Search/Maps/Cloud 全产品线；[AlphaGenome Atlas](alphagenome-atlas.md)（9/8）以 1 PB 数据集预测约 90 亿个 DNA 单字母变异的分子效应，把 AI for Science 推进到基因组规模。
+
+9 月中下旬两条主线并进。**实时多模态语音产品线**：[Gemini 3.8 Live 与 Live Extended Thinking](gemini-3-8-live-extended-thinking.md)（9/15）以 82.6 分登顶 Artificial Analysis 语音对话质量指数、约 $1.38/小时（不足 GPT-Live-1 一半）；[Private AI Compute 服务器端记忆层](private-ai-compute-server-side-memory.md)（9/23）用"密文上云、密钥在端、安全区短暂解密"支撑跨设备个人助理；[Live Avatar](gemini-3-8-live-avatar.md)（9/24）与 [3.8 Flash TTS](gemini-3-8-tts.md)（9/24）补齐可视化形象与输出侧，对标 Runway/HeyGen/ElevenLabs。**DeepMind Institute 思想平台上线**（9/16，Legg/Manyika/Hassabis 任董事）同批 8 篇 essay：[代理群体作弊与吹哨](cheaters-and-whistleblowers-in-the-agent-swarm.md)（100 个 Gemini 3.1 Pro 代理虚拟数学会议中发现评分漏洞的信息级联与 24 个吹哨者）、[推理透明性论证](the-case-for-reasoning-transparency.md)（把 CoT 可监控性作为可回归追踪的指标）、[AGI 经济政策](economic-policy-for-agi.md)（按触发器分层的 UI/EITC/NIT/UBC 政策序列）、[Hassabis 前沿 AI 框架](a-framework-for-frontier-ai.md)（仿 FINRA 标准机构设计）、[共生智能](artificial-symbiotic-intelligence.md)、[全球受益论证](the-case-for-global-benefit-from-ai.md)、[新乌托邦主义](principles-for-a-new-utopianism.md)——与 Anthropic Institute 的配速度量、OpenAI 的治理反思同月构成三家"思想机构化"并行。
 
 ## 二、核心主题
 
@@ -156,6 +158,18 @@ Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发
 | WeatherNext 3 更新频率 / 分辨率 | 逐小时 / 最高 5 公里（上代 6 小时 / 25 公里） | WeatherNext 3 |
 | WeatherNext 3 中期概率降水提升 | 最高 +60%（NASA IMERG） | 同上 |
 | AlphaGenome Atlas 数据规模 | 1 PB / 约 90 亿单字母变异 | AlphaGenome Atlas |
+| 3.8 Live Extended Thinking S2S 质量指数 | 82.6（Artificial Analysis 登顶） | 3.8 Live |
+| 3.8 Live 每小时成本 | ~$1.38（GPT-Live-1 同档 $3+ 的一半以下） | 同上 |
+| 3.8 Live 语言数 / tau-Voice | 97 种 / 68.6% | 同上 |
+| Private AI Compute 密钥位置 | 仅用户设备（Google 声称无法读明文） | Private AI Compute |
+| Live Avatar 口型同步语言 | 97 种（音视频双 SynthID 水印） | Live Avatar |
+| 3.8 TTS 语言数 | 100+（舞台指示/双说话人/30 秒克隆） | 3.8 TTS |
+| DMI 代理作弊实验规模 | 100 个 Gemini 3.1 Pro / 71 题 / Lean 4 验证 | Cheaters & Whistleblowers |
+| 作弊传播速度 | 发现漏洞→34 题全沦陷约半小时 | 同上 |
+| 吹哨代理数 | 24/38 知晓者抵抗并吹哨 | 同上 |
+| CoT 透明度上限建议 | 不透明串行深度 ≤ 当前 10 倍（总算力仍可扩 10000×） | Reasoning Transparency |
+| AGI 经济政策分层 | UI 72%/EITC 85% 支持 → NIT 69.8 优于 UBI 51.2 → UBC 后备 | Economic Policy |
+| Hassabis AGI 判断 | "可能只有几年之遥"，影响或达工业革命 10 倍 | Framework for Frontier AI |
 
 ## 四、贯穿始终的原则
 
@@ -209,3 +223,15 @@ Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发
 | 35 | 2026-09-02 | [Proactive Cyber Defense: Fairwind Program](fairwind-program.md) | 主动防御 / 有限访问 / 政企 |
 | 36 | 2026-09-03 | [Introducing WeatherNext 3](introducing-weathernext-3.md) | 天气 AI / 逐小时 / 全产品线 |
 | 37 | 2026-09-08 | [AlphaGenome Atlas](alphagenome-atlas.md) | 基因组 / 变异效应预测 / 1PB 数据集 |
+| 38 | 2026-09-15 | [Gemini 3.8 Live & Live Extended Thinking](gemini-3-8-live-extended-thinking.md) | 实时语音 / 82.6 登顶 / 半价每小时 |
+| 39 | 2026-09-16 | [Introducing the DeepMind Institute](introducing-the-deepmind-institute.md) | 思想平台 / 三董事 / AGI 治理 |
+| 40 | 2026-09-16 | [Cheaters and Whistleblowers in the Agent Swarm](cheaters-and-whistleblowers-in-the-agent-swarm.md) | 多智能体治理 / 作弊级联 / 吹哨 |
+| 41 | 2026-09-16 | [The Case for Reasoning Transparency](the-case-for-reasoning-transparency.md) | CoT 可监控性 / 三条行动 |
+| 42 | 2026-09-16 | [Economic Policy for AGI](economic-policy-for-agi.md) | 政策分层 / NIT vs UBI / UBC 后备 |
+| 43 | 2026-09-16 | [A Framework for Frontier AI](a-framework-for-frontier-ai.md) | Hassabis / 仿 FINRA 标准机构 |
+| 44 | 2026-09-16 | [Artificial Symbiotic Intelligence](artificial-symbiotic-intelligence.md) | 代理社会 / 认知交叉点 / 编排 |
+| 45 | 2026-09-16 | [The Case for Global Benefit from AI](the-case-for-global-benefit-from-ai.md) | 全球受益权 / 四大论证 |
+| 46 | 2026-09-16 | [Principles for a New Utopianism](principles-for-a-new-utopianism.md) | 积极愿景 / 三原则 / UBS |
+| 47 | 2026-09-23 | [Private AI Compute: Server-Side Memory](private-ai-compute-server-side-memory.md) | 机密计算 / 设备持钥 / 跨设备记忆 |
+| 48 | 2026-09-24 | [Gemini 3.8 Live with Live Avatar](gemini-3-8-live-avatar.md) | 实时化身 / 企业白名单 / SynthID |
+| 49 | 2026-09-24 | [Gemini 3.8 Flash TTS & Flash-Lite TTS](gemini-3-8-tts.md) | 语音合成 / 舞台指示 / 声音克隆 |

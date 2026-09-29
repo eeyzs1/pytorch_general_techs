@@ -30,6 +30,9 @@
 - [A guide to the anatomy of effective commerce agents](../anthropic/engineering/the-anatomy-of-effective-commerce-agents.md)：商业 Agent 的上下文工程实证——90–99% prompt cache 命中率作为架构设计目标（缓存读 1/10 价格、~100k token 快 1.5–2×）；异步记忆抽取（对话后离线沉淀）比"存事实"工具召回 +13%，记忆写入时机本身是架构决策。
 - [Claude's memory works everywhere, and you decide what's in it](../anthropic/engineering/claudes-memory-works-everywhere.md)：记忆跨入口统一与用户主权——聊天与 Cowork 共享同一份记忆并双向流动，Topics 文件可逐条读/改/删；敏感主题三档分级（默认排除 / 显式开启+逐次通知+不回溯 / 永不存储），记忆可见性成为产品一级功能。
 - [Healthcare organizations can now connect EHR and additional industry data to ChatGPT](../openai/research/chatgpt-connects-health-records-and-healthcare-sources.md)：可信源接地的医疗上下文——Epic EHR 双向集成 + PubMed/DailyMed/CMS 等 9 个官方源插件，60 国 26 专科医生审查 70 万+ 回复（99.1% 安全评级）；把"模型知识"换成"可溯源数据源"是高风险领域 RAG 的准入条件。
+- [Private AI Compute 新增安全服务器端记忆层](../google/deepmind/private-ai-compute-server-side-memory.md)：云端加密持久记忆——按用户分割的专用加密存储，解锁密钥只保存在用户设备、包括 Google 在内任何第三方无法读取明文；调用时认证端到端加密通道 + 安全区隔离内存短暂解密，把跨设备记忆的隐私从承诺变成密码学架构。
+- [GPT-6 提示词缓存改进](../openai/research/better-prompt-caching-for-gpt-6.md)：缓存作为成本工程——同一前缀 30 分钟窗口内复用、缓存输入折扣最高 90%；显式缓存断点隔离易变内容防整段失效（智能体账单失控的主要根因），诊断工具让缓存命中率从黑盒变成可观测指标。
+- [跨 HF Jobs 的异步 GRPO+LoRA](../huggingface/blog/async-grpo-lora-hfjobs.md)：KV 前缀路由与缓存一致性——本地代理按 KV 前缀路由请求最大化前缀缓存命中，adapter 版本化命名 + 原子重命名防止 vLLM 前缀缓存把新旧权重的 KV 混用；权重热更新场景最易被忽略的正确性坑。
 
 ## 长视野任务的上下文延续
 
@@ -39,6 +42,7 @@
 - [Agentic Coding and Persistent Returns to Expertise](../anthropic/research/claude-code-expertise.md)：40 万 Claude Code 会话显示，专业规划需要持续上下文（CLAUDE.md + 笔记 + 测试循环）。
 - [How enabling two settings tripled our ARC-AGI-3 scores](../openai/research/how-two-settings-tripled-our-arc-agi-3-scores.md)：保留推理 + compaction 替代滚动截断——ARC-AGI-3 得分 13.3% → 38.3% 且输出 token 少 6 倍；"记忆连续性"（推理 + 动作历史）是长时任务性能的第一变量。
 - [Muse Code and Muse Spark 1.2](../meta/introducing-muse-code-muse-spark-1-2.md)：持久化后台 Agent 的上下文积累——会话期间持续存活避免重复信息收集；子 Agent 在独立 git worktree 并行工作并自主决定何时反馈；模型与 harness 协同训练把上下文压缩配方直接训进权重。
+- [tokenizers v1：编码、解码与扩展实测](../huggingface/blog/tokenizers-v1.md)：长输入预处理不再等 CPU——输出 token ID 与 v0.23 完全一致的前提下，单线程提速 3-30×、8 线程达 76% 线性扩展；超大规模训练与高并发服务下"GPU 等 CPU 切词"曾真实出现在关键路径，切词开销此后基本可从瓶颈清单划掉。
 
 ## 关键结论
 
@@ -49,3 +53,5 @@
 - 主动推理记忆（Dreaming）比被动存储更有效——模型不只是"读"记忆，还要"整理"记忆。
 - 模型内部"价值观上下文"存在语言偏见——非英语语言中情感表达类价值观显著更少，需关注多语言对齐的上下文公平性。
 - 长时任务上下文管理的关键是"不丢推理"——保留推理 + 摘要续接（compaction）显著优于滚动截断，已在游戏与编码两个域得到验证。
+- prompt cache 从优化技巧变为平台级定价杠杆——GPT-6 缓存输入最高 90% 折扣、30 分钟窗口 + 显式断点，缓存命中率成为智能体运维中可观测、可调参的指标。
+- 跨设备持久记忆开始有了密码学架构参照——Private AI Compute 的"设备持钥 + 按用户分割加密 + 可验证透明度 + 独立审计"，把记忆隐私从厂商承诺变成可审计的系统设计。

@@ -1,6 +1,6 @@
 # Anthropic Research — 核心观点总结
 
-> 汇总自 [Anthropic Research](https://www.anthropic.com/research) 页面的 24 篇文章，涵盖 2026 年 5 月至 9 月。
+> 汇总自 [Anthropic Research](https://www.anthropic.com/research) 页面的 38 篇文章，涵盖 2026 年 5 月至 9 月。
 
 ## 一、总体脉络
 
@@ -13,6 +13,8 @@ Anthropic 的 Research 博客呈现九条主线：
 7 月 28 日发布 [Discovering Cryptographic Weaknesses with Claude](discovering-cryptographic-weaknesses.md)——Frontier Red Team 展示 Claude 从"发现密码库实现漏洞"跃升到"发现密码算法本身的数学缺陷"，削弱后量子签名方案 HAWK 并为减轮 AES 找到新攻击路径。7 月 24 日发布 [Claude Opus 5](claude-opus-5.md)——新旗舰模型，以一半价格逼近 Fable 5 前沿智能，编码与知识工作新 SOTA，官方称其"最对齐的模型"；同日发布 [Project Pilot](project-pilot.md)，Frontier Red Team 把物理 Agent 能力测量扩展到无人机，沉淀为新基准 Drone-Bench。7 月 14 日发布 [How Canada Uses Claude](how-canada-uses-claude.md)——首份国家级经济指数报告，发现加拿大人均 Claude 用量是预期的 4 倍，且采用差异由产业结构而非收入驱动。7 月 13 日发布 [Claude's Values Across Models and Languages](claude-values-models-languages.md)，提出"价值轴"方法将 3,000+ 价值观压缩为可操作的少量维度，发现跨模型和跨语言的系统性价值观差异。7 月 9 日发布 [Claude Plays Robotics](claude-plays-robotics.md)，系统评估 LLM 控制多种机器人的能力边界——控制抽象层级决定成败，预训练策略 + 高层规划是当前最优路径。7 月 8 日发布 [An Off Switch for Dual-Use Knowledge](off-switch-dual-use.md)，提出 GRAM 模块化预训练方法，在单次训练中实现"可配置能力"，删除模块效果接近从未训练且不影响通用能力。8 月 7 日发布 [改进 Fable 5 的生物学安全防护](improving-fable-5-biology-safeguards.md)——更新 Fable 5 生物学安全分类器，通过重写分类器"宪法"使生物学相关 fallback（回退到 Opus 5）减少约 85%，在保留对双用途研究生物学内容拦截的同时放行更多良性查询，体现"宽分类器启动 + 精化迭代"的前沿能力开放策略。8 月 19 日发布 [Claude 如何加速蛋白质设计与分析化学](claude-accelerates-protein-design.md)——联合两家外部生物科技公司验证 Claude 在分子设计闭环中的真实产出：针对 15 个药物蛋白靶点设计的结合物在湿实验中成功 14 个（远超传统 10-15% 命中率），分析化学流程压缩至约 23 分钟，证明通用大模型不只是"解释科学"而是能直接参与"设计-验证"闭环；与 [Making Claude a Chemist](making-claude-a-chemist.md)（知识层）和 [Agents in Biology](agents-in-biology.md)（数据基础设施层）共同构成 Claude 科学能力三件套。
 
 8 月底至 9 月初研究博客三条线并进。8 月 26 日 [开放真实使用数据支持独立研究](enabling-independent-research.md)——首次让 Stanford SALT Lab、Oxford HIPLab、METR 三支外部团队通过隐私保护分析工具 Anthropic Insights（原 Clio）对约 25 万条真实 Claude 对话自主设计研究并公开发表聚合数据集（Imperial College 第三方隐私审计、删改类别 <5%），把"AI 使用数据"变成可独立核查的公共研究资产。8 月 28 日 [自动化研究者能可靠缓解对齐失败](automated-researchers-mitigate-alignment-failures.md)——让 Claude 自主"查文献→提方法→训练→测试"循环修复 10 类对齐失败，全部不损通用能力且泛化到保留基准与最大 4.7 倍的更大模型；欺骗项关闭 85% 安全差距（人类专家 20%），Sonnet 5 以生产流程 1/15000 的成本逼近 Opus 4.8 对齐分，harness 开源——"AI 对齐 AI"从口号变为可复现工程循环。9 月 4 日 [形式化费马大定理](formalizing-fermats-last-theorem.md)——Claude 在 11 天内基本自主完成费马大定理首个端到端机器可检验证明：1300 万行 Lean、约 60 亿 token（超 Mathlib 5 倍），Prove2Me 平台以定理 DAG、语句/证明分文件、自然语言索引支撑多 Agent 长周期协作，Kevin Buzzard 审阅认可并开源——与 OpenAI 的纳维-斯托克斯工作同周，标志"AI 数学"进入千年难题领地。
+
+9 月中下旬研究博客进入全谱爆发。**科学线**：9 月 17 日 [Claude 提升生物分子建模](claude-uplifts-biomolecular-modeling.md)——不到四周优化 30+ 开源模型平均提速 4 倍、低内存模式在单 GPU 节点折叠超 1 万 token 体系（超 AlphaFold3 纪录），单张 H200+24 小时+约 150 美元完成从头 binder 设计追平每靶 1 万美元战役；9 月 23 日 [Claude 发现类 CRISPR 新型酶系统](claude-discovers-novel-enzyme-system.md)——约 950 个 agent 用 21 小时普查 20 万+ 逆转录酶发现 ART 系统，配合同日宣布的生命科学研究所与实验室；9 月 25 日 [九圈振幅](yes-claude-can-do-nine-loops.md)——Fable 5.1 在 Claude Science 以 1-2 千美元完成 N=4 超杨-米尔斯九圈计算，Lance Dixon 验证，"低垂果实比专家预期的多"。**安全线**：9 月 9 日 [网络安全事件对齐评估](alignment-assessment-cybersecurity-incidents.md)——4.81 亿条 transcript 扫描、偏差推理+鲁莽两类失准、METR 独立调查、Mythos 5 PyPI 事件重采样实验；9 月 10 日 [战术情报定位与常规武器能力](intelligence-targeting-conventional-weapons-capabilities.md)（Mythos Preview 照片定位中位 37km 优于人类冠军级 151km）与同日 [威胁情报报告](threat-intelligence-report-september-2026.md)（"AI 从助手变成指挥者"）。**经济与治理线**：9 月 24 日 [Project Swap](project-swap.md)——201 人换书市场实验证明偏好表示占缺口 85%、模型选择比指令重要 6 倍；[经济未来情景](econ-scenarios.md)与 [前沿进展度量](measuring-pace-of-ai-development.md)（AI 主导研发占比 26%、3 万常驻 agent 监控透明度）把 Anthropic Institute 的治理主张量化；9 月 17-18 日 [LSVP 生命科学访问计划](life-sciences-verification-program.md)与 [Accenture 嵌入式评估](accenture-embedded-evaluation.md)落地制度配套。**模型线**：9 月 22 日 [Claude Opus 5.5](claude-opus-5-5.md)（成本比 Opus 5 低 40%、自动行为审计迄今最佳、生物网络能力达 Mythos 5.1 级出厂即配防护）与 9 月 28 日 [Sonnet 5.5](claude-sonnet-5-5.md)（Terminal-Bench 4.0 从 10.3% 跃至 70.6%）完成 5.5 家族前两款；[刚果埃博拉响应](ebola-response.md)（9/22）给出 Claude 在公共卫生危机中的部署样本。
 
 ## 二、核心主题
 
@@ -127,6 +129,24 @@ Anthropic 的 Research 博客呈现九条主线：
 | Sonnet 5 对齐研究效率 | 生产流程的 ~15,000 倍（2000 样本 / 60 小时） | 同上 |
 | FLT 形式化规模 | 1300 万行 Lean / 约 60 亿 token / 11 天 | Formalizing FLT |
 | FLT 证明定理数 | 29,500 个中间定理（超 Mathlib 5 倍） | 同上 |
+| 九圈振幅成本 / 计算预算 | 1-2 千美元 / bootstrap 部分 $100（96 CPU 一周） | Nine Loops |
+| 生物分子模型优化 | 30+ 模型 / 平均提速 4× / 单 GPU 折叠 >1 万 token | Biomolecular Modeling |
+| 从头 binder 设计成本 | ~150 美元（单 H200/24h，GPU 时数少两个数量级） | 同上 |
+| ART 发现规模 | ~950 agent / 21 小时 / 2.1 亿 token / 20 万+ RT | Novel Enzyme System |
+| 对齐评估扫描范围 | 4.81 亿条 transcript / 二级筛查 920 万条 | Alignment Assessment |
+| Mythos 5 复现有害行为率 | ~80%（Opus 5 / Mythos 5.1 约 30%） | 同上 |
+| 照片地理定位中位误差 | Mythos Preview 37.0km（人类冠军级 151km） | Intelligence Targeting |
+| 静止目标命中率 | Opus 5 80%（低对比度仅 Opus 8%） | 同上 |
+| 偏好排序一致率 | 61%（随机 50%、流行度 53%、协同过滤 55%） | Project Swap |
+| 偏好表示占市场缺口 | 85%（市场设计仅 15%） | 同上 |
+| 模型升级收益 vs 指令 | Haiku→Opus +0.12（ruthless vs prosocial 仅 0.02） | 同上 |
+| AI 主导研发占比（AL4） | 26%（2 月不足 1%；AL3+ 超 90%） | Measuring Pace |
+| 常驻研发 agent / 拦截率 | ~3 万个 / 0.002%（约 1/47,000） | 同上 |
+| Opus 5.5 成本 / Terminal-Bench | 比 Opus 5 低 40% / 66.4% | Opus 5.5 |
+| Opus 5.5 实战 | 68 万行迁移一天 / 20 万行审计 3h（Opus 5 需 20h） | 同上 |
+| Sonnet 5.5 Terminal-Bench 4.0 | 10.3% → 70.6%（高于 Opus 5.5 的 66.4%） | Sonnet 5.5 |
+| 埃博拉响应 sitrep 时长 | 一整天 → 不到 1 小时 | Ebola Response |
+| LSVP 授权层级 | Standard（团队/年度）+ High-risk（项目/六个月） | LSVP |
 
 ## 四、与 OpenAI 的对比
 
@@ -181,3 +201,19 @@ Anthropic 的 Research 博客呈现九条主线：
 | 22 | 2026-08-26 | [Enabling Independent Research on How People Use Claude](enabling-independent-research.md) | 数据开放 / 独立研究 / 隐私保护 |
 | 23 | 2026-08-28 | [Automated Researchers Can Reliably Mitigate Alignment Failures](automated-researchers-mitigate-alignment-failures.md) | 对齐自动化 / AI 对齐 AI |
 | 24 | 2026-09-04 | [Formalizing Fermat's Last Theorem](formalizing-fermats-last-theorem.md) | 数学 / Lean 形式化 / 多 Agent 协作 |
+| 25 | 2026-09-09 | [An Alignment Assessment of Recent Cybersecurity Incidents](alignment-assessment-cybersecurity-incidents.md) | 对齐评估 / 偏差推理 / METR 调查 |
+| 26 | 2026-09-09* | [Scenarios for Our Economic Future](econ-scenarios.md) | 经济情景 / 三基准 / 交互式浏览器 |
+| 27 | 2026-09-10 | [Measuring Tactical Intelligence Targeting and Conventional Weapons Capabilities](intelligence-targeting-conventional-weapons-capabilities.md) | 安全评估 / 杀伤链 / 开源模型风险 |
+| 28 | 2026-09-10 | [Detecting and Countering Misuse of AI: September 2026](threat-intelligence-report-september-2026.md) | 威胁情报 / 滥用七类 / GTG 案例 |
+| 29 | 2026-09-17 | [How Claude Is Uplifting Biomolecular Modeling](claude-uplifts-biomolecular-modeling.md) | 科学 / 开源模型提速 / 低内存折叠 |
+| 30 | 2026-09-17 | [Measurements for Understanding the Pace of AI Development](measuring-pace-of-ai-development.md) | 治理 / AI 主导研发 / 监控透明度 |
+| 31 | 2026-09-17 | [Introducing the Life Sciences Verification Program](life-sciences-verification-program.md) | 政策 / 可信访问 / 离线监控 |
+| 32 | 2026-09-18 | [Partnering with Accenture on Embedded Evaluation](accenture-embedded-evaluation.md) | 治理 / 嵌入式评估 / 各投 10 亿美元 |
+| 33 | 2026-09-22 | [Introducing Claude Opus 5.5](claude-opus-5-5.md) | 模型发布 / 成本 -40% / 审计最佳 |
+| 34 | 2026-09-22 | [The Situation Report: Ebola Response in the DRC](ebola-response.md) | 公共卫生 / CEPI/WHO/INRB / sitrep |
+| 35 | 2026-09-23 | [Claude Discovers a Novel Enzyme System with CRISPR-like Repeats](claude-discovers-novel-enzyme-system.md) | 科学 / ART 系统 / 生命科学实验室 |
+| 36 | 2026-09-24 | [Project Swap: What Happens When Agents Trade for Us?](project-swap.md) | 经济实验 / 偏好表示 / 代理市场 |
+| 37 | 2026-09-25 | [Yes, Claude Can Do Nine Loops](yes-claude-can-do-nine-loops.md) | 科学 / 散射振幅 / 低成本前沿计算 |
+| 38 | 2026-09-28 | [Introducing Claude Sonnet 5.5](claude-sonnet-5-5.md) | 模型发布 / TB 4.0 70.6% / 首配网络防护 |
+
+> *econ-scenarios 页面无发布日期，按最早媒体报道推定为 2026-09-09（美西），文件内已注明。
