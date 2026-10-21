@@ -48,7 +48,7 @@ class SwiGLU(nn.Module):
         super().__init__()
         self.w1 = nn.Linear(d_in, d_out, bias=bias)
         self.w2 = nn.Linear(d_in, d_out, bias=bias)
-        self.w3 = nn.Linear(d_out, d_out, bias=bias)
+        self.w3 = nn.Linear(d_out, d_in, bias=bias)  # down-projection back to the residual dim
 
     def forward(self, x):
         return self.w3(F.silu(self.w1(x)) * self.w2(x))
@@ -85,9 +85,10 @@ class RotaryPositionalEmbedding(nn.Module):
         self.register_buffer('sin_cached', freqs.sin())
 
     def forward(self, x, offset=0):
-        seq_len = x.shape[1]
-        cos = self.cos_cached[offset:offset + seq_len].unsqueeze(0).unsqueeze(0)
-        sin = self.sin_cached[offset:offset + seq_len].unsqueeze(0).unsqueeze(0)
+        seq_len = x.shape[-2]  # sequence dim: works for [B, S, D] and [B, H, S, D] inputs
+        # duplicate along the feature dim to match rotate_half's half-split convention (HF style)
+        cos = torch.cat([self.cos_cached[offset:offset + seq_len]] * 2, dim=-1).unsqueeze(0).unsqueeze(0)
+        sin = torch.cat([self.sin_cached[offset:offset + seq_len]] * 2, dim=-1).unsqueeze(0).unsqueeze(0)
         return cos, sin
 
 

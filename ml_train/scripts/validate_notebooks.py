@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
-"""Validate notebook structure, Python syntax, and declared dependencies."""
+"""Validate notebook structure, Python syntax, and declared dependencies.
+
+With --execute, additionally run every notebook's code cells in order in a
+subprocess (smoke execution) so crash-level bugs are caught before commit.
+"""
 
 from __future__ import annotations
 
 import argparse
 import ast
 import json
+import subprocess
 import sys
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
@@ -150,6 +156,30 @@ def validate_notebook(path: Path) -> tuple[list[Issue], set[str], int, int, int]
     return issues, imports, code_cells, executed_cells, output_objects
 
 
+def execute_notebook(path: Path, timeout: int = 900) -> Issue | None:
+    """Execute a notebook through a real Jupyter kernel (nbconvert) and return an Issue on failure.
+
+    Kernel execution matches how learners run notebooks (module context, multiprocessing,
+    worker processes), unlike a plain exec() of cell source.
+    """
+    with tempfile.TemporaryDirectory() as td:
+        out = Path(td) / "out.ipynb"
+        cmd = [
+            sys.executable, "-m", "nbconvert", "--to", "notebook", "--execute",
+            f"--ExecutePreprocessor.timeout={timeout}",
+            "--output", str(out), str(path),
+        ]
+        try:
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout + 120)
+        except subprocess.TimeoutExpired:
+            return Issue(path, f"execution timed out after {timeout}s")
+        if proc.returncode != 0:
+            tail = (proc.stdout + proc.stderr).strip().splitlines()
+            detail = tail[-1][:200] if tail else 'unknown error'
+            return Issue(path, f"execution failed: {detail}")
+        return None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("paths", nargs="*", help="Notebook files or directories to validate")
@@ -157,6 +187,17 @@ def main() -> int:
         "--allow-dirty-outputs",
         action="store_true",
         help="Do not fail when notebooks contain executed cells or saved outputs.",
+    )
+    parser.add_argument(
+        "--execute",
+        action="store_true",
+        help="Additionally execute every notebook's code cells in order (slow; catches crash bugs).",
+    )
+    parser.add_argument(
+        "--execute-timeout",
+        type=int,
+        default=900,
+        help="Per-notebook execution timeout in seconds for --execute (default 900).",
     )
     args = parser.parse_args()
 
@@ -197,6 +238,15 @@ def main() -> int:
                 f"dirty notebook state: {executed_code_cells} executed cells, {output_objects} output objects; clear outputs before committing",
             )
         )
+
+    if args.execute:
+        failed = 0
+        for notebook in notebooks:
+            issue = execute_notebook(notebook, timeout=args.execute_timeout)
+            if issue is not None:
+                all_issues.append(issue)
+                failed += 1
+        print(f"Executed {len(notebooks)} notebooks; {failed} failed.")
 
     print(
         f"Validated {len(notebooks)} notebooks, {total_code_cells} code cells, "

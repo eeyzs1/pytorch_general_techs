@@ -48,7 +48,8 @@ def write_nb(rel_path: str, cells: list[dict]) -> None:
 
 
 def thinking(section: str, *qs: str) -> dict:
-    body = "\n".join(f"{i}. {q}" for i, q in enumerate(qs, 1))
+    qstrip = lambda q: re.sub(r'^\s*\d+\.\s*', '', str(q))
+    body = "\n".join(f"{i}. {qstrip(q)}" for i, q in enumerate(qs, 1))
     return md(
         f"""## 课后思考题
 

@@ -68,6 +68,12 @@ python3 scripts/validate_notebooks.py
 - 代码中使用的第三方 import 是否已写入 `requirements.txt`
 - 是否误提交了执行计数或输出结果
 
+如需在提交前做**崩溃级**验证（较慢，会真正按顺序执行每个 notebook 的全部代码 cell）：
+
+```bash
+python3 scripts/validate_notebooks.py --execute
+```
+
 ### 推荐学习路径
 
 1. **前置基础**：[00_foundations/00_deep_learning_basics.ipynb](00_foundations/00_deep_learning_basics.ipynb) — 深度学习训练核心基础（反向传播与自动微分、优化器对比、学习率调度、正则化与归一化）
@@ -86,11 +92,10 @@ python3 scripts/validate_notebooks.py
 
 - 每个 Notebook 遵循"**理论说明 → 代码实现 → 结果打印**"的教学模式
 - 代码中包含丰富的 `print` 输出和 `Key:` 关键结论总结
-- 建议按 Notebook 内顺序运行；部分后续 cell 会复用前面定义的模型或辅助函数
-- 默认示例尽量保持 CPU 可运行；涉及 Hugging Face 模型下载的 cell 需要联网环境
+- 建议按 Notebook 内顺序运行；部分 cell 会复用前面定义的模型或辅助函数，个别示例还引用同章节其他 Notebook 中的定义（如 `12_agent/02` 复用 `12_agent/01` 的 `ReActAgent` 时已在本地提供轻量实现）
+- 默认示例尽量保持 CPU 可运行；涉及 Hugging Face 模型下载的 cell 需要联网环境；个别 cell 使用 `torch.compile`，无 C 编译器时会自动回退到 eager 模式
 - 每个 Notebook 开头标注 **预估学习时间**
 - 每个 Notebook 末尾附带 **课后思考题**
-- 各 cell 设计为可独立运行
 
 ## 技术全景
 

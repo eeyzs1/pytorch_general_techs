@@ -53,6 +53,8 @@ def write_nb(rel_path: str, cells: list[dict]) -> None:
 
 
 def thinking(section: str, q1: str, q2: str, q3: str, q4: str) -> dict:
+    qstrip = lambda q: re.sub(r'^\s*\d+\.\s*', '', str(q))
+    q1, q2, q3, q4 = qstrip(q1), qstrip(q2), qstrip(q3), qstrip(q4)
     return md(
         f"""## 课后思考题
 
