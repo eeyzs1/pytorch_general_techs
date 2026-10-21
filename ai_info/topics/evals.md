@@ -19,6 +19,8 @@
 - [分数不是模型](../huggingface/blog/the-score-is-not-the-model.md)：逐项误差预算记账——分数测的是"模型+外围系统"：病毒学子集首跑 14% 中 76/100 条是 403 错误页被计答错，重试后 59.6%（一条重试"提升"45 分）；MMMLU 重试 +5.00、提示模板修复 +3.76，两项非模型修正合计近 9 分超过多数代际差；服务失败必须与答错分离。
 - [UK AISI 与 EvalEval 让基准可复现](../huggingface/blog/evaleval-aisi.md)：政府级可复现评估——Every Eval Ever 规定分数必须连同配置（模型版本/推理预算/提示协议）登记，缺配置的分数不被接纳；AISI 首批公开五基准×六前沿模型的独立验证结果与完整运行配置，同一模型在不同协议下排名可大幅变动。
 - [DeepSeek-V4.1-Flash 发布](../deepseek/news/deepseek-v4-1-flash.md)：厂商自测"超越旗舰"需打折的样本——552B MoE 官方称全面超越自家 V4-Pro（TB 2.1 达 90.6、CyberGym 88.1），但无第三方复核，且 TB 3.0/4.0 仅 30 左右暴露口径敏感性；V4-Pro 下线口径两日内反转，以定价页现状为准。
+- [ThinkingBox](../huggingface/blog/thinkingbox.md)：状态验证取代轨迹自述——507 个有状态企业工作流各在干净后端跑 20 次，只对终态数据库字段与副作用做可执行检查；12 模型 121,680 次有效试验中 79,853 次未通过，其中 67.24% 表面"干净终止、无报错"实则字段错误/多余副作用——"能做对一次"（pass@20）与"每次都对"（20/20）的差距即部署风险的量化。
+- [RL 环境登陆 Hub](../huggingface/blog/rl-environments.md)：环境即数据集仓库——打 `rl-environment` 标签即可发布，harbor/verifiers/openenv/nemo-gym 四框架对同一环境给出等价加载命令；"停止建造环境注册中心"直指 RL 评测的环境孤岛问题，任务 + 测试 + 容器 + 奖励规则的版本化与门控复用 Hub 既有机制。
 
 ## 专家级与系统级评估
 
@@ -54,6 +56,19 @@
 - [Holo4](../huggingface/blog/holo4.md)：坦诚承认差距的开放式基准报告——开源权重 computer-use 模型 OSWorld 2.0 达 61.7%（27B），直接对照 Claude Opus 5.5 的 81.8%；MoE 版仅 30.9% 且公开承认稀疏化代价，全部基准轨迹开源可回放，让开源侧差距可独立复核。
 - [法律行业为何用 Kimi K3](../kimi/blog/kimi-k3-legal.md)：第三方测量的垂直领域天花板——Harvey LAB（1200+ 真实律所任务，每题几十条专家评分点须全部通过）上 K3 全通过率 26.7% 居首，而 K2.6 为 0、此前全球最强约 10%；数字由 Artificial Analysis 独立测得而非厂商自报。
 - [GLM-5.1 开源](../glm/blog/glm-5-1.md)：长程任务口径的新锚点——METR 标准"一次任务独立工作 8 小时"的唯一开源模型，SWE-bench Pro 刷新全球最佳（超 GPT-5.4 与 Claude Opus 4.6）；把开源模型的能力锚点从单轮解题推进到多天级工程交付。
+- [GPT-6.1 Sol](../openai/research/introducing-gpt-6-1-sol.md)：可验证任务上中档反超旗舰——DeepSWE v1.1 得 75.22% 超 GPT-6 Astra 的 73.23%、OSWorld 2.0 71.42% 接近 73.49%，但 Terminal-Bench Science 57.02% vs 68.10% 差距明显；"near-Astra"在编程/GUI 与深度推理之间划出分界，选型应按任务可验证性分档。
+- [LASER](../openai/research/laser.md)：安全评估集构建的流水线化——廉价逻辑回归在嵌入空间做决策边界采样 + 昂贵推理模型标注的递归循环，找到同等违规样本的评分算力约为随机采样的 1/10,000；把回归概率区间改写为点积约束后一条 SQL 即可在数十亿对话上秒级采样，可平移到任何"找稀有正例"场景。
+- [Sharing AI progress in mathematics](../openai/research/sharing-ai-progress-in-mathematics.md)：数学成果披露的验证分层——722 篇手稿 / 372 家族开源（Apache-2.0），但仅 162 篇完成 Lean 形式化；"手稿存在 ≠ 形式化证明存在 ≠ 数学家接受"三层状态须分开核对，AGMAI 建议首次落地仍"部分达标"（模型未命名、提示词未公开、引用规范未完成）。
+- [Claude Haiku 5.5](../anthropic/research/claude-haiku-5-5.md)：小模型的基准质变——GDPval-AA 1620 对上代 735 翻倍且反超 GPT-6 Luna 的 1437，OSWorld 2.1 从 15.7% 跃至 72.4%、Terminal-Bench 4.0 从 0% 到 39.2%；"小模型 = 低能力"的假设在 agentic 基准上失效。
+- [An update on independent evaluators](../anthropic/research/an-update-on-independent-evaluators.md)：独立评估的"类员工权限"制度化——METR 六名员工持公司硬件物理入驻、内部权限与自家风控团队对等、发布风险分析无否决权（仅窄类目删改且可被公开评价）；三级评估者架构（窄调查 → 免批准发布 → 类员工常驻）把"评估者能看多深"变成可审计的渐进路径。
+- [AutoSynthData](../huggingface/blog/autosynthdata.md)：评测从度量工具变训练数据引擎——诊断评测识别"目标模型失败而教师成功"的模式，蒸馏出能力规格卡再生成可验证变体任务（Target + Multiply 两阶段，倍增样本禁止再派生防跨代漂移）；任务三元组（系统规约、用户提示、验证器）与规格卡消毒防泄漏是关键设计。
+- [Open TTS Leaderboard](../huggingface/blog/open-tts-leaderboard.md)：TTS 评估的客观指标基础设施——可懂度（ASR 模型转写算 WER）/速度（批量 RTFx 与流式 TTFA）/说话人相似度三轴把单模型评估从数周压缩到数小时；回应竞技场投票跟不上发布节奏、开源模型严重缺席（Artificial Analysis 92 个模型仅 16 个开放权重）的结构性问题。
+- [GLM-5.3 上线 Cursor](../glm/blog/glm-5-3-cursor-cursorbench.md)：第三方自有基准验证开放权重——CursorBench 4.0 得 42.6% 为开放权重模型最高分（Max 推理档），两个月内完成"匿名公测 → 第三方基准 → 主流工具分发"三级跳；真实编码工作流内的评测比通用榜单更贴近选型决策。
+- [Muse Wonder](../meta/muse-wonder.md)：6 周代际的基准面——AA 指数 v4.3 达 52/56（Spark 1.3 为 48），Terminal-Bench 4.0 从 33% 到 57% 追平 Gemini 4 Argon；但 AA-Omniscience 仅 30（Opus 5.5 为 46）——知识与 agentic 能力的分化在单一指数内部显形。
+- [Advancing computer use with Ironclad](../openai/research/advancing-computer-use-with-ironclad.md)：从结果评测到行为评测——合同工作流的状态机语义（草稿可编辑、已签署只能走补充协议）使"技术上成功、业务上越界"成为新失败面；合格轨迹须留事件序列式证据链，评测集必须覆盖"应该停下"的时刻（同名询问、超策略转人工、已签署拒绝）。
+- [Spending your effort](../anthropic/engineering/spending-your-effort.md)：effort 档位的评测归因——Terminal-Bench 3.0 全量失败分析显示升 effort 系统性减少"漏边界用例"型失败（Fable 5.1 low 40 次 → max 14 次）却救不了"方法错了"型失败；先确认方向对再加大算力，高规格输入可抹平档间差异。
+- [Automating eval design and hillclimbing](../anthropic/engineering/automating-eval-design-and-hillclimbing.md)：评估设计与爬山优化装进 skill——好评估四要素（镜像生产分布、更强模型应更好、前沿有及格余量、轮间方差低）；反采样警告深刻：按"今天模型失败"挑案例是在采样能力曲面谷底，测到的是失败指纹而非任务难度；每轮一个可归因改动 + train/test 分割防过拟合。
+- [Gemini 4 Argon 发布](../google/deepmind/gemini-4-argon.md)：广度领先而非全面登顶的样本——自家 19 行对比表领先 13 行、落后 5 行（FrontierSWE v2 55.0% vs Astra 65.5%、Terminal-Bench 4.0 57.4% vs Opus 5.5 66.4%），DeepSWE v1.1 77.9% 与 Harvey 法律 Agent 19.6%（次名 6.7%）为头部；输出上限 64K→1M token 让单次轨迹可承载数十万 token 深度推理。
 
 ## 关键结论
 
@@ -68,3 +83,5 @@
 - 评估结论必须绑定 harness 配置披露——保留推理与 compaction 两个设置就能让 ARC-AGI-3 得分差 3 倍，跨模型比较可能在度量脚手架差异而非智能差异。
 - 评估的报告维度扩展到"多次执行方差"与"测量误差预算"——一致性鸿沟（单次 77% vs 五连全成 53%）与误差预算（403 错误页被计答错、一条重试"提升"45 分）证明平均分把模型能力与外围噪声混在一起，分数必须连同方差与逐项记账一起报。
 - 厂商自测与第三方独立测量的并排对比成为可信度信号——Harvey LAB 由 Artificial Analysis 实测、UK AISI 公开完整运行配置，而"超越旗舰"类自报基准需按第三方口径打折。
+- "模型说了不算、状态说了算"成为 Agent 评估新基准——ThinkingBox 只查终态数据库（67% 的"干净终止"实为错误状态），与一致性鸿沟共同把评估重心从单次得分转向多次执行方差与可验证终态。
+- 安全评估集构建进入流水线时代——LASER 的递归边界采样把违规样本挖掘算力降 4 个数量级，与 MentalHealthBench 的专家撰写路线互补：自动挖掘管覆盖、专家撰写管深度；数学披露的"三层验证状态"则提醒形式化、手稿与社区接受仍是三件不同的事。

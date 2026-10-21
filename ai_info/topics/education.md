@@ -14,6 +14,7 @@
 - [OpenAI Academy 新增结构化学习路径](../openai/research/openai-academy-learning-paths.md)：面向员工/开发者/领导者/教育者/学生五类人群的结构化路径与"实用 AI 技能"认证——从内容库升级为课程体系（先后依赖、能力目标、可评估），回应岗位边界漂移下的培训供给缺口。
 - [OpenAI Academy 两周年](../openai/research/two-years-of-openai-academy.md)：两年从课程库成长为按五类人群分层的学习体系，多语言、全球免费开放、与公共图书馆及社区组织合作下沉——教育公益与 ChatGPT 的用户漏斗、正当性叙事一体两面。
 - [帮助老年人在日常生活中使用 AI](../openai/research/helping-older-adults-use-ai.md)：与 AARP 在 10 个美国城市为 1000 名老年人办免费动手式工作坊——健康查询、家人沟通、防诈骗三大场景，语音优先降低门槛，普及战略沿人群维度补上"数字弱势群体"一环。
+- [Helping teens learn, plan, and shape the future of AI](../openai/research/teens-learn-and-plan.md)：青少年产品线从防护转向学习与规划——College Planner 大学申请规划、闪卡与测验学习功能、Teen AI Council 让青少年常设参与产品治理；"安全 → 学习（Study Mode）→ 规划与参与"三级递进，用户理事会模式可迁移到其他敏感人群产品。
 
 ## 研究与证据
 

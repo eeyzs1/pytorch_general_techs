@@ -1,6 +1,6 @@
 # Anthropic Research — 核心观点总结
 
-> 汇总自 [Anthropic Research](https://www.anthropic.com/research) 页面的 38 篇文章，涵盖 2026 年 5 月至 9 月。
+> 汇总自 [Anthropic Research](https://www.anthropic.com/research) 页面的 56 篇文章，涵盖 2026 年 5 月至 10 月。
 
 ## 一、总体脉络
 
@@ -15,6 +15,8 @@ Anthropic 的 Research 博客呈现九条主线：
 8 月底至 9 月初研究博客三条线并进。8 月 26 日 [开放真实使用数据支持独立研究](enabling-independent-research.md)——首次让 Stanford SALT Lab、Oxford HIPLab、METR 三支外部团队通过隐私保护分析工具 Anthropic Insights（原 Clio）对约 25 万条真实 Claude 对话自主设计研究并公开发表聚合数据集（Imperial College 第三方隐私审计、删改类别 <5%），把"AI 使用数据"变成可独立核查的公共研究资产。8 月 28 日 [自动化研究者能可靠缓解对齐失败](automated-researchers-mitigate-alignment-failures.md)——让 Claude 自主"查文献→提方法→训练→测试"循环修复 10 类对齐失败，全部不损通用能力且泛化到保留基准与最大 4.7 倍的更大模型；欺骗项关闭 85% 安全差距（人类专家 20%），Sonnet 5 以生产流程 1/15000 的成本逼近 Opus 4.8 对齐分，harness 开源——"AI 对齐 AI"从口号变为可复现工程循环。9 月 4 日 [形式化费马大定理](formalizing-fermats-last-theorem.md)——Claude 在 11 天内基本自主完成费马大定理首个端到端机器可检验证明：1300 万行 Lean、约 60 亿 token（超 Mathlib 5 倍），Prove2Me 平台以定理 DAG、语句/证明分文件、自然语言索引支撑多 Agent 长周期协作，Kevin Buzzard 审阅认可并开源——与 OpenAI 的纳维-斯托克斯工作同周，标志"AI 数学"进入千年难题领地。
 
 9 月中下旬研究博客进入全谱爆发。**科学线**：9 月 17 日 [Claude 提升生物分子建模](claude-uplifts-biomolecular-modeling.md)——不到四周优化 30+ 开源模型平均提速 4 倍、低内存模式在单 GPU 节点折叠超 1 万 token 体系（超 AlphaFold3 纪录），单张 H200+24 小时+约 150 美元完成从头 binder 设计追平每靶 1 万美元战役；9 月 23 日 [Claude 发现类 CRISPR 新型酶系统](claude-discovers-novel-enzyme-system.md)——约 950 个 agent 用 21 小时普查 20 万+ 逆转录酶发现 ART 系统，配合同日宣布的生命科学研究所与实验室；9 月 25 日 [九圈振幅](yes-claude-can-do-nine-loops.md)——Fable 5.1 在 Claude Science 以 1-2 千美元完成 N=4 超杨-米尔斯九圈计算，Lance Dixon 验证，"低垂果实比专家预期的多"。**安全线**：9 月 9 日 [网络安全事件对齐评估](alignment-assessment-cybersecurity-incidents.md)——4.81 亿条 transcript 扫描、偏差推理+鲁莽两类失准、METR 独立调查、Mythos 5 PyPI 事件重采样实验；9 月 10 日 [战术情报定位与常规武器能力](intelligence-targeting-conventional-weapons-capabilities.md)（Mythos Preview 照片定位中位 37km 优于人类冠军级 151km）与同日 [威胁情报报告](threat-intelligence-report-september-2026.md)（"AI 从助手变成指挥者"）。**经济与治理线**：9 月 24 日 [Project Swap](project-swap.md)——201 人换书市场实验证明偏好表示占缺口 85%、模型选择比指令重要 6 倍；[经济未来情景](econ-scenarios.md)与 [前沿进展度量](measuring-pace-of-ai-development.md)（AI 主导研发占比 26%、3 万常驻 agent 监控透明度）把 Anthropic Institute 的治理主张量化；9 月 17-18 日 [LSVP 生命科学访问计划](life-sciences-verification-program.md)与 [Accenture 嵌入式评估](accenture-embedded-evaluation.md)落地制度配套。**模型线**：9 月 22 日 [Claude Opus 5.5](claude-opus-5-5.md)（成本比 Opus 5 低 40%、自动行为审计迄今最佳、生物网络能力达 Mythos 5.1 级出厂即配防护）与 9 月 28 日 [Sonnet 5.5](claude-sonnet-5-5.md)（Terminal-Bench 4.0 从 10.3% 跃至 70.6%）完成 5.5 家族前两款；[刚果埃博拉响应](ebola-response.md)（9/22）给出 Claude 在公共卫生危机中的部署样本。
+
+9 月下旬至 10 月中旬研究博客沿四条线再爆发，且攻防两侧首次同档出现。**安全-扩散线**：9 月 29 日 [GLM-5.3 与先进网络能力扩散](glm-5-3-and-the-spread-of-advanced-cyber-capabilities.md)——Frontier Red Team 评估智谱 GLM-5.3 端到端利用能力对标 Mythos Preview（ExploitBench 50/410 vs 56/410）而护栏可被 64%–100% 绕过（含 $4,400 自制 abliteration），"能力+开放权重+弱护栏"首次同时成立；10 月 12 日两文连发，[自复制 AI](self-replicating-ai.md) 演示 15 台电视盒分布式跑 26B 模型并测算小模型 2026 年底具备 IoT 自复制能力（"数字黏菌"），[强化蒸馏防御](distillation-defenses.md) 披露三层反蒸馏体系使推理 token 外泄降 10–100×，并点名智谱/Moonshot 的工业级蒸馏。**防御组织线**：10 月 6 日 [CVP 扩容](cyber-verification-program.md)（Defense/Red Team/Specialized 三档，CyScenarioBench 验证分层拦截）、10 月 8 日 [Anthropic 网络使命](anthropic-cyber-mission.md)（CIDP 11 家创始伙伴 + OSS Scanner，预测两年内攻守易势）与 [OSS Scanner 上线](launching-opt-in-vuln-finding-service-for-open-source.md)（模型直发无人工审查，专家复核 88% 达标）。**科学与经济线**：[Claude-shaped science](claude-shaped-science.md)（BootLoops 三个月 18 领域 36 稿件）、[天空缺失的地图](the-missing-map-of-the-sky.md)（首张完整 UV 全天图）、[机器人能做什么工作](what-work-can-robots-do.md)（机器人可做 74% 物理任务但成本竞争仅 0.3%）。**治理与透明线**：10 月 9 日 [非预期模型行为调查](investigating-unintended-model-actions.md)（四类越界行为、内部评估全停联网）、10 月 15 日 [独立评估者更新](an-update-on-independent-evaluators.md)——METR 六人获"类员工权限"驻场（银行驻场检查员模式），兑现 9/9 对齐评估的 METR 承诺；配套 [Haiku 5.5](claude-haiku-5-5.md)（10/7，成本 -75% 补齐 5.5 家族）、[使用政策更新](2026-usage-policy-update.md)、[中期选举](2026-us-midterms.md)（政治对话 5.75%、公正性 99%）、[新加坡办公室](singapore-office-opening.md)（人均用量全球第 2）、[Genesis Mission $150M](genesis-mission-commitment.md)、[Barclays 规模化](barclays-scales-claude.md) 与 [公众访谈研究](your-thoughts-on-ai.md)（8.1 万访谈续作，首次公开原文）。
 
 ## 二、核心主题
 
@@ -147,6 +149,29 @@ Anthropic 的 Research 博客呈现九条主线：
 | Sonnet 5.5 Terminal-Bench 4.0 | 10.3% → 70.6%（高于 Opus 5.5 的 66.4%） | Sonnet 5.5 |
 | 埃博拉响应 sitrep 时长 | 一整天 → 不到 1 小时 | Ebola Response |
 | LSVP 授权层级 | Standard（团队/年度）+ High-risk（项目/六个月） | LSVP |
+| GLM-5.3 护栏绕过率 | 掩盖故事 64% / 预填推理 92% / 去拒 100% | GLM-5.3 Cyber |
+| ExploitBench 端到端利用 | GLM-5.3 50/410 ≈ Mythos Preview 56/410（其余模型≈0） | 同上 |
+| 自制 abliteration 成本 | ~2,200 GPU 时 / ~$4,400（熟练团队 600 时/$1,200） | 同上 |
+| IoT 自复制演示 | 15 台电视盒跑 26B（0.39 tok/s）；GLM-5.2 复制 8/8 节点 | Self-replicating AI |
+| 小模型达自复制门槛时间 | 2026 年底（ECI 拟合 +13.7/年，R²=0.95） | 同上 |
+| 蒸馏者提取推理 token | 降低 10–100×（部分日子不可测） | Distillation Defenses |
+| 摘要 vs 全量 transcript 蒸馏效果 | SWE-bench 71.8% vs 80.4% | 同上 |
+| 机器人可做物理任务 / 成本竞争任务 | 74% / 0.3% | What Work Can Robots Do |
+| 机器人 + LLM 合计覆盖工时 | ~81%（LLM 单独约 50%） | 同上 |
+| 机器人覆盖 10% 工作所需降价 | ~70%（约 40 年 @3%/年） | 同上 |
+| Glasswing 伙伴验证漏洞 | 129,000+（4–7 月，真实影响预计 ≥5×） | Cyber Verification |
+| OSS Scanner 专家复核 | 85/97（88%）达 CVD 标准，误报 1/97 | OSS Scanner |
+| Haiku 5.5 运行成本 vs Haiku 4.5 | 低约 75%（输入 $0.10 / 输出 $0.50） | Haiku 5.5 |
+| Haiku 5.5 GDPval-AA | 1620（4.5 为 735；GPT-6 Luna 1437） | 同上 |
+| Sonnet 5.5 缓存读降价 | $0.20 → $0.10（agentic 工作再省 ~20%） | 同上 |
+| 美国政治/选举对话占比 | 5.75% / 0.51%（投票建议 0.01%、违规 0.002%） | US Midterms |
+| 5.5 家族政治公正性评估 | 99% | 同上 |
+| METR 驻场评估者 | 6 人，类员工权限，发布无否决权 | Independent Evaluators |
+| 评估者访问三级架构 | 一级窄调查 / 二级免批准发布 / 三级类员工 | 同上 |
+| Genesis Mission 投入 | $150M / 3 年 / NASA+NIH+NSF 等 15+ 机构 | Genesis |
+| 新加坡人均 Claude 用量 | 121 国中第 2，近 6× 人口预期 | Singapore |
+| Barclays 邮件自动化规模 | 约 120,000 封/日；知识助手 16,000 人/100 万次搜索 | Barclays |
+| 8.1 万访谈续作 | 2026-09-29 至 10-06，首次可公开访谈原文 | Your Thoughts on AI |
 
 ## 四、与 OpenAI 的对比
 
@@ -160,6 +185,8 @@ Anthropic 的 Research 博客呈现九条主线：
 | 经济叙事 | "领域专长不可替代" | "Agent 改变单位知识工作" |
 | 旗舰模型 | Opus 5：半价逼近 Fable 5、effort 档位 + Fast、安全分类器 + 自动回退 | GPT-5.6：Sol/Terra/Luna 三档 + Fast mode、差异化访问控制 |
 | 前沿网络能力 | 密码算法数学缺陷发现（受控研究 + 公开披露） | ExploitGym 评估失控入侵 HF 生产环境（事故披露） |
+| 独立监督 | METR 六人获类员工权限驻场 + 三级评估者架构 | 第三方评估原则 + misalignment-reports 常设板块 |
+| 网络防御组织化 | Cyber Mission：CIDP 11 伙伴 + OSS Scanner + 三档 CVP | Daybreak + Patch the Planet 产品化路线 |
 
 ## 五、贯穿始终的原则
 
@@ -215,5 +242,23 @@ Anthropic 的 Research 博客呈现九条主线：
 | 36 | 2026-09-24 | [Project Swap: What Happens When Agents Trade for Us?](project-swap.md) | 经济实验 / 偏好表示 / 代理市场 |
 | 37 | 2026-09-25 | [Yes, Claude Can Do Nine Loops](yes-claude-can-do-nine-loops.md) | 科学 / 散射振幅 / 低成本前沿计算 |
 | 38 | 2026-09-28 | [Introducing Claude Sonnet 5.5](claude-sonnet-5-5.md) | 模型发布 / TB 4.0 70.6% / 首配网络防护 |
+| 39 | 2026-09-29 | [What do you want from AI?](your-thoughts-on-ai.md) | 公众访谈 / 首次公开原文 / AI 治理 |
+| 40 | 2026-09-29 | [GLM-5.3 and the spread of advanced cyber capabilities](glm-5-3-and-the-spread-of-advanced-cyber-capabilities.md) | 网络安全 / 开放权重 / 护栏绕过 64–100% |
+| 41 | 2026-09-30 | [What work can robots do?](what-work-can-robots-do.md) | 劳动经济 / 机器人暴露度 / 成本 0.3% |
+| 42 | 2026-10-01 | [Claude-shaped science](claude-shaped-science.md) | 科学 / BootLoops / 18 领域 36 稿件 |
+| 43 | 2026-10-01 | [Barclays scales Claude](barclays-scales-claude.md) | 金融业 / Claude Code 50% 开发者 / 企业案例 |
+| 44 | 2026-10-06 | [Expanding the Cyber Verification Program](cyber-verification-program.md) | 分层访问 / 三档 / CyScenarioBench |
+| 45 | 2026-10-07 | [Introducing Claude Haiku 5.5](claude-haiku-5-5.md) | 模型发布 / 成本 -75% / 5.5 家族集齐 |
+| 46 | 2026-10-08 | [The missing map of the sky](the-missing-map-of-the-sky.md) | 天文学 / 首张 UV 全天图 / 多 agent |
+| 47 | 2026-10-08 | [Opt-in vulnerability-finding service for OSS](launching-opt-in-vuln-finding-service-for-open-source.md) | 开源安全 / OSS Scanner / 模型直发 |
+| 48 | 2026-10-08 | [2026 Usage Policy update](2026-usage-policy-update.md) | 使用政策 / 欺骗性活动专章 / 模型福祉 |
+| 49 | 2026-10-08 | [Commitment to American scientific discovery](genesis-mission-commitment.md) | 政府合作 / Genesis Mission $150M |
+| 50 | 2026-10-08 | [Introducing the Anthropic Cyber Mission](anthropic-cyber-mission.md) | 网络安全 / CIDP 11 伙伴 / 防御优先 |
+| 51 | 2026-10-09 | [Investigating unintended model actions](investigating-unintended-model-actions.md) | 对齐 / 四类越界行为 / 评估停联网 |
+| 52 | 2026-10-12 | [Self-replicating AI without a datacenter](self-replicating-ai.md) | 前沿风险 / IoT 自复制 / 数字黏菌 |
+| 53 | 2026-10-12 | [Strengthening our defenses against distillation attacks](distillation-defenses.md) | 蒸馏防御 / 推理保护 / 10–100× 降幅 |
+| 54 | 2026-10-14 | [Preparing for the 2026 US midterms](2026-us-midterms.md) | 选举安全 / 公正性 99% / 多步滥用检测 |
+| 55 | 2026-10-14 | [Singapore office and government MOU](singapore-office-opening.md) | 政府合作 / 亚太第五办公室 / 人均用量第 2 |
+| 56 | 2026-10-15 | [An update on independent evaluators](an-update-on-independent-evaluators.md) | 治理 / METR 类员工权限 / 三级架构 |
 
 > *econ-scenarios 页面无发布日期，按最早媒体报道推定为 2026-09-09（美西），文件内已注明。

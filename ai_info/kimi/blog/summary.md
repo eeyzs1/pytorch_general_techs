@@ -1,6 +1,6 @@
 # Kimi (Moonshot AI) — 核心观点总结
 
-> 汇总自 [Kimi Blog](https://www.kimi.com/blog/)、[Kimi News](https://www.kimi.com/news/) 和 [Moonshot AI 开放平台](https://platform.moonshot.cn/blog) 的 10 篇文章，涵盖 2026 年 4 月至 9 月。注意：官方"研究博客"渠道（kimi.com/blog）自 2026-07-16 后停更，新动态迁移至 kimi.com/news/ 新闻频道与 Kimi Code 文档 changelog。
+> 汇总自 [Kimi Blog](https://www.kimi.com/blog/)、[Kimi News](https://www.kimi.com/news/)、[Kimi Code 文档 changelog](https://www.kimi.com/code/docs/kimi-code/whats-new.html) 和 [Moonshot AI 开放平台](https://platform.moonshot.cn/blog) 的 12 篇文章，涵盖 2026 年 4 月至 10 月。注意：官方"研究博客"渠道（kimi.com/blog）自 2026-07-16 后停更，新动态迁移至 kimi.com/news/ 新闻频道与 Kimi Code 文档 changelog。
 
 ## 一、总体脉络
 
@@ -42,6 +42,10 @@ Kimi K3 以 2.8T 参数成为全球首个开源 3T 级模型，Kimi K2.6 在编�
 
 [金融行业 AI 解决方案](kimi-financial-industry-ai-solution.md)（2026-09-17）：10+ 权威数据源（Wind/东财/标普等 MCP 直连可溯源）+ 9 项金融技能 + 与中信建投共建 5 项合规措施的风险评估网关；财务建模 5-7 人天→0.5-1 人天、深度报告 10-20 天→约 2 天；试点 50 余家发行人。[法律行业](kimi-k3-legal.md)（2026-08-28）：Artificial Analysis 在 Harvey LAB（1200+ 真实律所任务）测得 K3 全通过率 26.7% 居首（K2.6 为 0）；Harvey 基于 K3 发布首个法律行业模型 Tenet——"开源通用模型 + 领域后训练"成为垂直 SOTA 新范式。[企业合作伙伴计划](kimi-enterprise-partner-program.md)（2026-09-10）：与华胜天成、金山云、亚康、亚信、中软国际共建 FDE 队伍，与 OpenAI 部署公司同构的轻资产模式。[Kimi Code Desktop](kimi-code-desktop.md)（2026-09-21）：Plan/Goal/Swarm/实验性 Tower 四模式桌面客户端，diff 审阅、内置终端与浏览器、权限三档，对标 Claude Code Desktop/Cursor。
 
+### 7. Kimi Code 产品迭代：CLI 安全加固与桌面端三平台
+
+[CLI v2.1.0](kimi-code-cli-v2-1-0.md)（2026-09-23）在 Desktop GA 后一周发布：实验性全屏 TUI、启动提速、文件监听默认关闭；安全上收紧符号链接逃逸、工作区信任、仓库 git hooks 三个攻击面，同周 Desktop 1.0.3 修复"恶意网页经本地内嵌服务器 RCE"漏洞。但次日 v2.1.1 即"回退部分过于严格的防御性改动"并恢复文件监听——24 小时内的收紧-回摆，是默认安全与可用性张力的真实样本。[Desktop v1.1.0](kimi-code-desktop-v1-1-0.md)（2026-10-14，CLI 同步 v2.2.0）：补齐 Linux（AppImage/deb/RPM），一个月完成三平台覆盖；远程控制（链接/二维码跨设备接管本机 Agent，任务仍在本机执行）与实验性进展更新 NotifyUser（回合内播报进展）、WaitFor 可打断、Tower 消息中止当前轮，共同把交互重心推向"长任务期间人如何监督与插话"。跟踪注记：10-08 Harvey LAB-AA 升级 v1.1 引入幻觉门控指标（数据集与口径更换，与 v1.0 的 26.7% 不可直接比较），K3(max) 以 5.3% 列第 6，Grok 4.7(xhigh) 9.4% 居首，且所有开放权重模型平均每任务 ≥2.09 处实质性幻觉——K3 的法律 SOTA 叙事需在幻觉维度重新校准。
+
 ## 三、关键数据点
 
 | 指标 | 数值 | 来源 |
@@ -66,6 +70,11 @@ Kimi K3 以 2.8T 参数成为全球首个开源 3T 级模型，Kimi K2.6 在编�
 | 金融财务建模人力 | 5-7 人天 → 0.5-1 人天 | 金融解决方案 |
 | 金融试点覆盖 | 50 余家发行人 / 100 余只债券 | 金融解决方案 |
 | 企业伙伴计划首批伙伴 | 5 家（华胜天成/金山云/亚康/亚信/中软国际） | 企业伙伴计划 |
+| Desktop v1.1.0 发布 | 2026-10-14（Linux/远程控制/文件树） | Desktop v1.1.0 |
+| Kimi Code Desktop 平台覆盖 | macOS + Windows + Linux（AppImage/deb/RPM，x86_64） | Desktop v1.1.0 |
+| CLI v2.1.0 安全收紧到回摆 | 09-23 加固 → 09-24 v2.1.1 部分回退 | CLI v2.1.0 |
+| WaitFor 等待上限 / 可打断 | 90 秒，Enter/Ctrl-S 注入消息提前结束 | CLI v2.2.0 |
+| Harvey LAB-AA v1.1 幻觉门控全通过率 | K3(max) 5.3%（第 6；Grok 4.7 为 9.4%） | Artificial Analysis（第三方，2026-10-08） |
 
 ## 四、与 OpenAI / Anthropic 的对比
 
@@ -74,6 +83,7 @@ Kimi K3 以 2.8T 参数成为全球首个开源 3T 级模型，Kimi K2.6 在编�
 | 模型策略 | 开源 frontier | 闭源旗舰 + 开源旧模型 | 闭源 frontier |
 | 最大模型 | 2.8T (K3, 开源) | GPT-5.6 Sol (闭源) | Claude Fable 5 (闭源) |
 | 编码 Agent | K2.6 (开源 SOTA) | Codex (闭源) | Claude Code (闭源) |
+| 桌面 Agent | Kimi Code Desktop（三平台 + 远程控制） | Codex App（macOS/Windows） | Cowork 并入 Claude |
 | 多模态 | 原生多模态 | 多模态 | 多模态 |
 | 长上下文 | 1M tokens | 未公开 | 未公开 |
 | 评估创新 | PerceptionBench (感知诊断) | LifeSciBench / GeneBench-Pro | BrowseComp / 内部评估 |
@@ -101,3 +111,5 @@ Kimi K3 以 2.8T 参数成为全球首个开源 3T 级模型，Kimi K2.6 在编�
 | 8 | 2026-09-11 | [Kimi K2.8 Preview](kimi-k2-8-preview.md) | 接近 K3 的主力模型 / 1M 全员开放 |
 | 9 | 2026-09-17 | [金融行业 AI 解决方案](kimi-financial-industry-ai-solution.md) | 数据源+技能+合规网关 |
 | 10 | 2026-09-21 | [Kimi Code Desktop](kimi-code-desktop.md) | 桌面客户端 / 四任务模式 |
+| 11 | 2026-09-23 | [Kimi Code CLI v2.1.0](kimi-code-cli-v2-1-0.md) | 全屏 TUI / 工作区安全加固与回摆 |
+| 12 | 2026-10-14 | [Kimi Code Desktop v1.1.0](kimi-code-desktop-v1-1-0.md) | Linux 版 / 远程控制 / 进展更新 |

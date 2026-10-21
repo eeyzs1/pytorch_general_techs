@@ -1,6 +1,6 @@
 # DeepSeek（深度求索）— 核心观点总结
 
-> 汇总自 [DeepSeek API 文档](https://api-docs.deepseek.com/)、[官网](https://www.deepseek.com/) 及公开报道，当前覆盖 2026 年 4 月至 9 月，共 7 篇。
+> 汇总自 [DeepSeek API 文档](https://api-docs.deepseek.com/)、[官网](https://www.deepseek.com/) 及公开报道，当前覆盖 2026 年 4 月至 10 月，共 9 篇（含 1 篇补录）。
 
 ## 一、总体脉络
 
@@ -16,9 +16,11 @@
 定价创新（峰谷计费）+ 旧模型废弃迁移
     ↓
 正式版 GA（DSpark 推测解码标配 + 后训练驱动的 Agent 跃升）
+    ↓
+新架构家族（V4.1-Flash）+ Agent 基础设施化（Harness 开源 / Files / Search & Fetch）
 ```
 
-核心差异化：用 MIT 开源 + 极致性价比，对闭源模型形成"Opus 级能力、1/7 价格"的钳形攻势。7 月中旬 V4 全量转正（GA），揭晓此前的"预览即生产"发布策略；7 月 31 日 [V4-Flash 正式版](deepseek-v4-flash-official-release.md)（v4-flash-0731）仅靠重新后训练就在 Agent 基准上全面超越 V4-Pro 预览版，原生支持 Responses API 并适配 Codex 生态。8 月 13 日 [V4-Pro GA 与 API 调价](deepseek-api-price-adjustment-2026-08.md) 正式落地：新价格 8 月 16 日 16:00 UTC 生效（北京时间 8 月 17 日），部分模型涨幅最高 1100%，峰谷分时计费全面执行——低峰时段价格为高峰的 50%；V4-Pro GA 本身带来推理 effort 三档（low/high/max）与原生 Responses API。"价格屠夫"开始"收刀"，低价红利期结束，国产大模型商业化进入新阶段。
+核心差异化：用 MIT 开源 + 极致性价比，对闭源模型形成"Opus 级能力、1/7 价格"的钳形攻势。7 月中旬 V4 全量转正（GA），揭晓此前的"预览即生产"发布策略；7 月 31 日 [V4-Flash 正式版](deepseek-v4-flash-official-release.md)（v4-flash-0731）仅靠重新后训练就在 Agent 基准上全面超越 V4-Pro 预览版，原生支持 Responses API 并适配 Codex 生态。8 月 13 日 [V4-Pro GA 与 API 调价](deepseek-api-price-adjustment-2026-08.md) 正式落地：新价格 8 月 16 日 16:00 UTC 生效（北京时间 8 月 17 日），部分模型涨幅最高 1100%，峰谷分时计费全面执行——低峰时段价格为高峰的 50%；V4-Pro GA 本身带来推理 effort 三档（low/high/max）与原生 Responses API。"价格屠夫"开始"收刀"，低价红利期结束，国产大模型商业化进入新阶段。9 月 10 日 [V4.1-Flash 发布](deepseek-v4-1-flash.md)开启新架构家族；与之并行的是 Agent 基础设施化布局：8 月 13 日 [DeepSeek Harness](deepseek-harness.md) 以 MIT 开源（v0.1 开发者预览，"一切皆插件"），10 月中旬 [Search & Fetch API](deepseek-search-fetch-api.md) 文档静默上线（按次计费的联网检索原语）——模型、harness、检索原语三层全部就位，DeepSeek 从"模型厂商"扩展为"Agent 全栈供给方"。
 
 ## 二、核心主题
 
@@ -72,9 +74,15 @@ V4 优先适配华为昇腾等国产 AI 芯片，未向美国芯片供应商开�
 
 ### 7. V4.1-Flash：Flash 级成本超越旗舰的新架构家族
 
-[DeepSeek-V4.1-Flash 发布](deepseek-v4-1-flash.md)（2026-09-10）是全新架构家族的首个成员：552B MoE、Causal Encoder–Decoder 非对称结构（输入激活 8B / 输出 16B）、原生多模态视觉。官方基准显示其智能水平超越 V4-Pro（GPQA 90.9、Terminal-Bench 2.1 达 90.6、DeepSWE v1.1 74.2、CyberGym 88.1），KV Cache 压缩至 HBM 需求 1/4、SSD 1/8（相对初代累计 437 倍）。模型名切换为 `deepseek-flash`，旧 V4-Flash 与 Vision-Exp 名称仍被接受但模型已退役（视觉并入原生多模态，Vision-Exp 实验线终结）；定价同步下调（输入未命中 $0.15-0.30、输出 $0.60-1.20 峰谷区间），权重与技术报告开源。V4-Pro 下线口径一波三折：新闻页原称 9 月 14 日起路由至新模型，同日 Change Log 改口"继续提供服务"，当前以 V4 Pro 继续服务为准。当前 API 在售仅 `deepseek-flash` 与 `deepseek-v4-pro` 两个模型名。
+[DeepSeek-V4.1-Flash 发布](deepseek-v4-1-flash.md)（2026-09-10）是全新架构家族的首个成员：552B MoE、Causal Encoder–Decoder 非对称结构（输入激活 8B / 输出 16B）、原生多模态视觉。官方基准显示其智能水平超越 V4-Pro（GPQA 90.9、Terminal-Bench 2.1 达 90.6、DeepSWE v1.1 74.2、CyberGym 88.1），KV Cache 压缩至 HBM 需求 1/4、SSD 1/8（相对初代累计 437 倍）。模型名切换为 `deepseek-flash`，旧 V4-Flash 与 Vision-Exp 名称仍被接受但模型已退役（视觉并入原生多模态，Vision-Exp 实验线终结）；定价同步下调（输入未命中 $0.15-0.30、输出 $0.60-1.20 峰谷区间），权重与技术报告开源。V4-Pro 下线口径一波三折：新闻页原称 9 月 14 日起路由至新模型，同日 Change Log 改口"继续提供服务"；截至 2026-10-16 定价页仍在售（V4-Pro-0813，计费不变），以 V4 Pro 继续服务为当前事实。当前 API 在售仅 `deepseek-flash` 与 `deepseek-v4-pro` 两个模型名。
 
 [V4-Flash-Vision-Exp 上线](deepseek-v4-flash-vision-exp.md)（2026-08-21）以"实验版本外挂模态"的渐进方式补齐视觉能力：纯文本能力与 V4-Flash 正式版持平，视觉 Agent 基准大幅跃升、多模态 Agent 能力接近 Opus-4.8。一张图片最多占 384 tokens、计价与 V4-Flash 一致，把带图 Agent 请求的边际成本压到可预算水平；同日免费上线 Files API（`file_id` 跨请求复用），并同步支持 Chat Completions / Messages / Responses 三种 API 格式——OpenAI、Anthropic 与 Responses 生态的存量 Agent 工具近零改造即可获得视觉能力。官方未公布开源计划，实验性质提示生产系统需预留兜底。
+
+### 8. Agent 基础设施化：Harness 开源与 Search & Fetch 原语
+
+[DeepSeek Harness v0.1 开发者预览版开源](deepseek-harness.md)（2026-08-13，官方 X 公告；**补录**）：DeepSeek 首次进军 Agent 执行层——基于 Cordis 元框架的"一切皆插件"架构（模型、工具、技能、会话、沙箱、文件系统、循环、集成、UI 皆插件），桌面应用 + Web UI 双形态，MIT 完整开源；四种执行模式（标准/代码/最小/创造），其中 minimal mode 正是官方基准脚注中的评测框架；全部执行写入追加式会话日志、Trajectory 按来源回看。发布路径"先内部评测、后全球开放"：7-31 基准预告 → 8-13 开源。api-docs 首页已将其列为 Agent Integrations 首位。
+
+[Search & Fetch API 上线](deepseek-search-fetch-api.md)（文档静默上线，第三方 2026-10-16 首报）：`POST /v1/tools/search`（结构化搜索，支持 site:/lang:/after: 等操作符透传，返回 rerank_score 0-3 与 authority 0-4 字段）与 `POST /v1/tools/fetch`（网页转 Markdown），同一 Bearer 认证；按成功请求计费 $0.75/千次（失败/空结果不计费），账户级各 5 QPS；Claude Code Web Search 与 Codex `web_search` 首两周免费。Agent 输入侧三块基础设施至此齐备：文件（Files API 免费）、视觉（V4.1-Flash 原生）、联网（Search/Fetch 按次）。
 
 ## 三、关键数据点
 
@@ -108,7 +116,13 @@ V4 优先适配华为昇腾等国产 AI 芯片，未向美国芯片供应商开�
 | V4.1-Flash Terminal-Bench 2.1 / GPQA Diamond | 90.6 / 90.9（官方称超越 V4-Pro） | 同上 |
 | V4.1-Flash KV Cache 压缩（vs 上代 / vs 初代） | HBM 1/4、SSD 1/8 / 累计 437× | 同上 |
 | V4.1-Flash 定价（输入未命中 / 输出，峰谷区间） | $0.15-0.30 / $0.60-1.20 每百万 token | 同上 |
+| V4-Pro 服务状态（截至 2026-10-16） | 继续在售（V4-Pro-0813，计费不变） | 定价页核验 |
 | 当前在售模型名 | deepseek-flash 与 deepseek-v4-pro 两个 | 同上 |
+| DeepSeek Harness 开源协议 / 版本 | MIT / v0.1 开发者预览（2026-08-13） | Harness 官方公告 |
+| DeepSeek Harness 架构 | Cordis 元框架，"一切皆插件"，4 种执行模式 | 同上 |
+| Search / Fetch API 定价 | 各 $0.75/千次成功请求（失败不计费） | API 文档定价页 |
+| Search / Fetch QPS | 账户级各 5，互不占用；Fetch 另有每域名限制 | 同上 |
+| Claude Code / Codex 搜索优惠 | Search API 上线首两周免费（起始日另行公告） | 同上 |
 
 ## 四、与 OpenAI / Anthropic / Kimi / GLM 的对比
 
@@ -141,7 +155,11 @@ V4 优先适配华为昇腾等国产 AI 芯片，未向美国芯片供应商开�
 | 3 | 2026-07-15 | [DeepSeek-V4 正式版 GA](deepseek-v4-ga.md) | 正式版转正 / DSpark 推测解码 / Agent 跃升 |
 | 4 | 2026-07-31 | [DeepSeek-V4-Flash 正式版发布](deepseek-v4-flash-official-release.md) | V4-Flash 公测 / Agent 基准 / Responses API / Codex 适配 |
 | 5 | 2026-08-13 | [V4-Pro GA 与 API 调价](deepseek-api-price-adjustment-2026-08.md) | V4-Pro 转正 / 调价 1100% / 峰谷计费 |
-| 6 | 2026-08-21 | [V4-Flash-Vision-Exp 上线](deepseek-v4-flash-vision-exp.md) | 多模态 API / Files API / 三格式兼容 |
-| 7 | 2026-09-10 | [DeepSeek-V4.1-Flash 发布](deepseek-v4-1-flash.md) | 新架构家族 / 原生多模态 / KV Cache 437× / 超旗舰基准 |
+| 6 | 2026-08-13 | [DeepSeek Harness v0.1 开发者预览版开源](deepseek-harness.md)（补录） | Agent Harness / 一切皆插件 / MIT 开源 / 可追溯 |
+| 7 | 2026-08-21 | [V4-Flash-Vision-Exp 上线](deepseek-v4-flash-vision-exp.md) | 多模态 API / Files API / 三格式兼容 |
+| 8 | 2026-09-10 | [DeepSeek-V4.1-Flash 发布](deepseek-v4-1-flash.md) | 新架构家族 / 原生多模态 / KV Cache 437× / 超旗舰基准 |
+| 9 | 2026-10-16 | [Search & Fetch API 上线](deepseek-search-fetch-api.md) | 联网检索原语 / 按次计费 / Agent 基础设施 |
+
+> **补录说明**：#6 发布于上次同步锚点（2026-09-10）之前，此前同步未入库，于 2026-10-16 补录；#9 官方无独立新闻稿，发布日期为第三方首报日期（推定）。
 
 > **说明**：mHC、Engram、CSA/HCA、Muon 优化器部分均基于 arXiv 论文原文（2026-07-20 检索），包括 DeepSeek-V4 完整技术报告（arXiv:2606.19348，55+ 页）；定价信息直接来自官方 API 文档，可交叉验证。

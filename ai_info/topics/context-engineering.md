@@ -5,6 +5,7 @@
 - [Effective Context Engineering for AI Agents](../anthropic/engineering/effective-context-engineering-for-ai-agents.md)：从提示工程转向上下文工程的核心文章。
 - [Claude Code Best Practices](../anthropic/engineering/claude-code-best-practices.md)：CLAUDE.md、计划模式、测试循环等编码 Agent 实践。
 - [GPT-4.1 Prompting Guide](../openai/research/gpt-4-1-prompting-guide.md)：OpenAI 侧的提示与指令组织经验。
+- [GPT-6 家族模型选择与实战指南](../openai/research/practical-guide-building-gpt-6.md)：官方选型教育——模型分档（Astra vs Sol/Luna）× reasoning effort × 成本的三维决策树，用 skills 沉淀可复用能力而非在 prompt 里反复贴上下文；GPT-6 家族的复杂度已到"不读指南就选错档"的程度。
 
 ## 检索与记忆
 
@@ -33,6 +34,9 @@
 - [Private AI Compute 新增安全服务器端记忆层](../google/deepmind/private-ai-compute-server-side-memory.md)：云端加密持久记忆——按用户分割的专用加密存储，解锁密钥只保存在用户设备、包括 Google 在内任何第三方无法读取明文；调用时认证端到端加密通道 + 安全区隔离内存短暂解密，把跨设备记忆的隐私从承诺变成密码学架构。
 - [GPT-6 提示词缓存改进](../openai/research/better-prompt-caching-for-gpt-6.md)：缓存作为成本工程——同一前缀 30 分钟窗口内复用、缓存输入折扣最高 90%；显式缓存断点隔离易变内容防整段失效（智能体账单失控的主要根因），诊断工具让缓存命中率从黑盒变成可观测指标。
 - [跨 HF Jobs 的异步 GRPO+LoRA](../huggingface/blog/async-grpo-lora-hfjobs.md)：KV 前缀路由与缓存一致性——本地代理按 KV 前缀路由请求最大化前缀缓存命中，adapter 版本化命名 + 原子重命名防止 vLLM 前缀缓存把新旧权重的 KV 混用；权重热更新场景最易被忽略的正确性坑。
+- [AstaBrief 开源](../huggingface/blog/astabrief.md)：检索增强报告生成的数据工程——"研究问题 + 检索摘录"单次直出带引用的科学报告（全管线 51.1 秒 vs 专有管线 178.5 秒，约 3.5 倍提速）；四个统计过滤器中"引用密度过滤"单独贡献最大增益，SFT + DPO 便宜路线 + 开放权重让机构可在防火墙内自跑敏感课题。
+- [Muse Wonder](../meta/muse-wonder.md)：记忆沉入模型层——Active Memory 跨对话按天/周/月保留用户上下文并在任务需要时主动调取，从图片构建 3D 小游戏、按照片下单、编排婚礼座位表皆依赖它；与 ChatGPT Dreaming、Claude Topics 文件等"应用层记忆"形成"模型内生 vs 外挂管理"两条路线的分野。
+- [EmbeddingGemma 2](../google/deepmind/embeddinggemma-2.md)：端侧多模态嵌入——文本/图像/视频/音频/代码统一映射到同一 768 维向量空间，文本查询可直接匹配相册、视频片段或语音备忘；740M 总参按模态模块化（纯文本只加载 270M），量化后 Pixel 上纯文本约 191MB 活跃内存——独立对比显示多语言 MTEB 落后 Qwen3-Embedding-0.6B，真实定位是"同内存档位最强"而非全面 SOTA。
 
 ## 长视野任务的上下文延续
 
@@ -55,3 +59,4 @@
 - 长时任务上下文管理的关键是"不丢推理"——保留推理 + 摘要续接（compaction）显著优于滚动截断，已在游戏与编码两个域得到验证。
 - prompt cache 从优化技巧变为平台级定价杠杆——GPT-6 缓存输入最高 90% 折扣、30 分钟窗口 + 显式断点，缓存命中率成为智能体运维中可观测、可调参的指标。
 - 跨设备持久记忆开始有了密码学架构参照——Private AI Compute 的"设备持钥 + 按用户分割加密 + 可验证透明度 + 独立审计"，把记忆隐私从厂商承诺变成可审计的系统设计。
+- 记忆从产品功能变为模型机制——Muse Wonder 的 Active Memory 把跨对话上下文的保留与调取写进模型能力，与应用层记忆（Dreaming 主动整理、Topics 可编辑文件）构成并行路线，记忆的可迁移性与可审计性随之成为新问题。

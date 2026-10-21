@@ -1,13 +1,13 @@
 # Meta AI — 核心观点总结
 
-> 汇总 Meta AI 近期重大动态，19 篇文章，涵盖 2025 年 4 月至 2026 年 9 月。
+> 汇总 Meta AI 近期重大动态，22 篇文章，涵盖 2025 年 4 月至 2026 年 10 月。
 
 ## 一、总体脉络
 
 Meta AI 在 2025-2026 年经历了剧烈的战略转变：
 
 ```
-Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark → Brain2Qwerty v2 → SAM 3.1 → Muse Image / Spark 1.1 → Meta AI Agent 化 → Muse Code 编码 Agent → Muse 个人智能体
+Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark → Brain2Qwerty v2 → SAM 3.1 → Muse Image / Spark 1.1 → Meta AI Agent 化 → Muse Code 编码 Agent → Muse 个人智能体 → Connect 2026 全场景 → Muse Wonder 前沿双型号 / Spark Open 门控开放
 ```
 
 从开源旗手到闭源转向，从 Llama 品牌危机到 MSL 重建，Meta 用一年时间完成了 AI 战略的彻底重构。2026 年 6 月底，Meta 又发布 [Brain2Qwerty v2](brain2qwerty-v2.md)——非侵入式脑机接口的端到端 LLM 解码 pipeline，在 Nature Neuroscience 发表并开源全部训练代码与数据集，标志 Meta 在"AI + 神经科学"方向继续深入，与主流 LLM 产品形成"产品 + 科学"双轨。7 月 MSL 进入收获期：[Muse Image](muse-image.md) 图像生成进入 Instagram/WhatsApp 社交生态，[Muse Spark 1.1](muse-spark-1-1.md) 升级"主-子 Agent 编排"并开启 Meta Model API 公测（Meta 首次直接售卖旗舰模型调用），[Meta AI 获得 Agent 化能力](meta-ai-muse-spark-doesnt-just-think-it-acts.md)——定时任务、邮件日历连接、可引导深度研究，官方称"迈向个人超级智能的下一步"。开源侧 [SAM 3.1](sam-3-1.md) 用 Object Multiplex 把 128 目标视频分割推理提速约 7 倍，开源视觉基础模型竞争从精度转向部署效率。8 月 5 日 MSL 发布 [Muse Code](introducing-muse-code-muse-spark-1-2.md)——Meta 首个终端编码 Agent，由新模型 Muse Spark 1.2 驱动，正式加入由 Anthropic（Claude Code）与 OpenAI（Codex）主导的编码 Agent 赛道，差异化在于"模型与 harness 协同训练"和持久化后台 Agent + append-only 事件日志。8 月 10 日 Meta 双线发力：发布 [Muse Glimmer](introducing-muse-glimmer.md)——30B 参数、Apache 2.0 许可的开源端侧 Agent 模型（约 24GB 显存可运行），从闭源旗舰 Muse Spark 1.2 蒸馏而来，时隔 16 个月重返开源；同日 Zuckerberg 发布 [《The Future is for Everyone》](the-future-is-for-everyone.md)——6510 字长文系统阐述"多超智能 + 开源防集中"的 AI 世界观，并宣布 10 亿美元开放模型基金，"理念 + 产品"组合拳直面 OpenAI/Anthropic 的闭源路线。
@@ -77,6 +77,12 @@ Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark
 
 9 月 24 日 Meta Connect 2026 把 Muse 从聊天助手扩展为全场景消费级 AI 系统（发布仅 15 天）：[Meta Connect 2026 汇总](meta-connect-2026.md)——Muse Realtime Voice（长对话中 Agent 后台继续干活、声音可文字描述定制）、经许可的 Mac 控制、专属 email 地址、更多第三方连接器与购物整合，硬件侧预告口袋设备 Muse Charm 并延续 AI 眼镜与 100g 级超轻头显；Muse 上线 12 天移动下载量超 ChatGPT 同期、登顶 App Store。同日 MSL 发布 [Muse Realtime Avatar](muse-realtime-avatar.md)——研究性具身层：Muse Realtime Voice 的一条共享语音 token 流同时驱动音频与视频输出，40 步三向 CFG 教师（120 次求值/块）蒸馏为 2 步因果学生（60× 削减），guidance-aware distribution matching + self-forcing 抗长会话漂移；448×768@25fps、首响约 870ms、单 GB200 12 路并发；盲测偏好率 78% vs Runway Characters、88% vs HeyGen；每帧嵌 Video Seal 水印，无公开 API、仅 Muse 应用（18+）。
 
+### 13. 10 月双轨发布：Muse Wonder 前沿闭源 + Muse Spark Open 门控开放
+
+10 月 12 日 [Muse Wonder](muse-wonder.md) 双型号发布（内部代号 Watermelon，约 10× Muse Spark 算力、千兆瓦级 Prometheus 数据中心训练 14 个月）：距 Spark 1.3 仅 6 周，AA Intelligence Index 52/56（Spark 1.3 为 48），Wonder Full 十项评测六项进前三（Terminal-Bench 4.0 33%→57%、GDPval +176 Elo、Coding Agents Index 68 追平 Claude Code + Sonnet 5.5）；两大机制化能力 Active Memory（跨天/周/月记忆主动调取）与 Active Focus（阻塞恢复、先确认再执行）；幻觉率 33%→23%；API 定价升至 $4/$20，Wonder Full 仅限 Muse Code $50/$200 订阅档。10 月 15 日 [Muse Spark Open](muse-spark-open.md) 兑现开放权重承诺（独立 Open 版而非开放 1.3）：816B/42B MoE、1M 上下文、AA 39 追平 DeepSeek V4.1（"美国最强开放权重"为国内口径），与 Wonder 的 17 分差距即双轨策略本身；Muse Model License 设 $20M MaaS 收入门槛 + 强制署名 + 门控下载表单；Apple 合作 MLX 量化后约 493GB、两台 512GB M5 Ultra Mac Studio 可本地运行，4 机约 $38,000、最高约 36.7 tok/s。
+
+消费侧同期，[Muse 登顶下载榜之后](meta-muse-personal-ai-agents-dazzle.md)（CNBC 10-07）给出 Connect 后首份第三方检验：上线一个月股价 +20%、9 月创 2022 年以来最佳单月，免费 + $20/$100 算力计量订阅浮现，但 IDC 点破"真正的问题在于信任"——Instagram 青少年心理健康州和解案的信任赤字与 Agent 深度数据收集并存，杀手级场景尚未出现，赛道整体处于"先免费看数据、再定价格"试验期。
+
 ## 三、关键数据点
 
 | 指标 | 数值 | 来源 |
@@ -129,6 +135,20 @@ Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark
 | Muse Realtime Avatar 首响延迟 / 帧率 | ~870ms / 25fps（448×768） | 同上 |
 | Muse Realtime Avatar 单 GB200 并发 | 12 路会话（较 2 步 BF16 基线容量 8×） | 同上 |
 | Muse Realtime Avatar 盲测偏好 | 78% vs Runway Characters / 88% vs HeyGen | 同上 |
+| Muse Wonder / Full AA Intelligence Index v4.3 | 52 / 56（Spark 1.3 为 48，间隔仅 6 周） | Muse Wonder |
+| Muse Wonder Full Terminal-Bench 4.0 | 33% → 57%（+24pt，追平 Gemini 4 Argon） | 同上 |
+| Muse Wonder Full Coding Agents Index | 68（追平 Claude Code + Sonnet 5.5 的 68） | 同上 |
+| Muse Wonder 定价（输入/缓存/输出） | $4 / $0.20 / $20 每百万 token（Spark 1.3 为 $1.25/$0.15/$4.25） | 同上 |
+| Muse Wonder 单任务成本 | $4.52（Spark 1.3 $1.60 的 2.8×） | 同上 |
+| Muse Wonder Full 获取门槛 | 仅 Muse Code 订阅（$50 / $200 月档），无按 token 计费 | 同上 |
+| Muse Wonder 幻觉率 | 33% → 23%（45+ 分模型中第二低） | 同上 |
+| Watermelon 项目算力 | 约 10× Muse Spark（千兆瓦级 Prometheus 数据中心） | 同上 |
+| Muse Spark Open 参数 | 816B 总参 / 42B 激活（MoE）、1M 上下文 | Muse Spark Open |
+| Muse Spark Open AA Index | 39（追平 DeepSeek V4.1；GLM 5.3 为 45、Kimi K3 为 44） | 同上 |
+| Muse Model License 商用门槛 | 连续 12 个月 MaaS 收入 $20M + 强制署名 | 同上 |
+| Muse Spark Open 本地部署 | MLX 量化后约 493GB，2×512GB M5 Ultra Mac Studio；4×256GB 约 $38,000、约 36.7 tok/s | 同上 |
+| Muse 上线一个月股价 | 约 +20%，9 月为 2022 年以来最佳单月 | Muse 下载榜（CNBC） |
+| Muse 消费订阅档 | $20 / $100 月（按 Agent 算力用量计量） | 同上 |
 
 ## 四、关键洞察
 
@@ -140,6 +160,8 @@ Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark
 6. **从产品内置到平台售卖**：Meta Model API 公测标志 Meta 加入开发者平台竞争，闭源模型成为直接收入来源
 7. **Agent 化的杀手锏是"时间"维度**：定时任务 + 邮件日历连接让 Meta AI 从应答工具变为持续运行的个人代理
 8. **开源侧转向部署效率**：SAM 3.1 不卷精度卷效率——开源基础模型的差异化正在从"最强"转向"最能跑"
+9. **双轨策略明示化**：Wonder（56）与 Spark Open（39）的 17 分差距是刻意设计——前沿闭源变现、开放权重收生态，"开放"正坍缩为"可下载 + $20M 门槛商用"
+10. **消费级 Agent 的下一关是习惯与信任**：下载榜与股价验证分发优势，但算力计量订阅能否成立取决于留存，而信任赤字（州和解案）是 Meta 独有的额外负担
 
 ## 五、文章索引
 
@@ -164,5 +186,8 @@ Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark
 | 17 | 2026-09-08 | [How We Built Safety Into Muse](security-and-safety-for-ai-agents-our-approach-with-muse.md) | 安全架构 / 凭据代理化 / eBPF 污点出口 / 漏洞赏金 |
 | 18 | 2026-09-24 | [Meta Connect 2026 汇总](meta-connect-2026.md) | 全场景扩张 / Realtime Voice / Mac 控制 / Muse Charm |
 | 19 | 2026-09-24 | [Muse Realtime Avatar](muse-realtime-avatar.md) | 实时具身化身 / 扩散蒸馏 / 870ms |
+| 20 | 2026-10-07 | [Muse 登顶下载榜之后](meta-muse-personal-ai-agents-dazzle.md) | 采用数据 / 留存挑战 / 算力订阅 |
+| 21 | 2026-10-12 | [Muse Wonder](muse-wonder.md) | 前沿双型号 / Active Memory / Active Focus |
+| 22 | 2026-10-15 | [Muse Spark Open](muse-spark-open.md) | 开放权重 / 816B MoE / $20M 许可门槛 |
 
-> **说明**：ai.meta.com 与 research.meta.ai 在首轮检索环境不可达，9 月初四篇经 GIGAZINE 等二手信源与官方推文交叉验证入库；2026-09-09 经 VPN 复核 research.meta.ai 官方列表：08/21–08/31 窗口确认无遗漏，各条目官方 URL 已逐一验证有效，其中"How We Built Safety Into Muse"经官方全文抓取补录。
+> **说明**：ai.meta.com 与 research.meta.ai 在首轮检索环境不可达，9 月初四篇经 GIGAZINE 等二手信源与官方推文交叉验证入库；2026-09-09 经 VPN 复核 research.meta.ai 官方列表：08/21–08/31 窗口确认无遗漏，各条目官方 URL 已逐一验证有效，其中"How We Built Safety Into Muse"经官方全文抓取补录。2026-10-16 检索窗口（09-25 ~ 10-16）：官方域名仍不可达（解析到非公开 IP），10 月三篇经 Artificial Analysis、Forkast、GIGAZINE、CNBC、Engadget/Pakistan Post、搜狐多源交叉验证，官方 URL（research.meta.ai/blog/muse-wonder、/muse-spark-open）均已定位；Watermelon→Wonder 代号关联源自 The Information 报道（经 Forkast 转述）。

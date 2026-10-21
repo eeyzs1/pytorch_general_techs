@@ -1,6 +1,6 @@
 # Google DeepMind — 核心观点总结
 
-> 汇总自 [Google DeepMind Blog](https://deepmind.google/blog/) 与 [DeepMind Institute](https://institute.deepmind.com/) 的 49 篇文章，涵盖 2026 年 3 月至 9 月。
+> 汇总自 [Google DeepMind Blog](https://deepmind.google/blog/) 与 [DeepMind Institute](https://institute.deepmind.com/) 的 57 篇文章，涵盖 2026 年 3 月至 10 月。
 
 ## 一、总体脉络
 
@@ -16,6 +16,8 @@ Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发
 
 9 月中下旬两条主线并进。**实时多模态语音产品线**：[Gemini 3.8 Live 与 Live Extended Thinking](gemini-3-8-live-extended-thinking.md)（9/15）以 82.6 分登顶 Artificial Analysis 语音对话质量指数、约 $1.38/小时（不足 GPT-Live-1 一半）；[Private AI Compute 服务器端记忆层](private-ai-compute-server-side-memory.md)（9/23）用"密文上云、密钥在端、安全区短暂解密"支撑跨设备个人助理；[Live Avatar](gemini-3-8-live-avatar.md)（9/24）与 [3.8 Flash TTS](gemini-3-8-tts.md)（9/24）补齐可视化形象与输出侧，对标 Runway/HeyGen/ElevenLabs。**DeepMind Institute 思想平台上线**（9/16，Legg/Manyika/Hassabis 任董事）同批 8 篇 essay：[代理群体作弊与吹哨](cheaters-and-whistleblowers-in-the-agent-swarm.md)（100 个 Gemini 3.1 Pro 代理虚拟数学会议中发现评分漏洞的信息级联与 24 个吹哨者）、[推理透明性论证](the-case-for-reasoning-transparency.md)（把 CoT 可监控性作为可回归追踪的指标）、[AGI 经济政策](economic-policy-for-agi.md)（按触发器分层的 UI/EITC/NIT/UBC 政策序列）、[Hassabis 前沿 AI 框架](a-framework-for-frontier-ai.md)（仿 FINRA 标准机构设计）、[共生智能](artificial-symbiotic-intelligence.md)、[全球受益论证](the-case-for-global-benefit-from-ai.md)、[新乌托邦主义](principles-for-a-new-utopianism.md)——与 Anthropic Institute 的配速度量、OpenAI 的治理反思同月构成三家"思想机构化"并行。
 
+9 月末至 10 月中旬（本批同步窗口 9/25–10/16，8 篇）进入 Gemini 4 时代与"受限发布"新常态。9/30 三连发：[Gemini 4 Argon 发布](gemini-4-argon.md)（Koray Kavukcuoglu 署名，1M token 输出、19 行对比表领先 13 行，首发仅开放 Fairwind 网络防御者并参与美国政府自愿预发布流程）、[Argon 安全报告](gemini-4-model-safety-security.md)（GCI v1 内部指数显示"75% 代码 AI 写但研发未加速"，公开反驳递归自我改进恐慌）、[SynthID Bio](introducing-synthid-bio.md)（水印进入蛋白质与噬菌体基因组，Nature 发表）。10 月产品与治理双线落地：[EmbeddingGemma 2](embeddinggemma-2.md)（10/6，740M 模块化多模态嵌入、Apache 2.0）、[Argon 全面开放](introducing-gemini-4-argon.md)（10/13，Pro/Ultra 订阅 + Stable API + Antigravity 编码界面入驻 Gemini 应用）、[新加坡端侧反诈模型](on-device-ai-scam-detection-mddi.md)（10/14，Gemma 微调 + 两级端侧流水线）、[欧洲 200 名研究者 RAISE 计划](were-powering-european-scientific-discovery-with-advanced-ai-compute-and-frontier-models.md)（10/14，$3M 云额度 + 五大科学模型）、[Antigravity 抗菌肽搜索](accelerating-antimicrobial-discovery.md)（10/15，研究者驾驶的科学工作台首个深度案例）。
+
 ## 二、核心主题
 
 ### 1. 前沿模型
@@ -29,6 +31,8 @@ Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发
 [Gemini 3.1 Flash TTS](gemini-3-1-flash-tts.md) 是 Google 最自然的 TTS 模型，核心创新"音频标签"把自然语言指令嵌入文本细粒度控制演绎，支持 70+ 语言与原生多说话人对话，Artificial Analysis TTS 榜 Elo 1,211，全部音频内置 SynthID 水印。
 
 [Nano Banana 2 Lite 与 Gemini Omni Flash](start-building-with-nano-banana-2-lite-and-gemini-omni-flash.md)（2026-06-30）是两款面向开发者的生成式媒体模型：Nano Banana 2 Lite 是最快的 Gemini Image 模型（4 秒延迟、约 $0.034 每 1K 图），Gemini Omni Flash 是高质量视频生成与对话式编辑模型（约 $0.10/秒）。两者均已在 Google AI Studio、Gemini API 和 Gemini Enterprise Agent Platform 上线，核心是"创意迭代"——让开发者构建从图像到视频的完整创作管线并维持多轮编辑的上下文一致性，把快速图像生成与视频创作/编辑打通。两者可链式协作形成端到端多媒体体验。
+
+[Gemini 4 Argon 发布](gemini-4-argon.md)（2026-09-30，Gemini 4 系列首款）以 1M token 输出上限（自 64K）与"广度领先"画像入场：Google 19 行对比表 outright 领先 13 行、平 1 行（CWE-bench v1 68% 平 GPT-6 Astra）、落后 5 行（Terminal-Bench 4.0 57.4%、FrontierSWE v2 55.0% 等编码/终端行仍归 Opus 5.5/Astra）；头部成绩 DeepSWE v1.1 77.9%、Vals Index 68.9%、LVBench 91.7%。发布方式本身即产品：首发仅 Fairwind 网络防御者 + 内部团队，参与美国政府自愿预发布流程，漏洞检测 85.8%（3.8 Flash Cyber 为 71.0%）、Wiz 渗透测试 70.9%。[Argon 全面开放](introducing-gemini-4-argon.md)（2026-10-13）两周后完成三连跳：Google AI Pro/Ultra 订阅可用、`gemini-4-argon` 进入 Stable API、Antigravity 编码界面入驻 macOS 版 Gemini 应用并新增后台任务模式；AA 智能指数 53 平 GPT-6 Astra、落后 Opus 5.5 约 5 分；引入期 $2/$10（11-30 后翻倍 $4/$20）。
 
 ### 2. Agent 平台
 
@@ -52,11 +56,19 @@ Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发
 
 [Accelerating the frontiers of scientific discovery: Google's $40M commitment to the Genesis Mission](accelerating-the-frontiers-of-scientific-discovery-googles-40m-commitment-to-the-genesis-mission.md)（2026-07-22）在 DOE Genesis Mission Summit 2026 上宣布向 Genesis Mission 投入 4000 万美元的 AI token 和云额度，支持美国能源部国家实验室科研人员（白宫 2025 年 11 月发起、目标十年内将美国科学发现速度翻倍）。DeepMind 将 AlphaEvolve、AlphaFold 3、AlphaGenome、WeatherNext、AlphaEarth Foundations 五大科研模型及 Gemini for Government 平台提供给 DOE 研究人员，并在 PNNL 和 NLR 等国家实验室取得可量化的效率提升——展示前沿 AI 工具从"论文成果"走向"实验室基础设施"的具体路径。
 
+[Introducing SynthID Bio](introducing-synthid-bio.md)（2026-09-30，Nature 同步发表）把 SynthID 水印扩展到合成生物学：生成氨基酸序列时轻推残基选择、3D 数据微调原子坐标，且功能保持——AlphaProteo + ProteinMPNN 对 VEGF-A、SARS-CoV-2 RBD、PD-L1 三靶点的设计成功率、结合强度与多样性和无水印版本相当；水印亦内置进 AlphaFold 3 扩散网络。与斯坦福、Arc Institute 合作已把水印写入 Evo 2 设计的噬菌体基因组并验证培养功能——"生成即溯源"进入生命科学。
+
+[We're powering European scientific discovery](were-powering-european-scientific-discovery-with-advanced-ai-compute-and-frontier-models.md)（2026-10-14）在都柏林 AI 峰会宣布向最多 200 名欧洲研究者开放五大科学模型 + 300 万美元云额度，挂靠欧委会 RAISE 框架（遴选独立于 Google）——继 DOE（美国）、韩国之后"科学算力外交"的欧洲版本。
+
+[Accelerating the search for antimicrobial peptides with Google Antigravity](accelerating-antimicrobial-discovery.md)（2026-10-15）是科学智能体"人驾工作台"路线的首个深度案例：研究者驾驶 Antigravity 一次会话串联数据库筛选、ProtNLM 功能预测、AlphaFold 结构比对、基因组邻域检查与文献综合，为 S. pseudopneumoniae 优先级化抗菌肽候选（UniProt A0A0U0D591，97aa，Lactococcin 972 家族），现已进入湿实验室验证；同步发布 Biomolecular Structure Viewer（3D 结构人机共驾标注）。文章诚实区分"数据库注释"与"实验证据"，全部活性结论均为预测。
+
 ### 4. 基础设施与开源
 
 [Decoupled DiLoCo](decoupled-diloco.md) 是分布式训练新方法，减少对 GPU 间高速互联的依赖，降低 AI 训练基础设施门槛。
 
 [Gemma 4](gemma-4.md) 定位为"字节对字节最强开源模型"，与 Meta Llama 在开源市场直接竞争。
+
+[EmbeddingGemma 2](embeddinggemma-2.md)（2026-10-06）把开源矩阵补到检索侧：740M 模块化嵌入模型（文本 270M/视觉 170M/音频 300M，Gemma 4 底座、768 维、8K 上下文），文本/图像/视频/音频/代码统一向量空间；量化后 Pixel 11 Pro 纯文本仅约 191MB 活跃内存；MTEB Code 78.68（+10pp）但多语言 61.36 落后 Qwen3-Embedding-0.6B——定位"每 MB 内存最优"而非全面 SOTA；Apache 2.0 去除上代许可门槛。
 
 ### 5. 气候与天气
 
@@ -67,6 +79,8 @@ Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发
 ### 6. AGI 评估与认知框架
 
 [Measuring Progress Toward AGI: A Cognitive Framework](measuring-agi-cognitive-framework.md) 为"我们离 AGI 还有多远"建立实证度量工具：将通用智能解构为 10 种认知能力（感知、生成、注意、学习、记忆、推理、元认知、执行功能、问题解决、社会认知），提出以人类表现为基准的三阶段评估协议；联合 Kaggle 悬赏 20 万美元为评估缺口最大的 5 种能力设计评测。
+
+[Developing Gemini 4 Argon responsibly and safely](gemini-4-model-safety-security.md)（2026-09-30）给"进展速度"之争提供了内部度量：GCI v1 指数融合 123 个模型 × 92 项基准，Gemini 家族增益近线性（约 +0.1 点/月）；尽管 DeepMind 75%+ 生产代码由 AI 编写、AI 发起 PR 从 4 月 7.5% 升至 9 月 11.9%，但约 88% 仍需人类指令、内部研究工程任务自主完成率约一半（预警线 90%）——公开结论"未发现递归自我改进加速"，与 Amodei/Altman 的行业警告相左。三层护栏（拒绝网络/CBRN、Gray Swan 提示注入 0.7% 最低、失准监控中止执行）与 Anthropic 的 pace 度量构成同期镜像。
 
 ### 7. 医疗 AI
 
@@ -99,6 +113,10 @@ Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发
 ### 13. 气候行动与开源生态
 
 [Operation Blue Skies](operation-blue-skies.md)（2026-08-19）是 Google 与英国政府合作的首个国家级 AI 试验：AI 为飞行员选择产生更少凝结尾迹的飞行路线，在 Shanwick 北大西洋空域真实运行——凝结尾迹的变暖效应与航空碳排放相当，AI 以极小燃油代价换取显著气候收益，是"天气预测能力（WeatherNext）转化为气候干预"的标志。[Gemmaverse：Gemma 十亿下载](gemma-one-billion-downloads.md)（2026-08-21）庆祝 Gemma 累计下载突破 10 亿次、开发者构建 10 万+ 变体，覆盖太空任务到医疗健康——与 HF 报告显示的 Qwen 30 亿下载共同勾勒开源模型生态头部格局。
+
+### 14. 端侧 AI 与社会治理
+
+[Google DeepMind 与新加坡政府的端侧反诈模型](on-device-ai-scam-detection-mddi.md)（2026-10-14）是"开放小模型 + 主权数据 + 端侧推理"组合的国家级样板：基于 Gemma 在本地诈骗话术（冒充公共机构/银行/本地人物）上微调，两级流水线（低功耗分类器初筛 → 微调 Gemma 复核大上下文）全程在设备端运行，确认操纵模式即实时告警；训练在 GovTech 托管云内完成、剔除 PII，部署下政府与 Google 均无法读取对话。针对的是新加坡报案犯罪过半为诈骗、2019 年以来损失超 S$4B、社作类占八成的痛疾——National AI Partnership 从"科学开放"（韩国）分化出"治理共建"（新加坡）路线。
 
 ## 三、关键数据点
 
@@ -170,6 +188,24 @@ Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发
 | CoT 透明度上限建议 | 不透明串行深度 ≤ 当前 10 倍（总算力仍可扩 10000×） | Reasoning Transparency |
 | AGI 经济政策分层 | UI 72%/EITC 85% 支持 → NIT 69.8 优于 UBI 51.2 → UBC 后备 | Economic Policy |
 | Hassabis AGI 判断 | "可能只有几年之遥"，影响或达工业革命 10 倍 | Framework for Frontier AI |
+| Gemini 4 Argon 19 行对比表 | 领先 13 / 平 1（CWE-bench 68%）/ 落后 5 | Gemini 4 Argon |
+| Argon DeepSWE v1.1 / Vals Index / LVBench | 77.9% / 68.9% / 91.7% | 同上 |
+| Argon 输出上限 | 1M token（上代 64K；统一上下文 1,048,576） | 同上 / GA 文章 |
+| Argon 漏洞检测 / Wiz 渗透 | 85.8%（3.8 Flash Cyber 71.0%）/ 70.9%（58.2%） | 同上 |
+| Argon 引入期 API 定价 | $2/$10 每 1M（11-30 后 $4/$20；Batch/Flex $1/$5） | Argon GA |
+| Argon AA 智能指数 v4.3.2 | 53（平 GPT-6 Astra，落后 Opus 5.5 约 5 分） | 同上 |
+| Chrome 内部重构规模 | ~600 万行 / 数周完成（原需数月） | 同上 |
+| Gray Swan 间接提示注入攻击成功率 | 0.7%（对比模型最低） | Argon 安全报告 |
+| GCI v1 指数构成 | 123 模型 × 92 基准；~+0.1 点/月；Argon ~3.3 | 同上 |
+| DeepMind AI 生产代码占比 | >75%；AI PR 7.5%→11.9%（4→9 月）；~88% 需人指令 | 同上 |
+| 内部研究工程任务自主完成率 | ~50%（自动化预警线 90%） | 同上 |
+| SynthID Bio 功能保持验证靶点 | 3（VEGF-A / SARS-CoV-2 RBD / PD-L1） | SynthID Bio |
+| EmbeddingGemma 2 参数构成 | 740M = 270M 文本 + 170M 视觉 + 300M 音频（768 维） | EmbeddingGemma 2 |
+| EmbeddingGemma 2 端侧内存（Pixel 11 Pro） | ~191MB 纯文本 / ~567MB 全模态 | 同上 |
+| EmbeddingGemma 2 MTEB Code | 68.76→78.68（+~10pp；多语言 61.36 落后 Qwen3-0.6B） | 同上 |
+| 新加坡诈骗损失 | >S$4B（2019 起）；社作类占 80%；诈骗占报案犯罪过半 | 端侧反诈模型 |
+| 欧洲 RAISE 计划 | 200 名研究者 + $3M 云额度（RAISE 试点 €107M） | 欧洲科学发现 |
+| 抗菌肽候选 | UniProt A0A0U0D591（97aa，Lactococcin 972 家族，湿验证中） | Antigravity 抗菌肽 |
 
 ## 四、贯穿始终的原则
 
@@ -235,3 +271,11 @@ Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发
 | 47 | 2026-09-23 | [Private AI Compute: Server-Side Memory](private-ai-compute-server-side-memory.md) | 机密计算 / 设备持钥 / 跨设备记忆 |
 | 48 | 2026-09-24 | [Gemini 3.8 Live with Live Avatar](gemini-3-8-live-avatar.md) | 实时化身 / 企业白名单 / SynthID |
 | 49 | 2026-09-24 | [Gemini 3.8 Flash TTS & Flash-Lite TTS](gemini-3-8-tts.md) | 语音合成 / 舞台指示 / 声音克隆 |
+| 50 | 2026-09-30 | [Introducing Gemini 4 Argon](gemini-4-argon.md) | 前沿模型 / 1M 输出 / Fairwind 受限发布 |
+| 51 | 2026-09-30 | [Developing Gemini 4 Argon Responsibly and Safely](gemini-4-model-safety-security.md) | 安全报告 / GCI v1 / 失准监控 |
+| 52 | 2026-09-30 | [Introducing SynthID Bio](introducing-synthid-bio.md) | 生物水印 / 功能保持 / Nature |
+| 53 | 2026-10-06 | [EmbeddingGemma 2](embeddinggemma-2.md) | 多模态嵌入 / 端侧 / Apache 2.0 |
+| 54 | 2026-10-13 | [Gemini 4 Argon Is Now Available for Everyone](introducing-gemini-4-argon.md) | 全面开放 / Stable API / Antigravity 入应用 |
+| 55 | 2026-10-14 | [On-Device AI Scam Detection with Singapore](on-device-ai-scam-detection-mddi.md) | 端侧反诈 / Gemma 微调 / 国家合作 |
+| 56 | 2026-10-14 | [Powering European Scientific Discovery (RAISE)](were-powering-european-scientific-discovery-with-advanced-ai-compute-and-frontier-models.md) | 欧洲算力 / 200 研究者 / 五大模型 |
+| 57 | 2026-10-15 | [Accelerating Antimicrobial Peptide Search with Antigravity](accelerating-antimicrobial-discovery.md) | 智能体科学 / 抗菌肽 / 湿验证中 |

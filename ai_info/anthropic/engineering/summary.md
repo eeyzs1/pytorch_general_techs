@@ -1,6 +1,6 @@
 # Anthropic Engineering Blog — 核心观点总结
 
-> 汇总自 [Anthropic Engineering](https://www.anthropic.com/engineering) 与 [claude.com/blog](https://claude.com/blog) 的 61 篇文章，涵盖 2024 年 9 月至 2026 年 9 月。
+> 汇总自 [Anthropic Engineering](https://www.anthropic.com/engineering)、[claude.com/blog](https://claude.com/blog) 与 [claude.dev](https://claude.dev/blog/) 的 72 篇文章，涵盖 2024 年 9 月至 2026 年 10 月（含 5 篇 2026-09-22/28 上次同步遗漏的补录）。
 
 ## 一、总体脉络
 
@@ -19,6 +19,8 @@ Anthropic 的工程博客呈现了一条清晰的技术演进路径：
 8 月中旬起 Anthropic 工程博客进入"企业 Agent 平台化 + 全员采用"爆发期，一周内发布 12 篇新文章。**Agent 构建三件套 GA**：[Computer Use + Skills API + Files API](computer-use-skills-api-files-api.md)（8/20）让开发者构建"能操作软件 + 注入团队经验 + 返回成品文件"的生产级 Agent，新增 browser use tool 按页面结构而非屏幕坐标操作。[Compliance API 覆盖 Cowork 与 Claude Code](compliance-api-cowork-claude-code.md)（8/11）以增量端点把审计能力扩展到 Agent 产品，与推理钩子构成"事前 + 事后"治理闭环。[Claude Cowork 进 Chrome 侧边栏](cowork-chrome-side-panel.md)（8/12）让浏览器内 Agent 任务跨桌面/移动/Web 延续。**全员采用案例**：[monday.com agent-first 重构](monday-com-agent-first-platform.md)（8/20）——25 万公司平台两个月 500 万次 Agent 交互，五条转型经验；[Slack 人机团队](slack-human-agent-teams.md)（8/19）——"工作即对话"的开放频道协作；[ABC Legal 全员构建者](abc-legal-managed-agents.md)（8/17）——1,100 名法律公司员工用 Managed Agents 自建自动化；[JetBrains 评估 Fable 5](jetbrains-evaluates-claude-fable-5.md)（8/13）——私有仓库评估 + 护栏数据保留优先。**内部实践**：[Claude Tag CI/CD 值班](claude-tag-ci-cd-on-call.md)（8/18）——Agent 作为 CI/CD 故障第一响应者；[Claude Tag 自助数据分析](claude-tag-self-service-data-analytics.md)（8/13）——约 95% 准确率的治理一致数据问答。**效率与教学**：[Claude Code 会话价值最大化](maximizing-value-of-claude-code-sessions.md)（8/14）——`/clear`、`/compact`、缓存友好的会话卫生；[创业公司 Claude Code 指南](claude-code-guide-for-startups.md)（8/20）——五条运营原则 + 可量化效率（功能交付 +30%、生产力 2-3 倍）；[Anthropic 教学 AI 方法](anthropics-approach-to-teaching-and-learning-ai.md)（8/20）——Claude Academy 与"增加自主性"的教学哲学。
 
 8 月 21 日至 9 月 8 日工程博客进入新一轮产品化浪潮。**工程方法论**：[AI 原生 SDLC 手册](the-ai-native-sdlc-playbook.md)（8/21）把六阶段生命周期改为闭环、每阶段提交可机读工件（"提交链即审计链"），skills 咨询性控制 + hooks 确定性闸门。**商业 Agent**：[商业 Agent 蓝图](claude-for-commerce-agents.md)（9/2）+ [商业 Agent 解剖指南](the-anatomy-of-effective-commerce-agents.md)（9/2）双文发布——四行业参考实现、购物车 +35%、成交概率 +60%；单 Agent + skills 优于子 Agent、90–99% prompt cache 命中率作为设计目标。**浏览器与记忆**：[Claude in Chrome GA](claude-in-chrome-generally-available.md)（8/26）免逐步确认执行浏览器任务（红队披露：全防线下 Fable 5 注入成功率仅 0.3%）；[Cowork 内置专属浏览器](cowork-built-in-browser.md)（8/26）不碰用户标签页与登录态；[记忆全入口生效](claudes-memory-works-everywhere.md)（8/25）聊天与 Cowork 共享同一份记忆、Topics 可逐条管控。**成本**：[Claude Platform 降本增效](reducing-cost-and-improving-performance-with-claude-platform.md)（9/8）——prompt-audit 迁移实测成本 -14.6% 且准确率 +5.3%。**安全生态**：[Mythos 5 网络能力开放](bringing-claude-mythos-5-to-more-defenders.md)（8/21）进入 Claude Security 公测并设 3500 万美元 Defender Advantage Fund。**案例与生态**：[Warp 自我改进 Agent](how-warp-builds-self-improving-agents.md)（8/26）双技能循环（1000 万次 Claude Code 会话规模验证）；[Bain 加入 Partner Network](bain-company-joins-claude-partner-network.md)（8/25）19,000 人部署、客户项目 30–50% 生产力提升；[Claude for Teachers](claude-for-teachers.md)（8/28）免费 Enterprise 开放美国 K-12 学区；[Anthropic 员工用 Claude Tag](how-anthropic-employees-use-claude-tag.md)（8/28）法务审查从 1 天+ 降至 30 分钟；[市场人员用 Claude Code 发个性化简报](anthropic-field-marketer-claude-code.md)（8/24）非工程师采纳样本。
+
+9 月下旬至 10 月中旬工程博客（含补录）沿三条线并进。**模型用法与成本（补录 5 篇 claude.dev）**：[Opus 5.5 上手指南](getting-the-most-out-of-opus-5-5.md)（09-22，整任务委托 + 终点线 + 被标记时静默降级的应对）、[任务成本解剖](what-a-task-costs-on-opus-5-5.md)（09-25，缓存读占输入成本 90% 权重、企业日均 $13/开发者）、[effort 档位实证](spending-your-effort.md)（09-25，升档救"漏边界用例"救不了"方法错"、推荐"访谈→low 实现→high 验证"循环）、[Sonnet 5.5 集成指南](building-with-claude-sonnet-5-5.md)（09-28，五项破坏性变更与 between_tools 语义）、[评估设计与爬山自动化](automating-eval-design-and-hillclimbing.md)（09-28，train/test 分割防过拟合、客服基准 74.4%/$4.6 → 98.9%/$1.0）。**Claude Code 平台化**：[mods 入门](getting-started-with-claude-code-mods.md)（10-01，JS/TS 钩子链改写行为与 UI）、[云会话田野指南](claude-code-in-the-cloud.md)（10-06，每任务一 VM、GitHub 代理持 token、七类工作流）、[agent 自动化参考实现](building-effective-agent-automations.md)（10-08，书签/台账/确认后记账六条可靠性规则）、[Dashboards 与 Motion](dashboards-and-motion.md)（10-08，Artifacts 从静态文档升级为实时面板与动画）。**agent 尺度基建（本批最重要两篇）**：[重新设计源码管理](redesigning-source-control.md)（10-13，日均合并 2,500→30,000+ 倒逼 7 人 5 个月自研 Scion 替换 git，足迹小 200×、CI 提速两个数量级）与 [Claude Code 团队代码评审](solving-code-review-at-anthropic.md)（10-15，Claude 写 ~90% 代码、合并翻倍回退 -40%，六层防线 + 风险分级审批 + 零人合并边界移动）。
 
 ## 二、七大核心主题
 
@@ -109,6 +111,20 @@ Anthropic 的工程博客呈现了一条清晰的技术演进路径：
 | Warp 规模 | 1000 万次 Claude Code 会话 / 4000 万 Agent 对话 | [Warp 自改进](how-warp-builds-self-improving-agents.md) |
 | Bain 部署规模 / 客户生产力提升 | 19,000 员工 / 30–50% | [Bain 伙伴](bain-company-joins-claude-partner-network.md) |
 | Claude Tag 内部法务审查 | 1 天+ → 30 分钟/件 | [员工用 Claude Tag](how-anthropic-employees-use-claude-tag.md) |
+| monorepo 日均合并（5 月 → 9 月） | 2,500 → 30,000+（12×） | [Redesigning Source Control](redesigning-source-control.md) |
+| Scion 基础设施足迹 / CI 提速 | 比 git 镜像小 200×；checkout 快两个数量级 | 同上 |
+| Scion+Antique 团队 / 周期 | 7 人 / 5 个月（含 monorepo 全量迁移） | 同上 |
+| Claude 写 Claude Code 代码占比 | ~90% | [代码评审之道](solving-code-review-at-anthropic.md) |
+| 6–9 月 PR 与回退变化 | 合并翻倍，回退率 -40%+ | 同上 |
+| 内部 PR 获实质 AI 评审意见占比 | 16% → 54% | 同上 |
+| 人类审批风险分级 | 低风险 0 人 / 中 1 人 / 高 2 人（变更定档非作者） | 同上 |
+| 成本向爬山（44 工单客服基准） | 74.4% / $4.6 每单 → 98.9% / $1.0 每单 | [Eval 爬山](automating-eval-design-and-hillclimbing.md) |
+| Opus 5.5 API 降价 | 输入/输出 -20%、缓存读 -60%（$0.20） | [任务成本](what-a-task-costs-on-opus-5-5.md) |
+| 企业开发者日成本 | 平均 ~$13，90% 用户 < $30 | 同上 |
+| 120K 上下文缓存写 vs 读 | $0.60 一次写 ≈ 25 次读（5 分钟缓存） | 同上 |
+| TB3 净化器任务 effort 增益 | Fable 5.1 从 low 1/5 → xhigh 5/5 | [effort 档位](spending-your-effort.md) |
+| 云会话 VM 规格 | 4 vCPU / 16GB / 30GB；三并行任务 87 秒完成 | [云会话指南](claude-code-in-the-cloud.md) |
+| Agent teams token 消耗 | 约普通会话 7×（plan 模式 teammates） | [任务成本](what-a-task-costs-on-opus-5-5.md) |
 
 ## 四、贯穿始终的原则
 
@@ -186,3 +202,14 @@ Anthropic 的工程博客呈现了一条清晰的技术演进路径：
 | 59 | 2026-09-15 | [Salesforce in Claude](salesforce-in-claude.md) | Claudeforce 双向整合 / CRM 入口 |
 | 60 | 2026-09-16 | [Claude Cowork and Chat Are Now One Claude](cowork-is-now-claude.md) | 产品合并 / 通用 agent / Docs 与 Slides |
 | 61 | 2026-09-23 | [How We Made claude.ai 3x Faster in Two Weeks](how-we-made-claude-ai-faster.md) | Claude Tag 性能冲刺 / CI 棘轮 / 3000+ 变更 |
+| 62 | 2026-09-22 | [Getting the Most out of Opus 5.5](getting-the-most-out-of-opus-5-5.md) | 补录 / 使用指南 / 静默降级应对 |
+| 63 | 2026-09-25 | [What a Task Costs on Opus 5.5](what-a-task-costs-on-opus-5-5.md) | 补录 / 成本工程 / 缓存经济学 |
+| 64 | 2026-09-25 | [Using Claude Code: Spending Your Effort](spending-your-effort.md) | 补录 / effort 档位 / TB3 失败归因 |
+| 65 | 2026-09-28 | [Building with Claude Sonnet 5.5](building-with-claude-sonnet-5-5.md) | 补录 / 集成指南 / 五项破坏性变更 |
+| 66 | 2026-09-28 | [Automating Eval Design and Hillclimbing](automating-eval-design-and-hillclimbing.md) | 补录 / 评估自动化 / 防过拟合 |
+| 67 | 2026-10-01 | [Getting Started with Claude Code Mods](getting-started-with-claude-code-mods.md) | 插件系统 / hooks 链 / 自定义 UI |
+| 68 | 2026-10-06 | [Claude Code in the Cloud](claude-code-in-the-cloud.md) | 云会话 / 每任务一 VM / 七类工作流 |
+| 69 | 2026-10-08 | [Building Effective Agent Automations](building-effective-agent-automations.md) | Managed Agents / 每日简报 / 可靠性规则 |
+| 70 | 2026-10-08 | [Dashboards and Motion](dashboards-and-motion.md) | 产品发布 / 实时仪表盘 / Artifacts 转正 |
+| 71 | 2026-10-13 | [Redesigning Source Control at Anthropic](redesigning-source-control.md) | Scion / agent 尺度基建 / 7 人 5 个月 |
+| 72 | 2026-10-15 | [How the Claude Code Team Does Code Review](solving-code-review-at-anthropic.md) | 六层评审防线 / 风险分级 / 零人合并 |

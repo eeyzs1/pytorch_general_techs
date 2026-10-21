@@ -32,6 +32,8 @@
 - [Introducing ChatGPT for Teens](../openai/research/chatgpt-for-teens.md)：面向 13-17 岁青少年的专门版本——Study Mode 引导学习、家长控制、防情感操控，把 AI 教育从"成年用户培训"延伸到未成年学习场景，与教育插件共同构成 OpenAI 的教育产品矩阵。
 - [GPT-6 Sol 与 Luna](../openai/research/introducing-gpt-6-sol-and-luna.md)：Sol/Luna API 价格减半，OpenAI 宣称 Sol 以约 9% 于 Opus 5 的成本即可胜过后者——补齐 Astra 与 GPT-5.6 之间的档位，把"每美元智能"攻势压向编码 Agent 的单任务成本。
 - [GPT-6 提示词缓存改进](../openai/research/better-prompt-caching-for-gpt-6.md)：缓存输入折扣最高 90%（同一前缀 30 分钟窗口内复用）+ 显式缓存断点与诊断工具——智能体长公共前缀（系统提示 + 工具定义 + 会话历史）的账单结构被重写，与 Sol/Luna 降价同日构成"定价 + 效率"组合拳。
+- [DevDay 2026 Recap](../openai/research/devday-2026-recap.md)：Codex 全家桶更新——Codex Cloud 可复用云端开发环境（手机远程接管、团队共享环境与权限）、CLI 语音对话与 /agents 多 Agent 视图、代码审查（摘要 + diff + 追问）覆盖 GitHub PR 与 GitLab MR、Security Cloud 默认接入 Daybreak Blue；Agents API 补齐 computer use。
+- [Introducing GPT-6.1 Sol](../openai/research/introducing-gpt-6-1-sol.md)：Sol 一周两迭代（GPT-6 Sol → 6.1 Sol）——DeepSWE v1.1 75.22% 反超 Astra、OSWorld 71.42% 接近，API 维持 $2/$10 的 Sol 档（Astra 的 1/5）；Ultrafast 留给高档订阅、near-Astra 能力做成低价 API，能力与速度两个维度分层售卖。
 
 ## Anthropic 线索
 
@@ -48,6 +50,15 @@
 - [Claude Sonnet 5.5](../anthropic/research/claude-sonnet-5-5.md)：Terminal-Bench 4.0 从 10.3% 跃至 70.6%（高于 Opus 5.5 的 66.4%），中/低 effort 档以约 1/10 单任务成本超过 Sonnet 5 最高档——mid-tier 反超自家旗舰，"单位成本吞吐"成为日常 agentic 工作流的默认选型标准。
 - [Cowork is now Claude](../anthropic/engineering/cowork-is-now-claude.md)：Cowork 与聊天合并为一个统一的 Claude，长任务后台执行（合上笔记本继续）、按任务形态自动路由——与 OpenAI 把 Codex 桌面端并入 ChatGPT 呼应，独立 agent 入口集体收回主界面；终端深度编码仍留在 Claude Code。
 - [How we made claude.ai 3x faster](../anthropic/engineering/how-we-made-claude-ai-faster.md)：Claude Tag + 能力约等于 Opus 5.5 的内部模型两周合并 3,000+ 变更、零回滚，核心路径提速 3-5 倍（p75 可输入 3.1s→0.55s、Claude Code 新会话 0.8s→0.3s）——确定性计数器 + CI 棘轮让 agent 在无人监督下持续优化性能。
+- [Claude Haiku 5.5](../anthropic/research/claude-haiku-5-5.md)：编码 subagent 档重新定价——平均运行成本比 Haiku 4.5 低约 75%，GDPval-AA 1620 反超 GPT-6 Luna、OSWorld 2.1 达 72.4%、Terminal-Bench 4.0 从 0% 到 39.2%；首个带 effort 档位的 Haiku，多 agent 架构"主控 Opus + 执行 Haiku"的成本结构优化一个数量级，Sonnet 5.5 缓存读同步减半。
+- [Claude Code in the cloud](../anthropic/engineering/claude-code-in-the-cloud.md)：云会话对垒 Codex Cloud——每任务独立 VM + 新分支 + 环境快照（约 7 天缓存重建），GitHub token 不进 VM（代理持有、VM 内只有短时凭证）、网络走可分级 allowlist 代理；实测三会话 16 秒启动、87 秒完成，`claude --teleport` 把云会话连同对话拉回终端收尾。
+- [Getting started with Claude Code mods](../anthropic/engineering/getting-started-with-claude-code-mods.md)：Claude Code 从可配置工具变可编程平台——mods 以 JS/TS 观察会话事件、改写行为、绘制自定义 UI，Claude Code 自身功能（AGENTS.md 支持、/diff 面板）即以 mod 实现并开源；"对 Claude 描述想要的 mod 当场生成"把扩展开发本身 agent 化。
+- [Barclays scales Claude](../anthropic/research/barclays-scales-claude.md)：受监管巨头的 Claude Code 规模化承诺——2026 年底覆盖 50% 开发者、2027 年过半数软件工程师；知识助手（16,000+ 同事、100 万+ 次搜索）与每日约 12 万封邮件路由先行验证，双人 COO 治理 + 人监督 + 安全控制为强合规行业提供模板。
+- [Getting the most out of Opus 5.5](../anthropic/engineering/getting-the-most-out-of-opus-5-5.md)（历史补录）：Opus 5.5 官方上手指南——整任务一次给全 + 说清"done"标准、删掉"think hard"类提示语（内建思考每轮触发）、设计任务列排除项清单而非说"别太 generic"；首个出厂带 Fable 级防护的 Opus 被拦截会话会静默回退旧模型，识别与切回成为用户必修课。
+- [Building with Claude Sonnet 5.5](../anthropic/engineering/building-with-claude-sonnet-5-5.md)（历史补录）：Sonnet 选型与迁移五坑——规格清晰 + 有验收方式的日常任务选 Sonnet（$2/$10 与 Sonnet 5 持平，省钱来自更少 token），谨慎判断的长视野工作上 Opus；thinking 关不掉只能换 between_tools、tool_choice 改 auto+strict 等破坏性变更逐一拆解。
+- [What a task costs on Opus 5.5](../anthropic/engineering/what-a-task-costs-on-opus-5-5.md)（历史补录）：任务成本的四因子账本——轮次、缓存命中率、输出 token 类型（thinking 是输入价 5 倍/缓存读 100 倍）、模型档；同样 2.8M 输入缓存命中 90% 花 $1.62、0% 花 $11.20，"最便宜的轮次是不需要的那轮"，effort 档位因此主导账单。
+- [Redesigning source control at Anthropic](../anthropic/engineering/redesigning-source-control.md)：agent 规模化倒逼开发基建重造——Claude 写码使日均合并从约 2,500 涨到 30,000+（12 倍），7 人团队五个月自研 Scion 把 monorepo 迁出 git："客户端永远在线"等六原则，足迹比 git 镜像小 200 倍、CI checkout 分钟→秒并释放 25% CPU；Claude 既是瓶颈成因也是五个月建成的原因。
+- [How the Claude Code team does code review](../anthropic/engineering/solving-code-review-at-anthropic.md)：Claude 写了约 90% 代码后的评审重构——评审从"终点闸门"变"全程拼写检查"，六层防线（PR 前自证 → AI 评审多 agent 投票过滤 → 可阻断安全评审 → CI → 风险分级人类审批 → merge queue + 灰度）；风险由变更本身决定、agent 的批准永远不能充当人类名额，PR 翻倍同时回退率降 40%+。
 
 ## 物理 Agent 与跨域延伸
 
@@ -90,3 +101,10 @@
 - 开源 computer-use：[Holo4](../huggingface/blog/holo4.md) 以 27B 开源权重在 OSWorld 2.0 达 61.7%（自引对照 Opus 5.5 的 81.8%），单模型统一 GUI 点击/代码沙盒/MCP/REST 四通道，长 horizon 任务省 65% 工具调用与 79% token——为 Codex 式 computer-use 提供可本地部署、轨迹可审计的开源替代。
 - 会话成本工程成为新战场：prompt cache 最高 90% 折扣（[GPT-6 缓存改进](../openai/research/better-prompt-caching-for-gpt-6.md)）、Claude 会话级 token 优化（`/clear`、effort 前置、`/compact`）、DeepSeek KV Cache 累计压缩 437 倍（[V4.1-Flash](../deepseek/news/deepseek-v4-1-flash.md)）——编码 Agent 的竞争单位从"模型能力"细化为"每会话/每成果成本"。
 - 模型供应变量再起：OpenAI 终止向 Cursor 供应模型后，第三方 IDE 的"模型多源化"需求上升——Codex（OpenAI 全家桶分发）、Claude Code（Opus/Sonnet 5.5 + 自托管会话）、Kimi Code Desktop（开源三层矩阵）三强瓜分编码 Agent 桌面端，模型供应权进入选型清单。
+- 云端执行环境对决：[DevDay](../openai/research/devday-2026-recap.md) 的 Codex Cloud（可复用环境 + 手机接管 + Security Cloud 默认接入）与 [Claude Code 云会话](../anthropic/engineering/claude-code-in-the-cloud.md)（独立 VM + GitHub 代理 + teleport 回终端）同期落地——"每任务一台 VM、以分支交付、手机远程监督"成为编码 Agent 标配；[DeepSeek Harness](../deepseek/news/deepseek-harness.md) 再以 MIT 开源实现加入战局，harness 层从闭源双强走向开源多极。
+- 模型多源化落地：[GLM-5.3 上线 Cursor](../glm/blog/glm-5-3-cursor-cursorbench.md) 以 CursorBench 4.0 开放权重最高分 42.6% 进入全球头部编码工具可选列表（德国 Aleph Alpha 的 Kolibri 亦披露使用 GLM）——OpenAI 断供后 Cursor 的多源需求变为现实，中国开源权重模型开始瓜分编码工具的模型层。
+- 开源产品线再扩：[Kimi Code Desktop v1.1.0](../kimi/blog/kimi-code-desktop-v1-1-0.md) 补齐 Linux 三平台覆盖，并以远程控制（手机/平板接管本机 Agent）+ 回合内进展更新（NotifyUser）强化长任务人机监督；[CLI v2.1.0](../kimi/blog/kimi-code-cli-v2-1-0.md) 的工作区安全加固一日回摆则是默认安全与可用性张力的样本。
+- 新进入者上探：[Muse Wonder](../meta/muse-wonder.md) Coding Agents Index 68 追平 Claude Code + Sonnet 5.5（高于 Opus 5.5 的 66），Terminal-Bench 4.0 从 33% 到 57%；[Muse Spark Open](../meta/muse-spark-open.md) 兑现开放权重预告但以独立 Open 版本落地——816B/42B 激活、$20M MaaS 收入门槛许可，与闭源旗舰 Wonder 相差 17 分，"前沿闭源、开放权重专注 Agent 与编码"成为 Meta 的双轨策略。
+- 工具数据主权纵深：[ZCode 争议后续](../glm/blog/zcode-followup.md) 补齐关键细节——加密私钥只在云端、用户本地无法解密自己的代码索引，行业横向（xAI Grok Build 整库上传、Claude Code Unicode 地域标记、DeepSeek GDPR）显示编码工具的数据边界是系统性问题，"客户端会传什么"从供应商尽调项变为默认审查项。
+- Google 重回牌桌：[Gemini 4 Argon 全面开放](../google/deepmind/introducing-gemini-4-argon.md)——Fairwind 受限发布两周后进入 AI Pro/Ultra 订阅与 Stable API（引入期 $2/$10、11-30 后翻倍），Antigravity 智能体编码界面进入 macOS 版 Gemini 应用并新增"任务模式"；AA 53 分平 GPT-6 Astra、落后 Opus 5.5 约 5 分——"追平第一梯队、未登顶"，编码 Agent 竞争从三强回到四强。
+- 开源生态的 day-0 分发：[HF 欢迎 Muse Spark Open](../huggingface/blog/meta-muse-spark-open.md)——816B/42B 激活 MoE 的架构细节全公开（62 层、256 选 8 专家、1.8B 感知编码器），transformers/vLLM/SGLang/MLX 同日适配；1M 上下文满载 KV cache 约 266GB（BF16）——开源编码 Agent 的部署成本第一次有了精确账本。

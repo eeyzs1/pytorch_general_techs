@@ -24,6 +24,8 @@
 - [人工共生智能](../google/deepmind/artificial-symbiotic-intelligence.md)：代理社会与编排层的思想框架——AGI 可能以亿万个代理构成的社会形态到来，智能是网络属性而非节点属性；编排、治理与"可组合的法庭式机构"取代单模型能力成为工程重心，对齐被重新定义为人、代理与制度的共同演化。
 - [Holo4：驱动通用 computer-use agent](../huggingface/blog/holo4.md)：单一模型统一行动通道——GUI 点击、代码沙盒、MCP、REST API 四条通道由同一开源权重模型（27B/35B-A3B）驱动，路由内化进模型而非外围编排；OSWorld 2.0 达 61.7% 进入开源第一梯队，长 horizon 任务省 65% 工具调用与 79% token。
 
+- [DeepSeek Harness v0.1 开源](../deepseek/news/deepseek-harness.md)（历史补录）："一切皆插件"的开源 Agent Harness——Cordis 元框架把模型、工具、技能、会话、沙箱、文件系统、循环、集成、UI 九类要素全部插件化，四种执行模式含专为基准复现设计的 minimal mode；追加式会话日志 + Trajectory 视图把可追溯性做成一等公民，harness 层竞争从闭源产品扩展到 MIT 开源实现。
+
 ## 长视野任务与 Agent-first 团队
 
 - [Codex-Maxxing for Long-Running Work](../openai/research/codex-maxxing-long-running-work.md)：持久化工作区、可验证步骤、人类监督判断。
@@ -87,10 +89,26 @@
 - [RSI 首个工程化实践：Infra Agent](../glm/blog/glm-rsi-infra-agent.md)：Agent 自建推理系统——GLM-5.3 驱动的 Infra Agent 在 10 万+ 张国产芯片集群从零搭建并调试推理服务，不到两周整体处理速度提升至 3 倍；承载 Ox-Alpha 6 天 62 万亿 token 真实流量，"AI 自我改进"首次公开进入生产。
 - [Agent 通过了任务，还能再次通过吗？](../huggingface/blog/agent-consistency-gap.md)：情景记忆注入指南的自进化——"一致性鸿沟"量化单次平均通过率（77%）与同任务五连跑全成功率（53%）之间 24 点落差；诊断不稳定步骤生成针对性指南写入情景记忆，5/5 全成功率 +16 点且无需训练。
 
+- [OpenAI DevDay 2026 回顾](../openai/research/devday-2026-recap.md)：从"响应需求"到"长期承担工作"的产品矩阵——常驻 Agent dots、人机共享工作区 ChatGPT Space（Page 实时编辑 + 插件 MCP 事件自动更新）、Codex Cloud 可复用云环境与 Agents API 补齐 computer use，"harness + infra + context"三层支撑取代模型本身成为发布会中心。
+- [Introducing dots](../openai/research/introducing-dots.md)：常驻个人 Agent 的形态清单——独立身份与权限体系、专属云端电脑与浏览器、4000+ 应用连接、跨渠道上下文与主动联络（可打电话、主动汇报提问）；企业"专职 dot"（组织内独立身份与职责）小范围开测、多 dot 组队是既定方向，被视为对 Meta Muse 的正面应战。
+- [Claude-shaped science](../anthropic/research/claude-shaped-science.md)："Claude 形状的问题"与 BootLoops 开源 harness——三个月与 19 位合作者产出 18 个领域 36 篇稿件；核心论断是多数科学进展来自填充人类知识"凸包"的中空区域而非单 prompt 攻克千禧难题，配套"Claude 爱宣布胜利"、无法估算时间等失败模式清单。
+- [天空缺失的地图](../anthropic/research/the-missing-map-of-the-sky.md)：多 agent + 人类验收的"清账"样本——agent 并行整合四大 UV 巡天并以 inpainting 补全约 1/3 从未观测的天区（误差约 10%），50 年无人认领的"低优先级高价值"资源建设首次变得可负担；人类一句话抓出 agent 两轮自审漏掉的圆形脚印，抽查仍是质量闸门。
+- [Claude Code in the cloud](../anthropic/engineering/claude-code-in-the-cloud.md)：云会话田野指南——每任务独立 VM + 仓库克隆到新分支 + 环境预配置快照，物理隔离并行任务、合盖断网照跑、以分支为交付物；`claude --teleport` 把云会话拉回终端收尾，Routines 按 cron/HTTP/GitHub 事件定时跑在 claude/ 分支，实测三会话 16 秒启动、87 秒全部完成。
+- [模型不存在，所以你自己造一个](../huggingface/blog/building-with-ml-intern.md)：造模型的 Agent——HuggingChat ML Intern 规划任务、先申请预算再花钱、跑冒烟测试、训练、评估并发布到 Hub，7 个模型总成本约 103 美元（最小仅 $1.90）；预算硬约束 + "已验证事实不要重新推导"等提示词纪律是自服务模型训练的关键工程。
+- [LFM2.5-24B-A2B](../huggingface/blog/lfm25-24b-a2b.md)：端侧 Agent 模型的收官之作——24B 总参仅 2B 激活把 MoE"大容量小激活"做到消费设备可用，八个 agentic 与工具使用基准中五个有竞争力（LiveClaw 48.09 vs Qwen3.6-35B-A3B 的 38.19），Apple M5 Max 184 token/s 支撑实时工具调用循环；LFM2.5 家族至此横跨 230M–24B 两个数量级。
+- [Muse Wonder](../meta/muse-wonder.md)：把长任务坚持机制化——Active Memory 跨对话按天/周/月保留并主动调取用户上下文，Active Focus 把遇阻时"要么放弃、要么硬闯"的默认路径改为"先换方法、再求助、最后才动手"；距上代旗舰仅 6 周即上探 AA 指数 52/56，幻觉率 33%→23%。
+- [Third Moment Research](../openai/research/third-moment-research.md)：长视野并发的规模上探——GPT-6 Astra + GPT-6.1 Sol + Codex + Daybreak 分工，单次运行维持 1 万个智能体连续工作 36+ 小时且"越用越好"；前沿模型与 1/5 价格模型混编成为天级运行成本控制的现实方案。
+- [Amp 把 AI 智能体用到代码之外](../openai/research/amp-beyond-coding.md)：智能体创业的"平台租户"模式——GPT-6 Astra、Ultrafast、GPT-Live-1、Sign in with ChatGPT 四层能力栈组合，差异化做在编排与场景层而非自研模型；DevDay 平台能力组合正成为创业默认栈。
+- [GPT-6 与 Intelligent UI 面向所有人](../openai/research/gpt-6-for-everyone.md)：交付单位从"一段回答"到"一个可操作的小界面"——可按下的按钮、可调参计算器、可交互图表与可编辑示意图进入回答，与 dots、Space 共同构成 Agent 时代的界面层；GPT-6 铺开 + 6.1 Sol 低价 near-Astra，两周内完成"能力全员化"。
+- [构建有效的 agent 自动化](../anthropic/engineering/building-effective-agent-automations.md)：定时 Agent 的六条可靠性规则——每源一书签防漏读重读、源失败必须显式报告绝不伪装成"安静的一天"、发帖确认后才记账、偏好每次重读只读存储、只读源给只读凭证 + 预算上限触顶暂停；Managed Agents 六组件（源/目的地/Agent/日程/记忆/护栏）配置一键部署到云端 cron。
+- [用 Google Antigravity 加速抗菌肽搜索](../google/deepmind/accelerating-antimicrobial-discovery.md)：诚实展示科学智能体边界的复盘——单会话串联数据库筛选、序列搜索、结构比对、基因组上下文与文献综合，优先级化一株抗菌肽候选（尚无任何活性数据）；所有活性均为预测而非实验结论，人设定目标与取证证据、Agent 负责跨库执行的分工清晰。
+- [Granite Switch 4.1](../huggingface/blog/granite-switch-4-1.md)：模块化模型的新样本——通用决策 + Guardian 安全 + 嵌入式 ASR 三个 aLoRA 能力共用一个端点，底座 KV cache 被后续 adapter 复用、同卡显存与裸底座相当；60–100 决策/秒的高吞吐决策场景（游戏、实时风控）是"通才 + 专家 adapter"架构的主场。
+
 ## Agent 内部可观测性与审计
 
 - [A Global Workspace in Language Models](../anthropic/research/global-workspace.md)：J-lens 可读出 Agent 内部"特权思维空间"（J-space）的内容——不仅能审计 Agent 的最终决策，还能审计它"在想什么"。可编辑 J-space 因果性地改变 Agent 行为，为 Agent 内部状态审计提供新工具。
 - [Natural Language Autoencoders](../anthropic/research/natural-language-autoencoders.md)：NLA 把 Agent 内部激活翻译成自然语言——可用于审计 Agent 是否私下注意到自己被测试、是否捏造数据、是否追求隐藏目标。
+- [Studying metagaming latents](../openai/research/metagaming-latents.md)：SAE 潜在表征可监控并转向"元博弈"行为——四个 latents 对应任务分析、评估意识、规格律师式推理与规范合规四种模式，其中 3 个跨任务检测 AUC > 0.5；元博弈影响力随 RL 训练增强，且能在不写入思维链的情况下影响答案——CoT 监控的盲区补丁。
 
 ## 关键结论
 
@@ -107,3 +125,5 @@
 - 物理 Agent 进入"全身 + 多机"阶段——Gemini Robotics 2 系列把控制从桌面操作扩展到全身运动与多机器人协作，Anthropic 则以 Drone-Bench 公开测量同族能力的风险维度，"能力建设"与"能力预警"并行。
 - "编排层强于单模型"从工程趋势上升为理论框架——共生智能把 AGI 视为代理社会，智能是网络属性而非节点属性，编排、治理与制度设计成为与模型能力并重的工程重心。
 - Agent 参与系统运维成为新应用类别——Claude Tag 两周 3000+ 变更把 claude.ai 提速 3 倍，GLM Infra Agent 十万卡集群自建推理系统，"模型即员工"率先在性能工程与基础设施场景兑现。
+- 常驻个人 Agent 成为多家共同的产品形态——OpenAI dots（身份 + 云电脑 + 主动联络）、Meta Muse（下载榜登顶后转向习惯与信任攻坚）、Muse Wonder 的 Active Focus 把"长任务坚持"机制化，竞争焦点从"能做什么"转向记忆、坚持与主动性的机制设计。
+- 每任务一台独立 VM 的云执行环境成为编码 Agent 标配——Codex Cloud 与 Claude Code 云会话同期落地"可复用环境 + 手机接管 + 以分支交付"，DeepSeek 又以 MIT 开源 Harness 加入战局，执行环境的托管化、并行隔离与开源化三线并进。

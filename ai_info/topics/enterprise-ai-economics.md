@@ -9,6 +9,8 @@
 ## 充裕智能与全栈战略
 
 - [Building abundant intelligence](../openai/research/building-abundant-intelligence.md)：OpenAI 经济引擎的系统阐述——"更强智能 → 更广采用 → 更多投资 → 更高智能与效率"飞轮；模型触达 10 亿用户与 200 万家企业；Codex agentic 工作已占内部周输出 token 的 99.8%。
+- [The eternal complement](../openai/research/the-eternal-complement.md)：执行经济学——前沿智能与"把想法变成现实的能力"是经济学互补品，"机构智能"（砌石头的执行层）才是瓶颈：维持摩尔定律所需研究人员已是 1970 年代初的 18 倍、研究生产率却降 41 倍；近期稀缺从执行力转向"品味"，远期或反转——智能越多，执行越贵。
+- [NVIDIA 确认约 129 亿美元收购 Hugging Face](../huggingface/blog/nvidia-hugging-face-ai-acquisition.md)（历史补录）：芯片巨头收购开源分发层——芯片—框架—模型托管全栈闭环，"被 OpenAI Agent 入侵过的公司"两个月后并入 GPU 供给方；黄仁勋承诺保持"整个 AI 生态的开放平台"，其兑现是未来 1–2 年开源生态的最大变量。
 
 ## 落地模式与组织重构
 
@@ -16,6 +18,9 @@
 - [Introducing OpenAI Presence](../openai/research/introducing-openai-presence.md)：企业级 agent 产品——最小权限部署 + 策略/护栏/评估体系；自有电话支持渠道实战验证，75% 来电无需人工，Codex 改进循环 10 天降低人工转接率 15pp。
 - [Proaction 案例](../openai/research/proaction.md)：车队管理 SaaS 组合 Codex + GPT-Live-1 + GPT-6 Astra 覆盖开发-运营-销售全链路——销售提升 60%、节省 75+ 小时（时间节省比销售归因更可信），9 月末"组合级产品 ROI"叙事为企业套餐造势。
 - [ChatGPT 金融版](../openai/research/introducing-chatgpt-financial-services.md)：预置金融数据源 + GPT-6 Astra + 行业合规控制三件套——继 Health in ChatGPT、Astra for Law 之后的垂直行业版，以"打包深度"抬升 ARPU 与切换成本，替代部分自建 RAG 管线投入。
+- [Barclays scales Claude](../anthropic/research/barclays-scales-claude.md)：受监管巨头的规模化模板——Claude Code 承诺 2026 年底覆盖 50% 开发者、2027 年过半数工程师；先在"知识检索 + 邮件路由"（16,000+ 同事、日 12 万封）低风险高吞吐场景验证再推开发者工具，"AI 编码工具采用率"成为可对赌的公开指标。
+- [Atlassian 与 OpenAI 扩大合作](../openai/research/atlassian-partnership.md)：企业知识接地——GPT-6 系列接入 Jira/Confluence 多年沉淀的计划、协作与交付数据，卖点从模型本身转向"模型 + 企业真实工作上下文"；模型能力趋同后，与自有数据资产的连接深度成为企业选型核心变量。
+- [帮助小企业把 AI 用到实处](../openai/research/helping-small-businesses-put-ai-to-work.md)：小企业市场的渠道基建——与 America's SBDC 上千个本地中心合作做动手式 AI 培训，从 8 月的产品打包（ChatGPT for Small Business）推进到"渠道即产品"；同周欧盟篇发布，小企业成为美欧两侧政策叙事与增长引擎的双焦点。
 
 ## 劳动力市场信号
 
@@ -26,6 +31,7 @@
 - [Project Swap](../anthropic/research/project-swap.md)：201 人换书受控实验测出"信任预算"——Agent 谈判不是瓶颈（交易仅贡献与最优配置差距的 15%），偏好表示才是（排名一致率 61%）；参与者平均愿把约 30% 年度图书预算交给 Agent。
 - [经济未来情景浏览器](../anthropic/research/econ-scenarios.md)：O*NET 任务束 + 五维输入映射 2030 年结果，三基准情景——温和（GDP +1.6%）、实质（增速翻倍、GDP 高约 10% 但知识工作者工资不涨）、极端（年增约 15%、每 4.5 年翻番）；4 万余名受访者的典型预期接近"实质"情景。
 - [AGI 经济政策](../google/deepmind/economic-policy-for-agi.md)：11 项候选政策 × 四维评估（51 位经济学家问卷构造 AI 代理评审员）——没有万能药：轻度冲击扩 UI/EITC（民众支持率 72%/85%）、中度置换 EITC 转 NIT（福利分 69.8 优于 UBI 的 51.2）、结构性脱钩才启用 UBC，政策按冲击强度分层、由触发器切换。
+- [What work can robots do?](../anthropic/research/what-work-can-robots-do.md)：机器人暴露度指数——机器人今天已能完成美国 74% 物理任务（占 34% 工时）但仅 0.3% 任务具备成本竞争力，按年降 3% 需约 40 年才能覆盖 10%；机器人 + LLM 合计覆盖约 80% 工时，高暴露人群（无本科比例高 55pp、时薪低约 $30）与 LLM 暴露人群几乎相反——两波自动化冲击的社会分布不同。
 
 ## 价格与成本工程
 
@@ -55,6 +61,14 @@
 - [Kimi K2.8 Preview](../kimi/blog/kimi-k2-8-preview.md)：ARR 从 6 月约 3 亿美元到 8 月突破 10 亿美元（传年底目标 20 亿），9 月初递交港交所 A1（传投前估值 500 亿美元）——编码 Agent 成为国产厂商收入增长与资本化的主引擎。
 - [用 AI 重新想象广告](../openai/research/reimagining-advertising-with-ai.md)：Sponsored Agents 把广告从"被插入的素材"变为品牌赞助智能体直接参与任务流，配套营销工具 + HubSpot/Shopify 集成——对话式广告对搜索关键词竞价模式的正面替代。
 - [ChatGPT Ads 扩张至东南亚与台湾](../openai/research/chatgpt-ads-expands-southeast-asia-taiwan.md)：Sponsored Agents 纲领发布仅一周即地域规模化、可触达 60+ 国家用户——广告引擎从试点转向增量市场，支撑十亿级免费层的变现飞轮。
+- [GPT-6.1 Sol](../openai/research/introducing-gpt-6-1-sol.md)：near-Astra 能力的价格锚——$2/$10 + 缓存输入 $0.1 维持 Sol 档（Astra 的 1/5），编程基准反超旗舰使"旗舰 = 最强"的定价叙事进一步失效；一周内 GPT-6 Sol → 6.1 Sol 两迭代，采购与评测周期被迫跟上"次旗舰季度多刷"的节奏。
+- [Claude Haiku 5.5](../anthropic/research/claude-haiku-5-5.md)：小模型价格再砍约 75%——100k token 分界线定价（≤100k 输入 $0.10）把长上下文滥用的成本内部化，约 90% Haiku 请求受益于极致低价；subagent 经济被重新定价，Sonnet 5.5 缓存读减半再为重度 agentic 工作省约 20%。
+- [GLM-5.3 接入 Amazon Bedrock](../glm/blog/glm-5-3-amazon-bedrock.md)：海外云分成收入通道开启——AWS 按调用量与智谱分成、云厂商承担推理基础设施，国内阿里云百炼/华为云跟进；在国产算力供给约束下把算力支出转化为分成收入，是年末 ARR 指引上调至 30 亿美元的关键新变量。
+- [Muse Spark Open](../meta/muse-spark-open.md)：开放权重的商业化门槛——$20M MaaS 收入触发商业授权 + 署名要求 + 门控下载表单，与 StepFun/Mistral 同收敛于 $20M 量级；"权重可下载 + 商用有条件"成为开放权重新常态，开放版 AA 39 与闭源旗舰 Wonder 的 56 相差 17 分是刻意的双轨策略。
+- [Muse 登顶下载榜之后](../meta/meta-muse-personal-ai-agents-dazzle.md)：消费级 Agent 的变现试验——免费下载 + $20/$100 按算力计量两档订阅把 API 成本逻辑搬进消费级定价；核心问题从获客转向留存（北极星应是"周期性完成的任务数"而非装机量），信任赤字（州和解案 + 深度数据收集）是 Meta 相对 OpenAI/Google 的额外负担。
+- [Asana 浏览器智能体成本降 76 倍](../openai/research/asana-browser-agent.md)：GPT-6.1 Sol 发布十天后的首个工程案例——Codex 托管环境里用 GPT-6 Astra 重构测试本体、日常执行迁到 Sol 档，测试提速 5×、模型成本 ↓76×；"跑不起"的往往是测试与评估层而非产品层，重构一次、便宜一万次。
+- [ChatGPT Ads 新视觉格式与度量](../openai/research/new-chatgpt-ads-format-and-measurement.md)：广告从试水进入规模化建设——原生视觉格式 + 度量工具 + 第三方归因 + 品牌适宜性四件套六周一连击（$1B ARR → 东南亚扩张 → 格式重构），广告主侧的入场清单首次齐备。
+- [Gemini 4 Argon 全面开放](../google/deepmind/introducing-gemini-4-argon.md)：引入期定价的新玩法——$2/$10 + 缓存 95% 折扣至 11-30、此后翻倍至 $4/$20，Batch/Flex 半价；订阅（AI Pro/Ultra）与 Stable API 双通道放量，"先低价抢采用、后提价"把价格锚的时效性本身做成营销事件。
 
 ## 关键结论
 
@@ -66,3 +80,4 @@
 - 价格竞争出现分化：OpenAI 靠效率提升降价，DeepSeek/GLM 靠峰谷结构与积分制提价回收成本——"低价换规模"与"合理定价换可持续"两种成本工程路线并存。
 - 9 月出现"降价与涨价并行"：OpenAI（Sol/Luna 减半）、Anthropic（Opus 5.5 成本 -40%）、DeepSeek（V4.1-Flash 以 Flash 价超旗舰）同步降价，智谱 FlashX 却以 2.5 倍定价出售速度——价格锚从"每 token"转向"每成果/每速度"，效率红利与供给约束同时写进价格表。
 - agent 委托预算成为新度量：Project Swap 测得用户平均愿把约 30% 购书预算交给 Agent（交给爱读书的朋友是 40%），且"AI 复述偏好无误"者委托率高 11 个百分点（34% vs 23%）——"信任预算"把委托经济从概念变成可测量对象，为按成果计价提供需求侧底座。
+- 订阅单位从"模型调用配额"重构为"Agent 服务"——Pro 500 档、Muse 的算力计量订阅、dot 含在订阅内但代跑 Codex 另计费，计费颗粒度转向"常驻服务 + 任务执行"双层；企业侧则出现可对赌的公开采用率承诺（Barclays 50% 开发者覆盖）与云分成收入（GLM-5.3 登陆 Bedrock）两条新商业曲线。

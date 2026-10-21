@@ -1,6 +1,6 @@
 # Hugging Face — 核心观点总结
 
-> 汇总自 [Hugging Face Blog](https://huggingface.co/blog)，当前收录 45 篇文章（2026 年 7 月至 9 月）。
+> 汇总自 [Hugging Face Blog](https://huggingface.co/blog)，当前收录 62 篇文章（2026 年 7 月至 10 月）。
 
 ## 一、总体脉络
 
@@ -19,6 +19,8 @@ Hugging Face 是全球最大的开源 AI 社区和模型托管平台，其博客
 8 月 20 日至 9 月 8 日 HF 博客进入新一轮密集发布，五条线索并进：**检索与编码器**——[LFM2.5-DSpark](lfm25-dspark.md)（8/20）为 LiquidAI 系列发布 ~300M 投机解码 draft 模型（H100 最高 3.18x 加速）；[train-multi-vector-encoder](train-multi-vector-encoder.md)（8/26）补齐多向量嵌入模型的训练/微调方案；[NeoMME](neomme.md)（9/3）用单一双向 Transformer 从零训练多模态多语言编码器，索引压缩 255×。**企业模型**——[Granite 4.2](granite-4-2.md)（8/25）开源首批 dense reasoning 家族（512K 上下文 + 真实沙箱 agentic RL）；[IBM 时序模型上 Confluent](real-time-intelligence.md)（9/2）把 Granite TSFM 嵌入 Flink 流处理。**评估完整性**——[ASR 基准优化测量](asr-benchmark-optimization.md)（8/21）量化"benchmaxxing"（WER 最低的模型最可能复现基准错误参考）；[Open ASR 榜首纳入全球南方语言](open-asr-leaderboard-global-south.md)（8/28）以 4,888 说话人 ×12 属性设计公平性评测；[BenchMIRT](benchmirt.md)（9/1）用多维 IRT 审计 16 个基准实际度量什么。**Agent 记忆与工具**——[funes](funes.md)（9/3）为 Claude Code/Codex/pi/Hermes 建跨 Agent 共享记忆（"记忆是数据集不是服务"）；[gr.Workflow](gradio-workflow-guide.md)（8/25）节点图即画布即 REST API；[@huggingface/kernels](webgpu-kernels.md)（9/1）发布 207 个 WebGPU 内核让浏览器本地推理对比 ORT 几何均值快 2.57×。**小模型训练与量化**——[100 步 GRPO 结构化输出](grpo-with-trl-ifstruct.md)（9/3）用 350M 模型 + 免费 GPU 改进结构化输出；[水彩画 RL](train-to-paint-with-code.md)（9/3）以成对评审 + 人类品味池训练编码模型作画；[Quantization-Aware Healing](quantization-aware-healing.md)（8/25）让 4-bit 模型在 7/9 基准反超全精度原版；[Safety for Whom?](safety-for-whom.md)（9/8）研究精确拒绝主题内不当子集而非整题封禁的安全边界。
 
 9 月 9-29 日窗口 HF 博客再添 13 篇，四条主线：**本地推理栈加速**——[transformers 原生运行 GGUF](transformers-llama-cpp-quants.md)（9/22，经 kernels 库复用 ggml Metal 内核、吞吐接近 llama.cpp）、[oMLX 维护者加入 HF](omlx-joins-hf.md)（9/22，平台方吸纳社区维护者巩固本地 AI 生态）、[tokenizers v1](tokenizers-v1.md)（9/21，单线程快 3-30×、bitcannon 位流 SIMD）、[LFM2.5-VL-DSpark](lfm2-5-vl-dspark.md)（9/24，280M drafter 换 2-3× 提速并诚实标注 Amdahl 限制）。**Agent 工程与评估**——[Holo4](holo4.md)（9/28，开源 computer-use 模型统一 GUI/沙盒/MCP/REST 四通道，省 79% token）、[Agent 一致性鸿沟](agent-consistency-gap.md)（9/15，IBM：单次 77% vs 五连成功 53%，指南注入自进化 +16 点）、[UK AISI × EvalEval 可复现评估](evaleval-aisi.md)（9/22，政府级评估报告标准化）、[分数不是模型](the-score-is-not-the-model.md)（9/9，误差预算：403 错误页被计答错致 +5 分假象）。**训练与压缩研究**——[异步 GRPO+LoRA 跨 HF Jobs](async-grpo-lora-hfjobs.md)（9/10，rank-1 adapter 几 MB 免 NCCL、500 步 3h27m→53m）、[Ising 剪枝](pruning-llms-like-a-physicist.md)（9/21，Hessian 能量代理 + 50% 深度压缩 MMLU +23 分）。**工具链与领域模型**——[Gradio Workflow 重建 A1111](gradio-workflow-1111.md)（9/10，73 节点 9 个 REST 端点）、[NVIDIA MJWarp 机器人仿真](nvidia-mjwarp-robotics-sim.md)（9/23，2048 并行环境 + 确定性执行）、[Granite PatchTST-FM-r2](granite-patchtst-fm-r2.md)（9/9，商用友好许可零样本时序第二 + 训练语料全透明）。
+
+9 月 29 日至 10 月 16 日窗口新增 17 篇（15 篇窗口内 + 2 篇补录），五条主线：**前沿开源模型发布**——[Meta Muse Spark Open](meta-muse-spark-open.md)（10/15，816B-A42B MoE、1M 上下文、agentic 编码定位，"美国最强开源权重"）、[FLUX.3 Image Klein](flux-3.md)（10/15，提示即边界框的布局控制 + 2 秒出图）、[Granite Switch 4.1](granite-switch-4-1.md)（10/15，aLoRA 组合让一个端点同时聊天/决策/听语音）、[LFM2.5-24B-A2B](lfm25-24b-a2b.md)（10/13，24B 总参 2B 激活、笔记本 184 tok/s 的私密端侧 Agent）、[Falcon ASR](falcon-asr.md)（10/7，1.6B 阿拉伯语方言 ASR，六榜平均 WER 20.92%）、[LightOnOCR-3](lightonocr-3.md)（10/8，OCR+版面+图表一个模型，ParseBench 前二）。**Agent 评估方法学**——[ThinkingBox](thinkingbox.md)（10/3，微软×HF：507 个有状态工作流 ×20 次重复，查数据库而非查轨迹，67% 失败表面"干净"）、[ProvenanceGuard](getting-the-source-right.md)（9/29，MCP 答案的逐声明来源验证，138/139 拦截）。**训练数据与算力组织**——[AutoSynthData](autosynthdata.md)（10/2，从模型失败合成企业 Agent 课程）、[Indic 预训练语料](scaling-indic-pretraining.md)（10/16，NVIDIA×AI4Bharat 2.8T token + 开放生成管线）、[ML Intern 造模型](building-with-ml-intern.md)（10/8，7 个模型总花费 $103）、[Ai2 GPU 调度](impactful-scheduling.md)（10/9，预算制+公平分享，p90 排队 2h→30s）。**科学应用**——[HiRO-ACEv2](hiro-acev2.md)（10/14，1/300 成本 3 公里极端天气模拟）、[AstaBrief](astabrief.md)（10/2，51 秒生成带引用科学报告）。**平台与治理变局**——[RL 环境登陆 Hub](rl-environments.md)（9/28 补录，环境=带标签的数据集）、[Open TTS Leaderboard](open-tts-leaderboard.md)（9/30，客观指标把评估从数周压到数小时）、[NVIDIA 收购 HF](nvidia-hugging-face-ai-acquisition.md)（9/3 补录，官方确认 $12.93B，黄仁勋承诺保持开放平台）。
 
 ## 二、核心主题
 
@@ -92,6 +94,10 @@ HF 的响应成为防御范式样板：用自有开源模型完成检测、遏�
 
 [funes](funes.md)（2026-09-03）是 HF 开源的单二进制跨 Agent 记忆层：为 Claude Code / Codex / pi / Hermes 建共享记忆（Lance 数据集 + 向量/BM25 融合 + cross-encoder 重排），"记忆是数据集不是服务"——同步为用户自有的 HF 私有数据集、发布前凭据脱敏；handoff-vs-recall 基准显示 recall 比 handoff 便宜 8×/4×，compaction 在某些任务上彻底失败。[gr.Workflow](gradio-workflow-guide.md)（2026-08-25）把 typed 节点图同时渲染为拖拽画布与 REST API（每输出一端点），一键部署 Spaces；三类节点 × 四种 operator（函数 / Inference Providers 模型 / Space / 数据集行），配 ZeroGPU 跑自有 GPU 模型。[@huggingface/kernels](webgpu-kernels.md)（2026-09-01）以 Apache-2.0 发布 207 个版本化 WebGPU 内核（manifest/test/bench/WGSL 模板齐全）：对比 ORT WebGPU 809 个用例几何均值 2.57×、中位 1.90×，极端案例 Einsum 超 10,000×（0.136ms vs 1,396ms）——浏览器本地 AI 推理的性能基座。[Quantization-Aware Healing](quantization-aware-healing.md)（2026-08-25）反直觉地用"压缩前原始全精度模型"（而非恢复后 checkpoint）做蒸馏 teacher：GPT-OSS 120B→60B→MXFP4 链条上 9 基准中 7 个超过自家 bf16，比 QAT 快 7 倍达峰且不漂移，4-bit 权重内存省约 4 倍。
 
+### 13. 2026 年 10 月窗口：前沿开源模型、状态验证与平台变局
+
+[Muse Spark Open](meta-muse-spark-open.md)（2026-10-15）是 Meta 经 HF 分发的 816B 总参/42B 激活 MoE：256 专家选 8（专家占约 97% 参数）、GQA+QK-norm+可学习残差门、1.8B 感知编码器 + 80ms/token 音频编码器、1M 上下文（满窗 KV 缓存 BF16 约 266GB）；BF16 权重约 1.5TB，NVFP4 版单 B200 节点可跑；transformers/llama.cpp/vLLM/SGLang/MLX day-0 全支持，agentic 编码训练定位。[FLUX.3 Image Klein](flux-3.md)（2026-10-15）把布局控制做进提示词：JSON 边界框（0-1000、y 先）+ 区域描述，编辑模式用 src_bbox/tgt_bbox 搬移内容；蒸馏版 H100 上 1024² 约 2 秒、16 步无 CFG，以 Modular Diffusers 管线发布可拆块复用 latent。[Granite Switch 4.1](granite-switch-4-1.md)（2026-10-15）用 Activated LoRA 的 KV cache 复用把"聊天+决策+语音"装进一个端点：显存≈裸底座，Guardian aLoRA 平均超 Jev 1.13 等决策模型，内嵌 OpenASR 榜最快 ASR；3B 定制版玩 Doom 达 60-100 决策/秒（Jev 报告 10）。[LFM2.5-24B-A2B](lfm25-24b-a2b.md)（2026-10-13）以 2B 激活换 24B 容量：M5 Max 184 tok/s、B300 21K tok/s，LiveClaw 48.09 大幅超 Qwen3.6-35B-A3B（38.19）。[ThinkingBox](thinkingbox.md)（2026-10-03）是评估方法学的分水岭：507 个有状态企业工作流 ×20 次重复，只查终态数据库与副作用——12 模型 121,680 次试验中 79,853 次失败，其中 67.24% 表面"干净"；Opus 5.5 pass@1 67.16% 领先，但 20 连幸存率仅三家超 70%（GPT-6 Astra 78%、Opus 5.5/5 各 71%），GLM-5.1/Kimi-K2.6/DeepSeek-V4-Pro 仅约 8%；开源最强 Kimi-K3 57.37% 与 GPT-6 Astra 差距不足 1 分。[AutoSynthData](autosynthdata.md)（2026-10-02）把目标模型失败蒸馏成"能力规格卡"再生成 Target+Multiply 两阶段任务（倍增样本不可再倍增防漂移）；[Indic 语料](scaling-indic-pretraining.md)（2026-10-16）用 NeMo Data Designer 走"翻译→MQM rubric 评分（≥75/100）→修复"回收 438.4B token，Nemotron 3.5 五个 Indic 基准 +4.98~9.82 pp。[HiRO-ACEv2](hiro-acev2.md)（2026-10-14）以 1/300 成本生成全球 3km 气候数据、极值统计误差 <3%。平台侧：[RL 环境登陆 Hub](rl-environments.md)（9/28 补录）宣布"环境=带 rl-environment 标签的数据集"，harbor/verifiers/openenv/nemo-gym 四框架标签互通；[Open TTS Leaderboard](open-tts-leaderboard.md)（9/30）用 WER/RTFx/TTFA/SIM 客观指标评估 8K+ TTS 模型生态；而最重要的变量是 [NVIDIA 以 $12.93B 收购 HF](nvidia-hugging-face-ai-acquisition.md)（9/3 补录，官方确认）——开源生态最大分发枢纽并入芯片巨头，"保持开放平台"承诺进入观察期。
+
 ## 三、关键数据点
 
 | 指标 | 数值 | 来源 |
@@ -143,6 +149,28 @@ HF 的响应成为防御范式样板：用自有开源模型完成检测、遏�
 | funes recall vs handoff 成本 | 便宜 8× / 4× | funes |
 | IBM Granite TSFM 下载量 | 44M+ | real-time-intelligence |
 | Safety for Whom 过拒绝修复 | 32.94% → 4.16%（有害拒答 91.88%→87.72%） | safety-for-whom |
+| Muse Spark Open 总参/激活/上下文 | 816B / 42B / 1M（256 专家选 8） | meta-muse-spark-open |
+| Muse Spark Open BF16 权重 / NVFP4 部署 | ~1.5TB / 单 B200 节点（BF16 需 4×8 H200） | meta-muse-spark-open |
+| 满窗 1M token KV 缓存（BF16） | ~266GB（~250KB/token） | meta-muse-spark-open |
+| FLUX.3 蒸馏版出图 | 1024×1024 约 2 秒（H100，16 步无 CFG） | flux-3 |
+| FLUX.3 grounding 模式 token 开销 | 比 Chandra-2/Infinity-Parser2-Pro 少 9-14% | lightonocr-3 同法对比 |
+| Granite Switch 4.1 Doom 决策吞吐 | 60-100 决策/秒（Jev 报告 10） | granite-switch-4-1 |
+| LFM2.5-24B-A2B 端侧/服务端速度 | 184 tok/s（M5 Max）/ 21K tok/s（B300） | lfm25-24b-a2b |
+| LFM2.5-24B-A2B LiveClaw | 48.09 vs Qwen3.6-35B-A3B 38.19 | lfm25-24b-a2b |
+| ThinkingBox 规模 | 507 工作流 × 20 次 × 12 模型 = 121,680 次试验 | thinkingbox |
+| ThinkingBox"表面干净"的失败 | 67.24%（错误字段 77.61% / 多余副作用 43.30%） | thinkingbox |
+| ThinkingBox pass@1 / 20 连幸存率冠军 | Opus 5.5 67.16% / GPT-6 Astra 78% | thinkingbox |
+| ProvenanceGuard 拦截 | 138/139 专家否决声明被拦（F1 0.802） | getting-the-source-right |
+| AstaBrief 报告生成时间 | 51.1 秒 vs Thinking mode 178.5 秒（~3.5×） | astabrief |
+| ML Intern 七模型总成本 | ~$103（最便宜 $1.90 三倍准确率） | building-with-ml-intern |
+| Ai2 调度：机时兑现 / 占用 | 98% / 98%（p90 调试排队 2h→30s） | impactful-scheduling |
+| Indic 语料规模 / 修复回收 | 2.8T token（22 语言）/ 438.4B token | scaling-indic-pretraining |
+| Indic CPT 基准增益 | 五基准 +4.98~9.82 pp | scaling-indic-pretraining |
+| HiRO-ACEv2 成本 / 极值误差 | X-SHiELD 的 1/300 / 统计量误差 <3% | hiro-acev2 |
+| Falcon ASR 阿拉伯语 / 英语 WER | 20.92%（六榜平均）/ 5.74% | falcon-asr |
+| LightOnOCR-3 ParseBench | 4B 75.1、0.8B 74.6 包揽前二（Infinity Parser Pro 74.3） | lightonocr-3 |
+| NVIDIA 收购 HF | $12.93B（2026-09-03 官宣） | nvidia-hugging-face-ai-acquisition |
+| Hub TTS 模型数（2026-09-30） | 8,000+ | open-tts-leaderboard |
 
 ## 四、与商业厂商的对比
 
@@ -212,5 +240,24 @@ HF 的响应成为防御范式样板：用自有开源模型完成检测、遏�
 | 43 | 2026-09-23 | [NVIDIA Warp & MjWarp Robotics Simulation](nvidia-mjwarp-robotics-sim.md) | GPU 批量仿真 / 2048 环境 / 确定性执行 |
 | 44 | 2026-09-24 | [Accelerating VLMs with LFM2.5-VL-DSpark](lfm2-5-vl-dspark.md) | VLM 投机解码 / Amdahl 限制 |
 | 45 | 2026-09-28 | [Holo4: Powering Generalist Computer-Use Agents](holo4.md) | 开源 computer-use / 四通道 / 轨迹开源 |
+| 46 | 2026-09-03 | [Nvidia 收购 Hugging Face（补录）](nvidia-hugging-face-ai-acquisition.md) | 收购 / NVIDIA / 开源平台治理 |
+| 47 | 2026-09-28 | [Welcome RL Environments to the hub（补录）](rl-environments.md) | RL 环境 / Hub 数据集标签 / 四框架互通 |
+| 48 | 2026-09-29 | [ProvenanceGuard: Source-Aware Verification for MCP Agents](getting-the-source-right.md) | MCP 溯源验证 / 跨源混淆 / NLI |
+| 49 | 2026-09-30 | [Open TTS Leaderboard](open-tts-leaderboard.md) | TTS 评估 / 客观指标 / 流式 TTFA |
+| 50 | 2026-10-02 | [AutoSynthData: Training Data for Enterprise Agents](autosynthdata.md) | 合成课程 / 企业 Agent / 验证器 |
+| 51 | 2026-10-02 | [Open-sourcing AstaBrief](astabrief.md) | 科学报告 / 引用归因 / SFT+DPO |
+| 52 | 2026-10-03 | [The Agent Said It Was Done. The Database Disagreed.](thinkingbox.md) | 状态验证 / 20 连一致性 / 微软×HF |
+| 53 | 2026-10-07 | [Introducing Falcon ASR](falcon-asr.md) | 阿拉伯语 ASR / 方言 / TII |
+| 54 | 2026-10-08 | [The model that didn't exist, so you made it yourself](building-with-ml-intern.md) | ML Intern / $103 造 7 模型 / 委托工程 |
+| 55 | 2026-10-08 | [LightOnOCR-3](lightonocr-3.md) | OCR+版面一体 / ParseBench 前二 / Apache2 |
+| 56 | 2026-10-09 | [Impactful scheduling for GPU clusters](impactful-scheduling.md) | GPU 调度 / 预算制 / 公平分享 |
+| 57 | 2026-10-13 | [LFM2.5-24B-A2B](lfm25-24b-a2b.md) | 端侧 Agent / 24B-A2B / 184 tok/s |
+| 58 | 2026-10-14 | [HiRO-ACEv2](hiro-acev2.md) | 气候模拟 / 3km 降尺度 / 1/300 成本 |
+| 59 | 2026-10-15 | [Granite Switch 4.1](granite-switch-4-1.md) | aLoRA 组合端点 / 决策+语音 / IBM |
+| 60 | 2026-10-15 | [Welcome Muse Spark Open](meta-muse-spark-open.md) | 816B-A42B MoE / 1M 上下文 / Meta |
+| 61 | 2026-10-15 | [Welcome FLUX.3 Image Klein in Diffusers](flux-3.md) | 文生图 / 布局控制 / 2 秒出图 |
+| 62 | 2026-10-16 | [Scaling Indic Pretraining](scaling-indic-pretraining.md) | 2.8T token 语料 / 22 语言 / 开放管线 |
 
 > **说明**：本次同步（2026-08-01）补齐 Hugging Face 博客常规列表中的 7 篇文章；2026-08-08 新增 3 篇共 11 篇；2026-08-21 新增 5 篇共 16 篇。2026-09-09 同步新增 16 篇（8/20–9/8）共 32 篇。本批 huggingface.co 官方域名直连失败，正文经 hf-mirror.com 镜像获取（内容与官方同步，仅域名不同），URL 已还原为官方域名。后续同步将继续追踪 HF 博客列表与社区动态。
+>
+> **2026-10-16 同步**：新增 17 篇共 62 篇（窗口 2026-09-29 至 10-16 共 15 篇 + 补录 2 篇：9/28 同日漏收的 RL Environments、9/3 NVIDIA 收购官方确认综述）。信源枚举以 sitemap-blog.xml + RSS 交叉验证——官方 RSS 不仅遗漏 Community 文章，也遗漏部分组织文章（如 Ai2 的 impactful-scheduling/astabrief、LightOnOCR-3），Community 区需单独翻页核查。huggingface.co 官方域名本批依旧 fetch failed，全部经 hf-mirror.com 镜像抓取后还原官方 URL；LiquidAI lfm25-24b-a2b 因点赞者头像过长三次截断，内容经 liquid.ai 官方博客与多方报道补全。锚点前仍有约 20 篇历史漏网（详见 sync-report 待补清单），下批按主题优先级分批补齐。

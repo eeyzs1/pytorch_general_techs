@@ -23,12 +23,15 @@
 - [Holo4：驱动通用 computer-use agent](../huggingface/blog/holo4.md)：四通道统一——GUI 点击、代码沙盒、MCP、REST API 由同一开源权重模型驱动，环境覆盖桌面、浏览器、Android 与终端；Agentic Task Factory 从软件文档与截图合成约 1 万个可自动验证任务，部分任务暴露 GUI/MCP 双路径训练模型"择路"。
 - [Kimi Code Desktop 正式发布](../kimi/blog/kimi-code-desktop.md)：内置浏览器与终端工具——浏览器支持截图标注、划词评论、@文件与元素点选，内置终端让命令执行不离开应用；审阅粒度到文件与页面元素，三档权限控制调节自主程度。
 - [Muse Realtime Avatar](../meta/muse-realtime-avatar.md)：共享 token 流驱动双输出——一条语音 token 流同时驱动音频解码器与视频生成器，口型、韵律与表情天然对齐、无需后处理对齐管线；guidance-aware 蒸馏 + self-forcing 把交互式化身压进 870ms 首响预算。
+- [OpenAI DevDay 2026 回顾](../openai/research/devday-2026-recap.md)：工具生态的平台化整编——插件重做创建/提交/发现流程并统一目录、新增 MCP 事件触发（外部事件驱动 Agent 自动更新 Page）、Agents API 补齐 computer use，Sign in with ChatGPT 与 Decisions API（Luna 实时分类/路由判断）把"登录与决策"也变成可调用能力。
+- [DeepSeek Search & Fetch API](../deepseek/news/deepseek-search-fetch-api.md)：联网检索成为模型 API 原语——Search 返回 snippet/summary/rerank_score/authority 分层结构（面向 UI 与模型双读者），Fetch 网页转 Markdown 直接入上下文；按成功请求计费（各 $0.75/千次、失败不计费），Claude Code/Codex 发起的搜索首两周免费，Agent 的"检索—抓取—推理"闭环不再依赖第三方搜索服务。
 
 ## 协议与标准
 
 - [The 2026-07-28 MCP Specification](../community/specification/mcp-2026-07-28-specification.md)：MCP 问世以来最大修订——无状态协议核心（移除 initialize 握手，每请求自描述，普通负载均衡即可水平扩展）、MRTR 多轮往返替代长连接 elicitation、HTTP 头部路由（网关/WAF 无需解析 JSON body 即可鉴权）、可缓存列表响应（ttlMs + cacheScope 保持 prompt cache 跨重连稳定）、OAuth 授权加固（RFC 9207 iss 校验 + localhost 重定向 + 凭据绑定签发方）；Tasks 移入扩展框架，Roots/Sampling/Logging 进入弃用期。
 - [MCP 新路线图：Agent 消息原语与统一传输](../community/specification/mcp-roadmap.md)：下一程五大优先领域——Agent 消息原语（服务器发起事件免轮询）、HTTP 原生传输统一（本地服务器也走 Streamable HTTP）、Agent 身份与企业安全（DPoP、Workload Identity Federation、ID-JAG）、改进原语（统一 tools/call 结果契约 + 渐进式发现）、SDK 开发者体验。
 - [MCP 官方 Ruby SDK 达到 1.0](../community/blog/ruby-sdk-1-0.md)：SDK 分级体系与 100% 一致性——服务端与客户端一致性测试场景全部通过，满足 Tier 2 全部要求并朝 Tier 1 推进；HTTP 传输即标准 Rack 应用，Rails 加一条路由即可挂载 MCP 服务器，SDK 成熟度成为可比较的工程指标。
+- [ProvenanceGuard](../huggingface/blog/getting-the-source-right.md)：MCP Agent 的来源感知验证——针对"跨源混淆"（事实为真但归因到错误来源）的后置验证层：分解声明 → 路由来源 → NLI 核对归因，医学 Agent 实测对不该通过的 139 条声明拦截 138 条；唯一输出"声明 → 来源"映射的验证器（拦截 F1 0.802），纯本地小模型即可叠加在黑盒 Agent 之上。
 
 ## 工具组合与垂直化
 
@@ -48,6 +51,7 @@
 - [GLM-ASR-Nano：高鲁棒性语音识别](../glm/blog/glm-asr-nano.md)：语音输入侧专用工具（历史补录）——1.5B 参数取得开源最低平均错误率 4.10（Whisper V3 为 6.93），方言、中英同句混说、耳语音量、嘈杂环境与自定义热词直击真实"不完美语音"；智谱 AI 输入法为首个生产部署。
 - [Gemini 3.8 Flash TTS 与 Flash-Lite TTS 发布](../google/deepmind/gemini-3-8-tts.md)：语音输出工具从"可导演"到"可选角"——单行舞台指示精细控制语气、单一脚本生成双说话人对话、凭文字描述合成新声音或 30 秒样本克隆，覆盖 100+ 语言；与 3.8 Live、Live Avatar 同月拼齐实时语音全栈。
 - [刚果埃博拉响应中的 Claude](../anthropic/research/ebola-response.md)：Skill 汇总疫情数据——WHO AFRO 用 Claude Skill 自动汇总各区 PowerPoint 疫情数据、与前一日对比并解释趋势，把一整天的 sitrep 压缩到 1 小时以内；领域工作流"技能化"交付的高风险场景样本。
+- [LightOnOCR-3](../huggingface/blog/lightonocr-3.md)：文档解析垂直工具的多合一化——单模型同时输出转录、归一化边界框、图像描述与图表 HTML 表格，替代"OCR + 版面分析 + 图表抽取"三段管线且输出 token 平均少 9–14%；4B 综合 86.3 仅落后 35B 的 Infinity Parser Pro 1.3 分，按文档类型选 0.8B/1B/4B 是可行策略。
 
 ## 网络安全与安全工具
 
@@ -56,6 +60,7 @@
 - [Mapping AI-enabled Cyber Threats: Insights from the LLM ATT&CK Navigator](../anthropic/research/attack-navigator.md)：ARiES 风险评分工具 + MITRE ATT&CK 框架扩展到 AI Agent 编排。
 - [Measuring LLMs' Impact on N-day Exploits](../anthropic/research/n-days.md)：Mythos Preview 自动构建完整 exploit 工具链——N-day 利用从手工走向工业化。
 - [Inference hooks: inline DLP for Claude Enterprise](../anthropic/engineering/claude-enterprise-inference-hooks.md)：DLP 集成作为安全工具——签名 WebSocket 把工具调用响应在返回模型前先经检查；支持 shadow mode、基于角色的排除、百分比灰度发布，可与 Netskope/Palo Alto/Zscaler 等现有 DLP 服务器集成。
+- [Launching an opt-in vulnerability-finding service for open-source software](../anthropic/research/launching-opt-in-vuln-finding-service-for-open-source.md)：安全披露经济学的范式实验——六个月 29,000+ 候选漏洞人工只能消化约 6,000 个，OSS Scanner 以"零人工审查"换取扫描速度与频率，报告直发 opt-in 维护者；专家复核 97 个严重/高危发现 88% 达 CVD 披露标准，模型报告的信号噪声比已可承受。
 
 ## 跨域工具
 
@@ -80,3 +85,4 @@
 - 垂直工具（化学/生物/安全）比通用工具更专业——把领域工具作为 ACI 一部分，模型才能在该领域达到专家级。
 - MCP 把"百级工具列表导致选择退化"列为协议层优先项——渐进式发现与统一 tools/call 结果契约进入路线图，与模型侧工具搜索（Anthropic Advanced Tool Use）双轨并行，上下文工程问题上升为协议特性。
 - 行动通道向"单模型多通道"与"语音即接口"收敛——Holo4 用单一模型统一 GUI/沙盒/MCP/REST 四通道，GPT-Live-1 与 Muse Realtime Avatar 把语音与化身纳入工具调用界面，外围两套技能栈的维护开始被内化进模型。
+- 联网检索正从外挂服务收编为平台原生工具层——DeepSeek 把 Search/Fetch 做成按成功请求计费的 API 原语，OpenAI 插件目录新增 MCP 事件触发让工具反向主动驱动 Agent，工具生态的"平台化"与"协议化"两条线在同一个窗口交汇。
