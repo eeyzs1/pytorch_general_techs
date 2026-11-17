@@ -76,6 +76,12 @@
 - [The Multimodal Intelligence of Muse Spark 1.2](../meta/multimodal-intelligence-muse-spark-1-2.md)：工具增强的多模态推理——多模态增益在模型可调用工具时最显著，视觉检查 → 工具调用 → 推理的闭环让视频可直接转化为可运行代码产物。
 - [NVIDIA Warp 与 MjWarp 加速机器人仿真](../huggingface/blog/nvidia-mjwarp-robotics-sim.md)：GPU 批量仿真 + 确定性执行——SO-101 机械臂仿真从 MuJoCo CPU 单环境扩展到 2048 个并行环境，优化目标从"单个世界跑多快"变成"同时能跑多少个世界"；1.15 确定性执行模式让 GPU 原子操作可复现，用少量性能换可信的回归测试。
 
+## 2026-11 工具与决策接口
+
+- [DeepSeek 1017 与搜索公告](../deepseek/news/news261017.md)、[应用 API](../deepseek/news/news261113.md)：区分独立检索原语、模型内置工具和应用编排责任。
+- [Decision Models](../huggingface/blog/decision.md)：直接评估应用定义的候选项，和生成式 JSON 输出具有不同接口与计算方式。
+- [Muse Ember](../meta/muse-ember.md)：面向大量重复工具与执行子任务，需在实际 harness 中评估。
+
 ## 关键结论
 
 - 工具描述就是 Agent-Computer Interface，应该像给新员工写操作手册。

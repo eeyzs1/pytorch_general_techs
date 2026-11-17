@@ -70,6 +70,14 @@
 - [Automating eval design and hillclimbing](../anthropic/engineering/automating-eval-design-and-hillclimbing.md)：评估设计与爬山优化装进 skill——好评估四要素（镜像生产分布、更强模型应更好、前沿有及格余量、轮间方差低）；反采样警告深刻：按"今天模型失败"挑案例是在采样能力曲面谷底，测到的是失败指纹而非任务难度；每轮一个可归因改动 + train/test 分割防过拟合。
 - [Gemini 4 Argon 发布](../google/deepmind/gemini-4-argon.md)：广度领先而非全面登顶的样本——自家 19 行对比表领先 13 行、落后 5 行（FrontierSWE v2 55.0% vs Astra 65.5%、Terminal-Bench 4.0 57.4% vs Opus 5.5 66.4%），DeepSWE v1.1 77.9% 与 Harvey 法律 Agent 19.6%（次名 6.7%）为头部；输出上限 64K→1M token 让单次轨迹可承载数十万 token 深度推理。
 
+## 2026-11 评估证据与范围
+
+- [构建安全评估](../anthropic/engineering/building-strong-safety-evaluations.md)：构念、场景、运行和报告共同决定有效性。
+- [嵌入式评估首阶段](../openai/research/our-first-phase-of-embedded-assessments.md)：明确外部评估能看多深，合作公告与已发布结论分别判断。
+- [专家判断实验](../anthropic/research/agents-judgment-calls.md)：随机化智能体倾向与随机化 AI 使用是不同实验。
+- [AlphaProof Code](../google/deepmind/introducing-alphaproof-code.md)：形式化规格、证明产物与产品整体可靠性分开验收。
+- [Muse Ember](../meta/muse-ember.md)：跨模型比较同时记录 harness、内部 / 外部基准与评分口径。
+
 ## 关键结论
 
 - 评估要分成能力评估和回归评估，二者服务不同决策。

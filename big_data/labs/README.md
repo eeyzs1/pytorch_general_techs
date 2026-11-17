@@ -10,6 +10,7 @@
 | [l1-sql-warehouse](l1-sql-warehouse/README.md) | L1 | 用 SQLite 跑通离线数仓指标分析闭环 | `make lab-l1-test` |
 | [l2-streaming-window](l2-streaming-window/README.md) | L2 | 用 JSONL 事件流模拟实时窗口聚合 | `make lab-l2-test` |
 | [l3-skew-tuning](l3-skew-tuning/README.md) | L3 | 模拟热点 Key 倾斜与加盐聚合调优 | `make lab-l3-test` |
+| [l3-cdc-replay](l3-cdc-replay/README.md) | L3 | 验证 CDC 重放、业务版本、删除与提交恢复 | `make lab-l3-cdc-test` |
 | [l4-architecture-scorecard](l4-architecture-scorecard/README.md) | L4 | 用评分卡量化架构选型 Trade-off | `make lab-l4-test` |
 | [l5-strategy-radar](l5-strategy-radar/README.md) | L5 | 根据战略因子生成技术雷达分区 | `make lab-l5-test` |
 

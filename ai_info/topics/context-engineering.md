@@ -48,6 +48,11 @@
 - [Muse Code and Muse Spark 1.2](../meta/introducing-muse-code-muse-spark-1-2.md)：持久化后台 Agent 的上下文积累——会话期间持续存活避免重复信息收集；子 Agent 在独立 git worktree 并行工作并自主决定何时反馈；模型与 harness 协同训练把上下文压缩配方直接训进权重。
 - [tokenizers v1：编码、解码与扩展实测](../huggingface/blog/tokenizers-v1.md)：长输入预处理不再等 CPU——输出 token ID 与 v0.23 完全一致的前提下，单线程提速 3-30×、8 线程达 76% 线性扩展；超大规模训练与高并发服务下"GPU 等 CPU 切词"曾真实出现在关键路径，切词开销此后基本可从瓶颈清单划掉。
 
+## 2026-11 记忆组织
+
+- [Anthropic 记忆组件](../anthropic/engineering/components-of-agent-memory.md)：区分跨会话经验、compaction 和模型权重；规则需保留验证状态。
+- [Meta 专门模型](../meta/specialized-models-for-muse-and-metaai.md)：区分临时 / 长期信息与过期 / 仍相关信息。与上文 [ChatGPT Dreaming](../openai/research/chatgpt-memory-dreaming.md) 共同构成记忆组织的对照阅读。
+
 ## 关键结论
 
 - 上下文不是越多越好，目标是最小高信号 token 集合。

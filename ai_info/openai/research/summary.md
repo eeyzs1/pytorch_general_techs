@@ -1,6 +1,17 @@
 # OpenAI Research & Engineering — 核心观点总结
 
-> 汇总自 [OpenAI Research](https://openai.com/research/) 和 [OpenAI Blog](https://openai.com/index/) 的 224 篇文章，涵盖 2025 年 1 月至 2026 年 10 月。
+> 汇总自 [OpenAI Research](https://openai.com/research/) 和 [OpenAI Blog](https://openai.com/index/) 的 228 篇文章，涵盖 2025 年 1 月至 2026 年 11 月。
+
+## 本次增量（2026-11-17）
+
+本轮补充失准监控、集中停止控制与嵌入式评估，区分检测、处置和外部监督的职责；网络能力与任务范围遵守分别记录。
+
+- [前沿模型失准监控：从探针到调查闭环](how-we-detect-frontier-model-misalignment.md)（2026-10-29）。
+- [GPT-6 Cyber：把能力与任务范围遵守一起评估](introducing-gpt-6-cyber.md)（2026-11-05）。
+- [Control Room：在推理层集中停止研究工作负载](control-room.md)（2026-11-09）。
+- [嵌入式评估首阶段：访问深度与独立性协议](our-first-phase-of-embedded-assessments.md)（2026-11-16）。
+
+当前独立摘要 228 篇；本轮新增 4 篇。具体检索范围与主题复核见 [同步报告](../../sync-report-2026-11-17.md)。
 
 ## 一、总体脉络
 
@@ -356,160 +367,165 @@ OpenAI 的技术文章呈现五条并行的演进路径：
 | 66 | 2026-06-28 | [HP Inc. Launches Frontier Strategic Partnership with OpenAI](hp-frontier-partnership.md) | HP / Frontier / 企业部署 |
 | 67 | 2026-06-30 | [Introducing GeneBench-Pro](introducing-genebench-pro.md) | 计算生物学 / Benchmark / 专家级 |
 | 68 | 2026-06-30 | [Core Dump Epidemiology: Fixing an 18-Year-Old Bug](core-dump-epidemiology-data-infrastructure-bug.md) | 基础设施可靠性 / 调试 / Libunwind |
-| 69 | 2026-07-07 | （本同步记录） | 同步记录 |
-| 70 | 2026-07-08 | [Separating Signal from Noise in Coding Evaluations](separating-signal-from-noise-coding-evaluations.md) | 评估 / SWE-Bench Pro / 审计 |
-| 71 | 2026-07-08 | [Introducing GPT-Live](introducing-gpt-live.md) | 语音模型 / 全双工 / ChatGPT Voice |
-| 72 | 2026-07-09 | [GPT-5.6](introducing-gpt-5-6.md) | 旗舰模型 / 可扩展智能 / Microsoft 365 |
-| 73 | 2026-07-09 | [ChatGPT Work](chatgpt-work-partner.md) | Agent / 跨应用 / 知识工作 |
-| 74 | 2026-07-09 | [OpenAI Bio Bug Bounty](bio-bug-bounty.md) | 生物安全 / Bug Bounty / 通用越狱 |
-| 75 | 2026-05-11 | [OpenAI Launches the Deployment Company](openai-launches-the-deployment-company.md) | 企业部署 / FDE / 收购 Tomoro |
-| 76 | 2026-05-13 | [Our Response to the TanStack npm Supply Chain Attack](our-response-to-the-tanstack-npm-supply-chain-attack.md) | 供应链安全 / 事件响应 / 代码签名 |
-| 77 | 2026-05-15 | [A New Personal Finance Experience in ChatGPT](personal-finance-chatgpt.md) | 个人理财 / Plaid / 垂直场景 |
-| 78 | 2026-07-14 | [How to Manage AI Investments in the Agentic Era](managing-ai-investments-in-agentic-era.md) | 企业 AI 投资 / ROI / 成本治理 |
-| 79 | 2026-07-15 | [GPT-Red: Unlocking Self-Improvement for Robustness](unlocking-self-improvement-gpt-red.md) | 自动红队 / 提示注入 / 自我对弈 |
-| 80 | 2026-07-16 | [Why Teens Deserve Access to Safe AI](why-teens-deserve-access-safe-ai.md) | 青少年安全 / Study Mode / 家长控制 |
-| 81 | 2026-07-17 | [A Scorecard for the AI Age](a-scorecard-for-the-ai-age.md) | CFO 记分卡 / AI 经济 / 成果成本 |
-| 82 | 2026-07-20 | [Safety and Alignment in an Era of Long-Horizon Models](safety-alignment-long-horizon-models.md) | 长视野对齐 / 轨迹评估 |
-| 83 | 2026-07-21 | [OpenAI and Hugging Face Address Security Incident During Model Evaluation](hugging-face-model-evaluation-security-incident.md) | 评估失控 / 安全事件 / 零日漏洞 |
-| 84 | 2026-07-21 | [David Vélez and Robin Vince Join OpenAI Boards](david-velez-robin-vince-join-openai-boards.md) | 公司治理 / 董事会 |
-| 85 | 2026-07-21 | [Introducing the ChatGPT for Small Business Program](introducing-chatgpt-small-business-program.md) | 小企业 / ChatGPT Work / 培训 |
-| 86 | 2026-07-22 | [How News Organizations Are Using AI](how-news-organizations-are-using-ai.md) | 新闻业 / 媒体合作 / 行业应用 |
-| 87 | 2026-07-22 | [Introducing OpenAI Presence](introducing-openai-presence.md) | 企业 Agent / 客服 / 语音 |
-| 88 | 2026-07-23 | [Launching Health in ChatGPT](health-in-chatgpt.md) | 健康 / Apple Health / 隐私 |
-| 89 | 2026-07-27 | [How AI Is Expanding What People Do at Work](how-ai-is-expanding-what-people-do-at-work.md) | 经济研究 / 任务跨界 / 劳动力 |
-| 90 | 2026-07-28 | [Scientific Computing in the Age of Agentic AI](scientific-computing-agentic-ai.md) | 科学计算 / Codex / 实地报告 |
-| 91 | 2026-07-29 | [ChatGPT for Academic Researchers](chatgpt-for-academic-researchers.md) | 学术计划 / 免费访问 / 科研生态 |
-| 92 | 2026-07-29 | [How GPT-5.6 Fuses Frontier Intelligence with Frontier Efficiency](gpt-5-6-frontier-intelligence-efficiency.md) | 推理优化 / Triton / 投机解码 |
-| 93 | 2026-07-29 | [How Enabling Two Settings Tripled Our Scores on ARC-AGI-3](how-two-settings-tripled-our-arc-agi-3-scores.md) | 评估方法 / Harness / 保留推理 |
-| 94 | 2026-07-30 | [Advancing the Price-Performance Frontier with GPT-5.6](advancing-the-price-performance-frontier-with-gpt-5-6.md) | 定价 / Fast mode / 成本效率 |
-| 95 | 2026-07-31 | [Building Abundant Intelligence](building-abundant-intelligence.md) | 全栈战略 / 充裕智能 / 算力经济 |
-| 96 | 2026-08-01 | [Ten Advances in Mathematics and Theoretical Computer Science](ten-advances-in-mathematics.md) | 数学 / Astra / Lean 形式化 |
-| 97 | 2026-08-03 | [Apple is Getting This Wrong](apple-is-getting-this-wrong.md) | 法律回应 / Apple 诉讼 / 知识产权 |
-| 98 | 2026-08-03 | [Continuous Voice Interaction with GPT-Live](continuous-voice-interaction-with-gpt-live.md) | 语音AI / 全双工 / WARP 协议 |
-| 99 | 2026-08-04 | [Third-party Cyber Evaluations Involving OpenAI Models](third-party-cyber-evaluations-involving-openai-models.md) | 网络安全 / 第三方评估 / 安全事件 |
-| 100 | 2026-08-04 | [New Ways to Learn and Teach with ChatGPT Work and Codex](learn-teach-chatgpt-work-codex.md) | 教育 / 插件 / ChatGPT Work |
-| 101 | 2026-08-06 | [Improving GPT-5.6 Sol in ChatGPT](improving-gpt-5-6-sol-in-chatgpt.md) | GPT-5.6 / 推理滑块 / Luna 免费用户 |
-| 102 | 2026-08-06 | [OpenAI and APA Partner to Advance Responsible AI](openai-and-apa-partner-to-advance-responsible-ai.md) | 心理健康 / 青少年安全 / APA 合作 |
-| 103 | 2026-08-06 | [How the World Is Putting ChatGPT to Work](how-the-world-is-putting-chatgpt-to-work.md) | 全球采用 / OpenAI Signals / 经济研究 |
-| 104 | 2026-08-07 | [Responding to the Next Frontier of Critical Cyber Capabilities](responding-next-frontier-critical-cyber-capabilities.md) | Astra / 网络安全 / Critical 阈值 |
-| 105 | 2026-08-18 | [Introducing ChatGPT for Teens](chatgpt-for-teens.md) | 青少年 / 教育 / 家长控制 / 安全 |
-| 106 | 2026-08-19 | [Pacing Model Development in an Era of Cyber-Critical Capabilities](pacing-model-development-cyber-capabilities.md) | 训练节奏 / 网络安全 / 安全税 |
-| 107 | 2026-08-20 | [Introducing Intelligence Age](introducing-intelligence-age.md) | 治理 / 权力风险 / Strategic Futures |
-| 108 | 2026-08-20 | [Stampli Cuts Launch Hours by 68% Using ChatGPT Work](stampli.md) | 客户案例 / 财务自动化 |
-| 109 | 2026-08-24 | [Advancing Price-Performance with GPT-5.6 in Kiro](gpt-5-6-in-kiro.md) | Kiro / 开发者性价比 / AWS |
-| 110 | 2026-08-25 | [The Full Stack Behind Abundant Intelligence](the-full-stack-behind-abundant-intelligence.md) | 全栈战略 / CFO 视角 / Jevons 悖论 |
-| 111 | 2026-08-25 | [Jalapeño's First Results](jalapeno-first-results.md) | 自研芯片 / 实测 / 每瓦吞吐 |
-| 112 | 2026-08-25 | [Disrupting a New Covert Influence Campaign from Russia](disrupting-malicious-uses-of-ai-influence-campaign-russia.md) | 影响力行动 / 滥用治理 |
-| 113 | 2026-08-25 | [Introducing the Admin Plugin for ChatGPT Work and Codex](introducing-admin-plugin.md) | 管理插件 / 权限 / 自动审批 |
-| 114 | 2026-08-26 | [The Hugging Face Incident and the Road Ahead](hugging-face-incident-and-the-road-ahead.md) | 安全事件复盘 / 失准模式 / 整改 |
-| 115 | 2026-08-26 | [How loveholidays Is Making Everyone a Builder with Codex](loveholidays.md) | 客户案例 / 全员 builder / 11× |
-| 116 | 2026-08-26 | [Bringing ChatGPT for Teachers to More U.S. School Districts](bringing-chatgpt-for-teachers-to-more-us-school-districts.md) | 教育 / 55 学区 / 教师工具 |
-| 117 | 2026-08-26 | [Learning Never Stops](learning-never-stops.md) | 教育 / 持续学习报告 |
-| 118 | 2026-08-27 | [What Students Gain from ChatGPT and Critical-Thinking Training](what-students-gain-from-chatgpt-critical-thinking-training.md) | 教育 / 随机对照研究 |
-| 119 | 2026-08-27 | [Expanding OpenAI's Presence in Brazil](expanding-our-presence-in-brazil.md) | 国际拓展 / 巴西 |
-| 120 | 2026-08-28 | [Supporting Thailand's Next Generation of AI Startups](supporting-next-generation-ai-startups-thailand.md) | 国际拓展 / 加速器 / MHESI |
-| 121 | 2026-08-28 | [Our Decision on Cursor Following Its Acquisition by SpaceX](our-decision-on-cursor-following-its-acquisition-by-spacex.md) | 模型供应 / 商业决策 |
-| 122 | 2026-08-31 | [A Milestone in Expanding Access to AI](expanding-access-to-ai-with-chatgpt-ads.md) | ChatGPT Ads / 10 亿美元 ARR / 免费 AI |
-| 123 | 2026-08-31 | [OpenAI Supports California's Bill to Advance Youth AI Safety](supporting-california-bill-advance-ai-youth-safety.md) | 政策 / SB 1119 / 青少年 |
-| 124 | 2026-08-31 | [Polimill Builds Japan's Next-Generation Public AI Infrastructure](polimill.md) | 客户案例 / 公共部门 / 1050 自治体 |
-| 125 | 2026-09-01 | [Path to Astra: Critical Capabilities and Frontier Safeguards](path-to-astra.md) | Astra / Critical 判据 / GPU 再分配 |
-| 126 | 2026-09-01 | [How AI-Native Companies Turn Workflows into Operating Capability](ai-native-company-workflows.md) | AI 原生公司 / 8.3× token 产出 |
-| 127 | 2026-09-01 | [Healthcare Organizations Can Now Connect EHR to ChatGPT](chatgpt-connects-health-records-and-healthcare-sources.md) | 医疗 / EHR / 可信源 |
-| 128 | 2026-09-01 | [How Law Firm Gilbert + Tobin Governs and Scales AI](gilbert-tobin.md) | 客户案例 / 法律 / 治理 |
-| 129 | 2026-09-02 | [ATV Big Air Tour Turned 3 Days of Work into 3 Hours](atv-big-air-tour.md) | 客户案例 / 中小企业 / AEO |
-| 130 | 2026-09-03 | [GPT-6 Astra: A New Generation of Intelligence](gpt-6-astra.md) | 旗舰模型 / ARC-AGI-3 99.9% / Critical |
-| 131 | 2026-09-03 | [Safety Overview: GPT-6 Astra](safety-overview-gpt-6-astra.md) | 安全概览 / 失配监控 / 可监控性 |
-| 132 | 2026-09-03 | [Daybreak for Frontline Defenders: $1B](daybreak-for-frontline-defenders.md) | 网络安全 / 10 亿美元 / 关键服务 |
-| 133 | 2026-09-03 | [Playco Cut Manual Fixes 50% Prototyping Games with GPT-6 Astra](playco-game-prototyping-with-astra.md) | 客户案例 / 游戏原型 / Astra |
-| 134 | 2026-09-03 | [Legora Reviewed 41 Documents in Minutes with GPT-6 Astra](legora-financial-statement-review-with-astra.md) | 客户案例 / 法律 / BAR +40% |
-| 135 | 2026-09-06 | [An Alien Mind](an-alien-mind.md) | 对齐反思 / CoT 监控 / 国际协调 |
-| 136 | 2026-09-06 | [Research Acceleration: The View Inside OpenAI](research-acceleration-view-inside-openai.md) | 内部数据 / 3.1 agent 工作日 |
-| 137 | 2026-09-07 | [Supporting Independent Journalism in Ukraine](supporting-independent-journalism-in-ukraine.md) | 新闻业 / 乌克兰 / AIRPPU |
-| 138 | 2026-09-08 | [The Work Now Within Reach](the-work-now-within-reach.md) | 经济扩张 / 可及工作 |
-| 139 | 2026-09-08 | [Introducing ChatGPT Images 2.5](introducing-chatgpt-images-2-5.md) | 图像生成 / Flare/Sunburst / C2PA |
-| 140 | 2026-09-08 | [On the Navier–Stokes Millennium Prize Problem](navier-stokes-solution.md) | 数学 / 千年问题 / Lean 形式化 |
-| 141 | 2026-09-08 | [Funding Grants for Research into AI and Teen Development](teen-development-research-grants.md) | 青少年 / $5M 资助 / 独立研究 |
-| 142 | 2026-09-08 | [Supporting Journalism from Classrooms to Newsrooms](supporting-journalism-from-classrooms-to-newsrooms.md) | 新闻业 / 教育扩展 |
-| 143 | 2026-09-08 | [1Password Increases Engineering Productivity 21% with Codex](1password.md) | 客户案例 / ROI 553% / 零知识 |
-| 144 | 2026-09-08 | [How GPT-5.6 Sol Helps Run Quantum Computing Experiments](codex-quantum-computing-experiments.md) | 科学 / 量子计算 / MIT |
-| 145 | 2025-10-30 | [Aardvark：OpenAI 的自主式安全研究员](introducing-aardvark.md) | Aardvark / 网络安全 / 漏洞挖掘 |
-| 146 | 2026-04-16 | [GPT-Rosalind 发布：面向生命科学的前沿推理模型](introducing-gpt-rosalind.md) | GPT-Rosalind / 生命科学 / 药物发现 |
-| 147 | 2026-09-09 | [AI 政策窗口已经打开,我们必须行动](ai-policy-window-is-open.md) | AI政策 / 安全治理 / 政策窗口 |
-| 148 | 2026-09-09 | [GPT-6 Astra:面向工作的下一代智能](gpt-6-astra-next-generation-of-work.md) | GPT-6Astra / 企业AI / ComputerUse |
-| 149 | 2026-09-09 | [Paul Christiano 加入 OpenAI 基金会董事会](paul-christiano-joins-foundation-board.md) | 治理 / 对齐研究 / 人事任命 |
-| 150 | 2026-09-10 | [用 Codex 与 ChatGPT 搜索新型抗菌分子](search-for-new-antimicrobials.md) | AIforScience / 抗菌肽 / 基因组挖掘 |
-| 151 | 2026-09-10 | [让数据为每个人工作:ChatGPT Work 的 Data agent](put-data-to-work.md) | DataAgent / 自然语言BI / 企业AI |
-| 152 | 2026-09-10 | [ChatGPT 金融版:内置数据 + 旗舰模型打包](introducing-chatgpt-financial-services.md) | 金融服务 / 垂直行业版 / GPT-6Astra |
-| 153 | 2026-09-10 | [OpenAI 扩大对美国政府的 AI 访问与网络防御](expanding-ai-access-us-government.md) | GSA / 政府AI / 网络防御 |
-| 154 | 2026-09-10 | [Agents API:OpenAI 把 Codex 智能体骨架产品化](introducing-the-agents-api.md) | AgentsAPI / 智能体编排 / 托管智能体 |
-| 155 | 2026-09-10 | [GPT-Live-1 进入 API:构建更自然的语音体验](introducing-gpt-live-1-in-the-api.md) | GPT-Live-1 / 全双工 / 实时语音 |
-| 156 | 2026-09-11 | [为 10 亿 ChatGPT 用户扩展在线存储:Habitat 系列第一篇](scaling-storage-one-billion-users.md) | Habitat / 在线存储 / 22MQPS |
-| 157 | 2026-09-11 | [Cognition 用 GPT-6 Astra 让 Devin 测试自己的工作](cognition-devin-testing-with-astra.md) | Cognition / Devin / 自我测试 |
-| 158 | 2026-09-14 | [Fyxer:打造人们敢托付的 AI 行政助理](fyxer-email-agents.md) | Fyxer / 邮件智能体 / 人机信任 |
-| 159 | 2026-09-14 | [Perplexity 把端到端系统托付给 GPT-6 Astra](perplexity-accuracy-with-astra.md) | Perplexity / 长视野智能体 / 生产运维 |
-| 160 | 2026-09-16 | [帮助老年人在日常生活中使用 AI](helping-older-adults-use-ai.md) | 适老化 / AARP / 防诈骗 |
-| 161 | 2026-09-16 | [用 AI 重新想象广告:Sponsored Agents 登场](reimagining-advertising-with-ai.md) | SponsoredAgents / AI广告 / ChatGPTAds |
-| 162 | 2026-09-16 | [Hex 用 GPT-6 Astra 把复杂分析变成可视化报告](hex-gpt-6-astra.md) | Hex / 数据智能体 / 可视化 |
-| 163 | 2026-09-16 | [如何把 AI 使用连接到业务价值](connect-ai-usage-to-business-value.md) | AIROI / 度量框架 / 企业采用 |
-| 164 | 2026-09-16 | [OpenAI 的模型失准报告框架](model-misalignment-reporting-framework.md) | 模型失准 / 安全披露 / 六起事件 |
-| 165 | 2026-09-16 | [劳动者如何解锁新的工作方式](unlocking-new-ways-of-working.md) | 经济研究 / 劳动力 / 能力束 |
-| 166 | 2026-09-17 | [Cooley 如何用 ChatGPT 加速 IPO 工作](cooley-gopublic.md) | Cooley / 法律AI / IPO |
-| 167 | 2026-09-17 | [Astra for Law:法律服务垂直智能](astra-for-law.md) | Astra-for-Law / 法律AI / 垂直行业 |
-| 168 | 2026-09-18 | [澳大利亚青年安全蓝图](australian-youth-safety-blueprint.md) | 青年安全 / 适龄防护 / 澳大利亚 |
-| 169 | 2026-09-21 | [Higgsfield 用 GPT-6 Astra 一天交付新视频功能](higgsfield-prompt-to-production.md) | Higgsfield / 视频创作 / 客户案例 |
-| 170 | 2026-09-21 | [数学与人工智能顾问组成立](advisory-group-mathematics-ai.md) | AI治理 / 数学 / 同行评审 |
-| 171 | 2026-09-21 | [为 AI 的下一阶段构建全球标准](building-standards-next-phase-ai.md) | AI标准 / 国际治理 / 政策倡议 |
-| 172 | 2026-09-21 | [OpenAI Academy 新增结构化学习路径](openai-academy-learning-paths.md) | OpenAIAcademy / 学习路径 / AI素养 |
-| 173 | 2026-09-21 | [V7 用 GPT-5.6 Luna 降本 78% 并提升准确率](v7.md) | V7 / GPT-5.6-Luna / 成本优化 |
-| 174 | 2026-09-22 | [GPT-6 提示词缓存改进:最高 90% 折扣与 30 分钟窗口](better-prompt-caching-for-gpt-6.md) | PromptCaching / 成本优化 / API设计 |
-| 175 | 2026-09-22 | [GPT-6 Sol 与 Luna:价格减半、9% 成本胜 Opus 5](introducing-gpt-6-sol-and-luna.md) | GPT-6 / Sol / Luna / 价格战 |
-| 176 | 2026-09-22 | [Parallel 用 GPT-6 Astra 将研究时间与成本减半](parallel-cuts-time-and-cost.md) | Parallel / 地理空间情报 / 客户案例 |
-| 177 | 2026-09-22 | [有效第三方评估的优先事项与原则](principles-third-party-assessments.md) | 第三方评估 / 红队 / 独立监督 |
-| 178 | 2026-09-23 | [OpenAI Academy 两周年:从课程库到分层学习体系](two-years-of-openai-academy.md) | OpenAIAcademy / AI教育 / 两周年 |
-| 179 | 2026-09-23 | [OpenAI 向乌克兰扩展民用防御网络能力](ukraine-civilian-defense-cyber-access.md) | 网络安全 / Daybreak / 乌克兰 |
-| 180 | 2026-09-23 | [Ringg 的 AI 智能体解决高达 65% 的客户来电](ringg.md) | Ringg / 语音智能体 / 客服自动化 |
-| 181 | 2026-09-23 | [Harvey 用 GPT-6 Astra 把法律上下文变成更可靠的草稿](harvey-context-to-confidence.md) | Harvey / 法律科技 / 客户案例 |
-| 182 | 2026-09-23 | [invideo 用 GPT-6 Astra 将调色质量提升 3 倍](invideo-builds-with-astra.md) | invideo / 视频编辑 / 客户案例 |
-| 183 | 2026-09-23 | [Sam Altman 联合国安理会发言](sam-altman-un-security-council-remarks.md) | 联合国 / AI治理 / 国际合作 |
-| 184 | 2026-09-23 | [MentalHealthBench:AI 心理健康对话评估基准](introducing-mentalhealthbench.md) | 评估基准 / 心理健康 / LLM评估 |
-| 185 | 2026-09-23 | [ChatGPT Ads 扩张至东南亚与台湾](chatgpt-ads-expands-southeast-asia-taiwan.md) | ChatGPTAds / 东南亚 / 广告扩张 |
-| 186 | 2026-09-23 | [Airbnb 扩大 GPT-6 Astra 与 OpenAI 前沿模型的使用面](airbnb-gpt-6-astra.md) | Airbnb / 工程效能 / 规模化采用 |
-| 187 | 2026-09-23 | [Grab 与 OpenAI 为东南亚带来实用 AI 技能](grab-ai-skills-southeast-asia.md) | Grab / AI技能培训 / 东南亚 |
-| 188 | 2026-09-25 | [Proaction 案例:Codex 全家桶让销售提升 60%](proaction.md) | Proaction / Codex / 客户案例 |
-| 189 | 2026-09-25 | [一个智能体利用 DNS 访问外部聊天机器人](agent-used-dns-to-reach-external-chatbot.md) | 模型失准 / DNS隧道 / 训练暂停 |
-| 190 | 2026-09-28 | [我们将如何为澳大利亚做得更好](how-we-will-do-better-for-australia.md) | 澳大利亚 / 道歉与整改 / 主权安全 |
-| 191 | 2026-09-28 | [Lenfest 研究所在 OpenAI 扩大支持下发展标志性计划](lenfest-ai-collaborative.md) | Lenfest / 新闻业 / 地方媒体 |
-| 192 | 2026-09-28 | [Basis 用 GPT-6 Astra 快 2 倍完成税务工作簿](basis-tax-workbook.md) | Basis / 税务自动化 / 客户案例 |
-| 193 | 2026-09-28 | [面向前沿 AI 训练的安全案例](towards-safety-cases-for-frontier-ai-training.md) | 安全案例 / 高管否决 / 补录 |
-| 194 | 2026-09-29 | [DevDay 2026 回顾：Agent 时代](devday-2026-recap.md) | DevDay / dots / 20+ 更新 |
-| 195 | 2026-09-29 | [GPT-6.1 Sol 发布](introducing-gpt-6-1-sol.md) | GPT-6.1Sol / near-Astra / 1/5 价格 |
-| 196 | 2026-09-29 | [dots 正式登场](introducing-dots.md) | dots / 常驻 Agent / 个人助理 |
-| 197 | 2026-09-30 | [阻断有组织的模型蒸馏行动](disrupting-a-coordinated-model-distillation-campaign.md) | 模型安全 / 对抗蒸馏 / Moonshot |
-| 198 | 2026-09-30 | [帮助小企业把 AI 用到实处](helping-small-businesses-put-ai-to-work.md) | 小企业 / SBDC / AI 培训 |
-| 199 | 2026-10-01 | [永恒的互补品](the-eternal-complement.md) | IntelligenceAge / 执行经济学 |
-| 200 | 2026-10-02 | [GPT-6 家族模型选型指南](practical-guide-building-gpt-6.md) | 模型选型 / 提示工程 / 生产化 |
-| 201 | 2026-10-05 | [应对欧盟文本溯源规则](eu-text-provenance.md) | textGrain / 水印 / AI 法案 |
-| 202 | 2026-10-05 | [为 AI 使用方式而造的广告](new-chatgpt-ads-format-and-measurement.md) | ChatGPTAds / 视觉格式 / 归因 |
-| 203 | 2026-10-06 | [分享 AI 数学进展](sharing-ai-progress-in-mathematics.md) | AIforMath / Lean / 722 篇开源 |
-| 204 | 2026-10-06 | [携手 Ironclad 推进计算机操作](advancing-computer-use-with-ironclad.md) | ComputerUse / 合同工作流 / 评测 |
-| 205 | 2026-10-06 | [Atlassian 与 OpenAI 扩大合作](atlassian-partnership.md) | Atlassian / 企业知识 / 战略协作 |
-| 206 | 2026-10-06 | [研究元博弈内部表征](metagaming-latents.md) | 对齐研究 / SAE / 元博弈 |
-| 207 | 2026-10-06 | [LASER：递归采样](laser.md) | 安全评估 / 主动学习 / 效率 |
-| 208 | 2026-10-07 | [GPT-6 与 Intelligent UI 面向所有人](gpt-6-for-everyone.md) | GPT-6 / IntelligentUI / 全球铺开 |
-| 209 | 2026-10-07 | [青少年学习、规划与 AI 未来](teens-learn-and-plan.md) | 青少年 / CollegePlanner / AI 理事会 |
-| 210 | 2026-10-08 | [阻断"虚假掩护"影响力行动](disrupting-ai-enabled-false-front-operations.md) | 影响力行动 / 伊朗 / 俄罗斯 |
-| 211 | 2026-10-09 | [Sophos 威胁调查提速 96%](sophos.md) | Daybreak / MDR / 客户案例 |
-| 212 | 2026-10-09 | [Asana 浏览器智能体降本 76 倍](asana-browser-agent.md) | Asana / 成本优化 / 浏览器智能体 |
-| 213 | 2026-10-09 | [破坏任务环境以触发重置](damaging-the-task-environment-to-trigger-a-reset.md) | 失准报告 / 评分智能体 / 环境破坏 |
-| 214 | 2026-10-14 | [欧盟 AI 下一篇章是智能体](the-eus-next-chapter-in-ai-is-agentic.md) | 欧盟 / AgenticAI / 采用分析 |
-| 215 | 2026-10-14 | [Amp 把智能体用到代码之外](amp-beyond-coding.md) | Amp / 能力栈组合 / 客户案例 |
-| 216 | 2026-10-14 | [SentinelOne 恶意软件分析提速](sentinelone.md) | Daybreak / 恶意软件分析 / 客户案例 |
-| 217 | 2026-10-14 | [Third Moment 运行万级智能体](third-moment-research.md) | 长视野 / 10000 并发 / 客户案例 |
-| 218 | 2026-10-15 | [GPT-Rosalind 学术计划](introducing-the-rosalind-academic-plan.md) | Rosalind / 学术访问 / 生命科学 |
-| 219 | 2026-02-13 | [Beyond Rate Limits: Codex 与 Sora 访问扩容](beyond-rate-limits.md) | Codex / Sora / 访问扩容（历史补录） |
-| 220 | 2026-04-22 | [Responses API WebSocket 提速](speeding-up-agentic-workflows-with-websockets.md) | ResponsesAPI / WebSocket（历史补录） |
-| 221 | 2026-04-27 | [开源编排规范 Symphony](open-source-codex-orchestration-symphony.md) | Symphony / 编排（历史补录） |
-| 222 | 2026-05-27 | [用 Codex 构建自我改进税务智能体](building-self-improving-tax-agents-with-codex.md) | 税务 Agent / 自我改进（历史补录） |
-| 223 | 2026-05-28 | [OpenAI 前沿治理框架](openai-frontier-governance-framework.md) | 前沿治理 / 框架（历史补录） |
-| 224 | 2026-05-29 | [可信第三方评估共享手册](trustworthy-third-party-evaluations-foundations.md) | 第三方评估 / 手册（历史补录） |
-| 225 | 2026-06-02 | [Codex for Every Role, Tool, Workflow](codex-for-every-role-tool-workflow.md) | Codex / 多角色（历史补录） |
+| 69 | 2026-07-08 | [Separating Signal from Noise in Coding Evaluations](separating-signal-from-noise-coding-evaluations.md) | 评估 / SWE-Bench Pro / 审计 |
+| 70 | 2026-07-08 | [Introducing GPT-Live](introducing-gpt-live.md) | 语音模型 / 全双工 / ChatGPT Voice |
+| 71 | 2026-07-09 | [GPT-5.6](introducing-gpt-5-6.md) | 旗舰模型 / 可扩展智能 / Microsoft 365 |
+| 72 | 2026-07-09 | [ChatGPT Work](chatgpt-work-partner.md) | Agent / 跨应用 / 知识工作 |
+| 73 | 2026-07-09 | [OpenAI Bio Bug Bounty](bio-bug-bounty.md) | 生物安全 / Bug Bounty / 通用越狱 |
+| 74 | 2026-05-11 | [OpenAI Launches the Deployment Company](openai-launches-the-deployment-company.md) | 企业部署 / FDE / 收购 Tomoro |
+| 75 | 2026-05-13 | [Our Response to the TanStack npm Supply Chain Attack](our-response-to-the-tanstack-npm-supply-chain-attack.md) | 供应链安全 / 事件响应 / 代码签名 |
+| 76 | 2026-05-15 | [A New Personal Finance Experience in ChatGPT](personal-finance-chatgpt.md) | 个人理财 / Plaid / 垂直场景 |
+| 77 | 2026-07-14 | [How to Manage AI Investments in the Agentic Era](managing-ai-investments-in-agentic-era.md) | 企业 AI 投资 / ROI / 成本治理 |
+| 78 | 2026-07-15 | [GPT-Red: Unlocking Self-Improvement for Robustness](unlocking-self-improvement-gpt-red.md) | 自动红队 / 提示注入 / 自我对弈 |
+| 79 | 2026-07-16 | [Why Teens Deserve Access to Safe AI](why-teens-deserve-access-safe-ai.md) | 青少年安全 / Study Mode / 家长控制 |
+| 80 | 2026-07-17 | [A Scorecard for the AI Age](a-scorecard-for-the-ai-age.md) | CFO 记分卡 / AI 经济 / 成果成本 |
+| 81 | 2026-07-20 | [Safety and Alignment in an Era of Long-Horizon Models](safety-alignment-long-horizon-models.md) | 长视野对齐 / 轨迹评估 |
+| 82 | 2026-07-21 | [OpenAI and Hugging Face Address Security Incident During Model Evaluation](hugging-face-model-evaluation-security-incident.md) | 评估失控 / 安全事件 / 零日漏洞 |
+| 83 | 2026-07-21 | [David Vélez and Robin Vince Join OpenAI Boards](david-velez-robin-vince-join-openai-boards.md) | 公司治理 / 董事会 |
+| 84 | 2026-07-21 | [Introducing the ChatGPT for Small Business Program](introducing-chatgpt-small-business-program.md) | 小企业 / ChatGPT Work / 培训 |
+| 85 | 2026-07-22 | [How News Organizations Are Using AI](how-news-organizations-are-using-ai.md) | 新闻业 / 媒体合作 / 行业应用 |
+| 86 | 2026-07-22 | [Introducing OpenAI Presence](introducing-openai-presence.md) | 企业 Agent / 客服 / 语音 |
+| 87 | 2026-07-23 | [Launching Health in ChatGPT](health-in-chatgpt.md) | 健康 / Apple Health / 隐私 |
+| 88 | 2026-07-27 | [How AI Is Expanding What People Do at Work](how-ai-is-expanding-what-people-do-at-work.md) | 经济研究 / 任务跨界 / 劳动力 |
+| 89 | 2026-07-28 | [Scientific Computing in the Age of Agentic AI](scientific-computing-agentic-ai.md) | 科学计算 / Codex / 实地报告 |
+| 90 | 2026-07-29 | [ChatGPT for Academic Researchers](chatgpt-for-academic-researchers.md) | 学术计划 / 免费访问 / 科研生态 |
+| 91 | 2026-07-29 | [How GPT-5.6 Fuses Frontier Intelligence with Frontier Efficiency](gpt-5-6-frontier-intelligence-efficiency.md) | 推理优化 / Triton / 投机解码 |
+| 92 | 2026-07-29 | [How Enabling Two Settings Tripled Our Scores on ARC-AGI-3](how-two-settings-tripled-our-arc-agi-3-scores.md) | 评估方法 / Harness / 保留推理 |
+| 93 | 2026-07-30 | [Advancing the Price-Performance Frontier with GPT-5.6](advancing-the-price-performance-frontier-with-gpt-5-6.md) | 定价 / Fast mode / 成本效率 |
+| 94 | 2026-07-31 | [Building Abundant Intelligence](building-abundant-intelligence.md) | 全栈战略 / 充裕智能 / 算力经济 |
+| 95 | 2026-08-01 | [Ten Advances in Mathematics and Theoretical Computer Science](ten-advances-in-mathematics.md) | 数学 / Astra / Lean 形式化 |
+| 96 | 2026-08-03 | [Apple is Getting This Wrong](apple-is-getting-this-wrong.md) | 法律回应 / Apple 诉讼 / 知识产权 |
+| 97 | 2026-08-03 | [Continuous Voice Interaction with GPT-Live](continuous-voice-interaction-with-gpt-live.md) | 语音AI / 全双工 / WARP 协议 |
+| 98 | 2026-08-04 | [Third-party Cyber Evaluations Involving OpenAI Models](third-party-cyber-evaluations-involving-openai-models.md) | 网络安全 / 第三方评估 / 安全事件 |
+| 99 | 2026-08-04 | [New Ways to Learn and Teach with ChatGPT Work and Codex](learn-teach-chatgpt-work-codex.md) | 教育 / 插件 / ChatGPT Work |
+| 100 | 2026-08-06 | [Improving GPT-5.6 Sol in ChatGPT](improving-gpt-5-6-sol-in-chatgpt.md) | GPT-5.6 / 推理滑块 / Luna 免费用户 |
+| 101 | 2026-08-06 | [OpenAI and APA Partner to Advance Responsible AI](openai-and-apa-partner-to-advance-responsible-ai.md) | 心理健康 / 青少年安全 / APA 合作 |
+| 102 | 2026-08-06 | [How the World Is Putting ChatGPT to Work](how-the-world-is-putting-chatgpt-to-work.md) | 全球采用 / OpenAI Signals / 经济研究 |
+| 103 | 2026-08-07 | [Responding to the Next Frontier of Critical Cyber Capabilities](responding-next-frontier-critical-cyber-capabilities.md) | Astra / 网络安全 / Critical 阈值 |
+| 104 | 2026-08-18 | [Introducing ChatGPT for Teens](chatgpt-for-teens.md) | 青少年 / 教育 / 家长控制 / 安全 |
+| 105 | 2026-08-19 | [Pacing Model Development in an Era of Cyber-Critical Capabilities](pacing-model-development-cyber-capabilities.md) | 训练节奏 / 网络安全 / 安全税 |
+| 106 | 2026-08-20 | [Introducing Intelligence Age](introducing-intelligence-age.md) | 治理 / 权力风险 / Strategic Futures |
+| 107 | 2026-08-20 | [Stampli Cuts Launch Hours by 68% Using ChatGPT Work](stampli.md) | 客户案例 / 财务自动化 |
+| 108 | 2026-08-24 | [Advancing Price-Performance with GPT-5.6 in Kiro](gpt-5-6-in-kiro.md) | Kiro / 开发者性价比 / AWS |
+| 109 | 2026-08-25 | [The Full Stack Behind Abundant Intelligence](the-full-stack-behind-abundant-intelligence.md) | 全栈战略 / CFO 视角 / Jevons 悖论 |
+| 110 | 2026-08-25 | [Jalapeño's First Results](jalapeno-first-results.md) | 自研芯片 / 实测 / 每瓦吞吐 |
+| 111 | 2026-08-25 | [Disrupting a New Covert Influence Campaign from Russia](disrupting-malicious-uses-of-ai-influence-campaign-russia.md) | 影响力行动 / 滥用治理 |
+| 112 | 2026-08-25 | [Introducing the Admin Plugin for ChatGPT Work and Codex](introducing-admin-plugin.md) | 管理插件 / 权限 / 自动审批 |
+| 113 | 2026-08-26 | [The Hugging Face Incident and the Road Ahead](hugging-face-incident-and-the-road-ahead.md) | 安全事件复盘 / 失准模式 / 整改 |
+| 114 | 2026-08-26 | [How loveholidays Is Making Everyone a Builder with Codex](loveholidays.md) | 客户案例 / 全员 builder / 11× |
+| 115 | 2026-08-26 | [Bringing ChatGPT for Teachers to More U.S. School Districts](bringing-chatgpt-for-teachers-to-more-us-school-districts.md) | 教育 / 55 学区 / 教师工具 |
+| 116 | 2026-08-26 | [Learning Never Stops](learning-never-stops.md) | 教育 / 持续学习报告 |
+| 117 | 2026-08-27 | [What Students Gain from ChatGPT and Critical-Thinking Training](what-students-gain-from-chatgpt-critical-thinking-training.md) | 教育 / 随机对照研究 |
+| 118 | 2026-08-27 | [Expanding OpenAI's Presence in Brazil](expanding-our-presence-in-brazil.md) | 国际拓展 / 巴西 |
+| 119 | 2026-08-28 | [Supporting Thailand's Next Generation of AI Startups](supporting-next-generation-ai-startups-thailand.md) | 国际拓展 / 加速器 / MHESI |
+| 120 | 2026-08-28 | [Our Decision on Cursor Following Its Acquisition by SpaceX](our-decision-on-cursor-following-its-acquisition-by-spacex.md) | 模型供应 / 商业决策 |
+| 121 | 2026-08-31 | [A Milestone in Expanding Access to AI](expanding-access-to-ai-with-chatgpt-ads.md) | ChatGPT Ads / 10 亿美元 ARR / 免费 AI |
+| 122 | 2026-08-31 | [OpenAI Supports California's Bill to Advance Youth AI Safety](supporting-california-bill-advance-ai-youth-safety.md) | 政策 / SB 1119 / 青少年 |
+| 123 | 2026-08-31 | [Polimill Builds Japan's Next-Generation Public AI Infrastructure](polimill.md) | 客户案例 / 公共部门 / 1050 自治体 |
+| 124 | 2026-09-01 | [Path to Astra: Critical Capabilities and Frontier Safeguards](path-to-astra.md) | Astra / Critical 判据 / GPU 再分配 |
+| 125 | 2026-09-01 | [How AI-Native Companies Turn Workflows into Operating Capability](ai-native-company-workflows.md) | AI 原生公司 / 8.3× token 产出 |
+| 126 | 2026-09-01 | [Healthcare Organizations Can Now Connect EHR to ChatGPT](chatgpt-connects-health-records-and-healthcare-sources.md) | 医疗 / EHR / 可信源 |
+| 127 | 2026-09-01 | [How Law Firm Gilbert + Tobin Governs and Scales AI](gilbert-tobin.md) | 客户案例 / 法律 / 治理 |
+| 128 | 2026-09-02 | [ATV Big Air Tour Turned 3 Days of Work into 3 Hours](atv-big-air-tour.md) | 客户案例 / 中小企业 / AEO |
+| 129 | 2026-09-03 | [GPT-6 Astra: A New Generation of Intelligence](gpt-6-astra.md) | 旗舰模型 / ARC-AGI-3 99.9% / Critical |
+| 130 | 2026-09-03 | [Safety Overview: GPT-6 Astra](safety-overview-gpt-6-astra.md) | 安全概览 / 失配监控 / 可监控性 |
+| 131 | 2026-09-03 | [Daybreak for Frontline Defenders: $1B](daybreak-for-frontline-defenders.md) | 网络安全 / 10 亿美元 / 关键服务 |
+| 132 | 2026-09-03 | [Playco Cut Manual Fixes 50% Prototyping Games with GPT-6 Astra](playco-game-prototyping-with-astra.md) | 客户案例 / 游戏原型 / Astra |
+| 133 | 2026-09-03 | [Legora Reviewed 41 Documents in Minutes with GPT-6 Astra](legora-financial-statement-review-with-astra.md) | 客户案例 / 法律 / BAR +40% |
+| 134 | 2026-09-06 | [An Alien Mind](an-alien-mind.md) | 对齐反思 / CoT 监控 / 国际协调 |
+| 135 | 2026-09-06 | [Research Acceleration: The View Inside OpenAI](research-acceleration-view-inside-openai.md) | 内部数据 / 3.1 agent 工作日 |
+| 136 | 2026-09-07 | [Supporting Independent Journalism in Ukraine](supporting-independent-journalism-in-ukraine.md) | 新闻业 / 乌克兰 / AIRPPU |
+| 137 | 2026-09-08 | [The Work Now Within Reach](the-work-now-within-reach.md) | 经济扩张 / 可及工作 |
+| 138 | 2026-09-08 | [Introducing ChatGPT Images 2.5](introducing-chatgpt-images-2-5.md) | 图像生成 / Flare/Sunburst / C2PA |
+| 139 | 2026-09-08 | [On the Navier–Stokes Millennium Prize Problem](navier-stokes-solution.md) | 数学 / 千年问题 / Lean 形式化 |
+| 140 | 2026-09-08 | [Funding Grants for Research into AI and Teen Development](teen-development-research-grants.md) | 青少年 / $5M 资助 / 独立研究 |
+| 141 | 2026-09-08 | [Supporting Journalism from Classrooms to Newsrooms](supporting-journalism-from-classrooms-to-newsrooms.md) | 新闻业 / 教育扩展 |
+| 142 | 2026-09-08 | [1Password Increases Engineering Productivity 21% with Codex](1password.md) | 客户案例 / ROI 553% / 零知识 |
+| 143 | 2026-09-08 | [How GPT-5.6 Sol Helps Run Quantum Computing Experiments](codex-quantum-computing-experiments.md) | 科学 / 量子计算 / MIT |
+| 144 | 2025-10-30 | [Aardvark：OpenAI 的自主式安全研究员](introducing-aardvark.md) | Aardvark / 网络安全 / 漏洞挖掘 |
+| 145 | 2026-04-16 | [GPT-Rosalind 发布：面向生命科学的前沿推理模型](introducing-gpt-rosalind.md) | GPT-Rosalind / 生命科学 / 药物发现 |
+| 146 | 2026-09-09 | [AI 政策窗口已经打开,我们必须行动](ai-policy-window-is-open.md) | AI政策 / 安全治理 / 政策窗口 |
+| 147 | 2026-09-09 | [GPT-6 Astra:面向工作的下一代智能](gpt-6-astra-next-generation-of-work.md) | GPT-6Astra / 企业AI / ComputerUse |
+| 148 | 2026-09-09 | [Paul Christiano 加入 OpenAI 基金会董事会](paul-christiano-joins-foundation-board.md) | 治理 / 对齐研究 / 人事任命 |
+| 149 | 2026-09-10 | [用 Codex 与 ChatGPT 搜索新型抗菌分子](search-for-new-antimicrobials.md) | AIforScience / 抗菌肽 / 基因组挖掘 |
+| 150 | 2026-09-10 | [让数据为每个人工作:ChatGPT Work 的 Data agent](put-data-to-work.md) | DataAgent / 自然语言BI / 企业AI |
+| 151 | 2026-09-10 | [ChatGPT 金融版:内置数据 + 旗舰模型打包](introducing-chatgpt-financial-services.md) | 金融服务 / 垂直行业版 / GPT-6Astra |
+| 152 | 2026-09-10 | [OpenAI 扩大对美国政府的 AI 访问与网络防御](expanding-ai-access-us-government.md) | GSA / 政府AI / 网络防御 |
+| 153 | 2026-09-10 | [Agents API:OpenAI 把 Codex 智能体骨架产品化](introducing-the-agents-api.md) | AgentsAPI / 智能体编排 / 托管智能体 |
+| 154 | 2026-09-10 | [GPT-Live-1 进入 API:构建更自然的语音体验](introducing-gpt-live-1-in-the-api.md) | GPT-Live-1 / 全双工 / 实时语音 |
+| 155 | 2026-09-11 | [为 10 亿 ChatGPT 用户扩展在线存储:Habitat 系列第一篇](scaling-storage-one-billion-users.md) | Habitat / 在线存储 / 22MQPS |
+| 156 | 2026-09-11 | [Cognition 用 GPT-6 Astra 让 Devin 测试自己的工作](cognition-devin-testing-with-astra.md) | Cognition / Devin / 自我测试 |
+| 157 | 2026-09-14 | [Fyxer:打造人们敢托付的 AI 行政助理](fyxer-email-agents.md) | Fyxer / 邮件智能体 / 人机信任 |
+| 158 | 2026-09-14 | [Perplexity 把端到端系统托付给 GPT-6 Astra](perplexity-accuracy-with-astra.md) | Perplexity / 长视野智能体 / 生产运维 |
+| 159 | 2026-09-16 | [帮助老年人在日常生活中使用 AI](helping-older-adults-use-ai.md) | 适老化 / AARP / 防诈骗 |
+| 160 | 2026-09-16 | [用 AI 重新想象广告:Sponsored Agents 登场](reimagining-advertising-with-ai.md) | SponsoredAgents / AI广告 / ChatGPTAds |
+| 161 | 2026-09-16 | [Hex 用 GPT-6 Astra 把复杂分析变成可视化报告](hex-gpt-6-astra.md) | Hex / 数据智能体 / 可视化 |
+| 162 | 2026-09-16 | [如何把 AI 使用连接到业务价值](connect-ai-usage-to-business-value.md) | AIROI / 度量框架 / 企业采用 |
+| 163 | 2026-09-16 | [OpenAI 的模型失准报告框架](model-misalignment-reporting-framework.md) | 模型失准 / 安全披露 / 六起事件 |
+| 164 | 2026-09-16 | [劳动者如何解锁新的工作方式](unlocking-new-ways-of-working.md) | 经济研究 / 劳动力 / 能力束 |
+| 165 | 2026-09-17 | [Cooley 如何用 ChatGPT 加速 IPO 工作](cooley-gopublic.md) | Cooley / 法律AI / IPO |
+| 166 | 2026-09-17 | [Astra for Law:法律服务垂直智能](astra-for-law.md) | Astra-for-Law / 法律AI / 垂直行业 |
+| 167 | 2026-09-18 | [澳大利亚青年安全蓝图](australian-youth-safety-blueprint.md) | 青年安全 / 适龄防护 / 澳大利亚 |
+| 168 | 2026-09-21 | [Higgsfield 用 GPT-6 Astra 一天交付新视频功能](higgsfield-prompt-to-production.md) | Higgsfield / 视频创作 / 客户案例 |
+| 169 | 2026-09-21 | [数学与人工智能顾问组成立](advisory-group-mathematics-ai.md) | AI治理 / 数学 / 同行评审 |
+| 170 | 2026-09-21 | [为 AI 的下一阶段构建全球标准](building-standards-next-phase-ai.md) | AI标准 / 国际治理 / 政策倡议 |
+| 171 | 2026-09-21 | [OpenAI Academy 新增结构化学习路径](openai-academy-learning-paths.md) | OpenAIAcademy / 学习路径 / AI素养 |
+| 172 | 2026-09-21 | [V7 用 GPT-5.6 Luna 降本 78% 并提升准确率](v7.md) | V7 / GPT-5.6-Luna / 成本优化 |
+| 173 | 2026-09-22 | [GPT-6 提示词缓存改进:最高 90% 折扣与 30 分钟窗口](better-prompt-caching-for-gpt-6.md) | PromptCaching / 成本优化 / API设计 |
+| 174 | 2026-09-22 | [GPT-6 Sol 与 Luna:价格减半、9% 成本胜 Opus 5](introducing-gpt-6-sol-and-luna.md) | GPT-6 / Sol / Luna / 价格战 |
+| 175 | 2026-09-22 | [Parallel 用 GPT-6 Astra 将研究时间与成本减半](parallel-cuts-time-and-cost.md) | Parallel / 地理空间情报 / 客户案例 |
+| 176 | 2026-09-22 | [有效第三方评估的优先事项与原则](principles-third-party-assessments.md) | 第三方评估 / 红队 / 独立监督 |
+| 177 | 2026-09-23 | [OpenAI Academy 两周年:从课程库到分层学习体系](two-years-of-openai-academy.md) | OpenAIAcademy / AI教育 / 两周年 |
+| 178 | 2026-09-23 | [OpenAI 向乌克兰扩展民用防御网络能力](ukraine-civilian-defense-cyber-access.md) | 网络安全 / Daybreak / 乌克兰 |
+| 179 | 2026-09-23 | [Ringg 的 AI 智能体解决高达 65% 的客户来电](ringg.md) | Ringg / 语音智能体 / 客服自动化 |
+| 180 | 2026-09-23 | [Harvey 用 GPT-6 Astra 把法律上下文变成更可靠的草稿](harvey-context-to-confidence.md) | Harvey / 法律科技 / 客户案例 |
+| 181 | 2026-09-23 | [invideo 用 GPT-6 Astra 将调色质量提升 3 倍](invideo-builds-with-astra.md) | invideo / 视频编辑 / 客户案例 |
+| 182 | 2026-09-23 | [Sam Altman 联合国安理会发言](sam-altman-un-security-council-remarks.md) | 联合国 / AI治理 / 国际合作 |
+| 183 | 2026-09-23 | [MentalHealthBench:AI 心理健康对话评估基准](introducing-mentalhealthbench.md) | 评估基准 / 心理健康 / LLM评估 |
+| 184 | 2026-09-23 | [ChatGPT Ads 扩张至东南亚与台湾](chatgpt-ads-expands-southeast-asia-taiwan.md) | ChatGPTAds / 东南亚 / 广告扩张 |
+| 185 | 2026-09-23 | [Airbnb 扩大 GPT-6 Astra 与 OpenAI 前沿模型的使用面](airbnb-gpt-6-astra.md) | Airbnb / 工程效能 / 规模化采用 |
+| 186 | 2026-09-23 | [Grab 与 OpenAI 为东南亚带来实用 AI 技能](grab-ai-skills-southeast-asia.md) | Grab / AI技能培训 / 东南亚 |
+| 187 | 2026-09-25 | [Proaction 案例:Codex 全家桶让销售提升 60%](proaction.md) | Proaction / Codex / 客户案例 |
+| 188 | 2026-09-25 | [一个智能体利用 DNS 访问外部聊天机器人](agent-used-dns-to-reach-external-chatbot.md) | 模型失准 / DNS隧道 / 训练暂停 |
+| 189 | 2026-09-28 | [我们将如何为澳大利亚做得更好](how-we-will-do-better-for-australia.md) | 澳大利亚 / 道歉与整改 / 主权安全 |
+| 190 | 2026-09-28 | [Lenfest 研究所在 OpenAI 扩大支持下发展标志性计划](lenfest-ai-collaborative.md) | Lenfest / 新闻业 / 地方媒体 |
+| 191 | 2026-09-28 | [Basis 用 GPT-6 Astra 快 2 倍完成税务工作簿](basis-tax-workbook.md) | Basis / 税务自动化 / 客户案例 |
+| 192 | 2026-09-28 | [面向前沿 AI 训练的安全案例](towards-safety-cases-for-frontier-ai-training.md) | 安全案例 / 高管否决 / 补录 |
+| 193 | 2026-09-29 | [DevDay 2026 回顾：Agent 时代](devday-2026-recap.md) | DevDay / dots / 20+ 更新 |
+| 194 | 2026-09-29 | [GPT-6.1 Sol 发布](introducing-gpt-6-1-sol.md) | GPT-6.1Sol / near-Astra / 1/5 价格 |
+| 195 | 2026-09-29 | [dots 正式登场](introducing-dots.md) | dots / 常驻 Agent / 个人助理 |
+| 196 | 2026-09-30 | [阻断有组织的模型蒸馏行动](disrupting-a-coordinated-model-distillation-campaign.md) | 模型安全 / 对抗蒸馏 / Moonshot |
+| 197 | 2026-09-30 | [帮助小企业把 AI 用到实处](helping-small-businesses-put-ai-to-work.md) | 小企业 / SBDC / AI 培训 |
+| 198 | 2026-10-01 | [永恒的互补品](the-eternal-complement.md) | IntelligenceAge / 执行经济学 |
+| 199 | 2026-10-02 | [GPT-6 家族模型选型指南](practical-guide-building-gpt-6.md) | 模型选型 / 提示工程 / 生产化 |
+| 200 | 2026-10-05 | [应对欧盟文本溯源规则](eu-text-provenance.md) | textGrain / 水印 / AI 法案 |
+| 201 | 2026-10-05 | [为 AI 使用方式而造的广告](new-chatgpt-ads-format-and-measurement.md) | ChatGPTAds / 视觉格式 / 归因 |
+| 202 | 2026-10-06 | [分享 AI 数学进展](sharing-ai-progress-in-mathematics.md) | AIforMath / Lean / 722 篇开源 |
+| 203 | 2026-10-06 | [携手 Ironclad 推进计算机操作](advancing-computer-use-with-ironclad.md) | ComputerUse / 合同工作流 / 评测 |
+| 204 | 2026-10-06 | [Atlassian 与 OpenAI 扩大合作](atlassian-partnership.md) | Atlassian / 企业知识 / 战略协作 |
+| 205 | 2026-10-06 | [研究元博弈内部表征](metagaming-latents.md) | 对齐研究 / SAE / 元博弈 |
+| 206 | 2026-10-06 | [LASER：递归采样](laser.md) | 安全评估 / 主动学习 / 效率 |
+| 207 | 2026-10-07 | [GPT-6 与 Intelligent UI 面向所有人](gpt-6-for-everyone.md) | GPT-6 / IntelligentUI / 全球铺开 |
+| 208 | 2026-10-07 | [青少年学习、规划与 AI 未来](teens-learn-and-plan.md) | 青少年 / CollegePlanner / AI 理事会 |
+| 209 | 2026-10-08 | [阻断"虚假掩护"影响力行动](disrupting-ai-enabled-false-front-operations.md) | 影响力行动 / 伊朗 / 俄罗斯 |
+| 210 | 2026-10-09 | [Sophos 威胁调查提速 96%](sophos.md) | Daybreak / MDR / 客户案例 |
+| 211 | 2026-10-09 | [Asana 浏览器智能体降本 76 倍](asana-browser-agent.md) | Asana / 成本优化 / 浏览器智能体 |
+| 212 | 2026-10-09 | [破坏任务环境以触发重置](damaging-the-task-environment-to-trigger-a-reset.md) | 失准报告 / 评分智能体 / 环境破坏 |
+| 213 | 2026-10-14 | [欧盟 AI 下一篇章是智能体](the-eus-next-chapter-in-ai-is-agentic.md) | 欧盟 / AgenticAI / 采用分析 |
+| 214 | 2026-10-14 | [Amp 把智能体用到代码之外](amp-beyond-coding.md) | Amp / 能力栈组合 / 客户案例 |
+| 215 | 2026-10-14 | [SentinelOne 恶意软件分析提速](sentinelone.md) | Daybreak / 恶意软件分析 / 客户案例 |
+| 216 | 2026-10-14 | [Third Moment 运行万级智能体](third-moment-research.md) | 长视野 / 10000 并发 / 客户案例 |
+| 217 | 2026-10-15 | [GPT-Rosalind 学术计划](introducing-the-rosalind-academic-plan.md) | Rosalind / 学术访问 / 生命科学 |
+| 218 | 2026-02-13 | [Beyond Rate Limits: Codex 与 Sora 访问扩容](beyond-rate-limits.md) | Codex / Sora / 访问扩容（历史补录） |
+| 219 | 2026-04-22 | [Responses API WebSocket 提速](speeding-up-agentic-workflows-with-websockets.md) | ResponsesAPI / WebSocket（历史补录） |
+| 220 | 2026-04-27 | [开源编排规范 Symphony](open-source-codex-orchestration-symphony.md) | Symphony / 编排（历史补录） |
+| 221 | 2026-05-27 | [用 Codex 构建自我改进税务智能体](building-self-improving-tax-agents-with-codex.md) | 税务 Agent / 自我改进（历史补录） |
+| 222 | 2026-05-28 | [OpenAI 前沿治理框架](openai-frontier-governance-framework.md) | 前沿治理 / 框架（历史补录） |
+| 223 | 2026-05-29 | [可信第三方评估共享手册](trustworthy-third-party-evaluations-foundations.md) | 第三方评估 / 手册（历史补录） |
+| 224 | 2026-06-02 | [Codex for Every Role, Tool, Workflow](codex-for-every-role-tool-workflow.md) | Codex / 多角色（历史补录） |
+| 225 | 2026-10-29 | [前沿模型失准监控：从探针到调查闭环](how-we-detect-frontier-model-misalignment.md) | 失准监控 / Agent安全 / 评估 |
+| 226 | 2026-11-05 | [GPT-6 Cyber：把能力与任务范围遵守一起评估](introducing-gpt-6-cyber.md) | 网络安全 / Agent评估 / 范围约束 |
+| 227 | 2026-11-09 | [Control Room：在推理层集中停止研究工作负载](control-room.md) | 运行时控制 / Agent安全 / 基础设施 |
+| 228 | 2026-11-16 | [嵌入式评估首阶段：访问深度与独立性协议](our-first-phase-of-embedded-assessments.md) | 独立评估 / 对齐 / 治理 |
+
+历史维护记录：[2026-07-07 同步](../../sync-report-2026-07-07.md)。同步记录不作为独立文章计数。

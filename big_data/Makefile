@@ -1,4 +1,4 @@
-.PHONY: check links placeholders curriculum projects assessments materials docs-build lab-l0 lab-l0-test lab-l1 lab-l1-test lab-l2 lab-l2-test lab-l3 lab-l3-test lab-l4 lab-l4-test lab-l5 lab-l5-test lab-test
+.PHONY: check links placeholders curriculum projects assessments materials docs-build lab-l0 lab-l0-test lab-l1 lab-l1-test lab-l2 lab-l2-test lab-l3 lab-l3-test lab-l3-cdc lab-l3-cdc-test lab-l4 lab-l4-test lab-l5 lab-l5-test lab-test
 
 check: links placeholders curriculum projects assessments
 
@@ -64,4 +64,10 @@ lab-l5:
 lab-l5-test: lab-l5
 	cd labs/l5-strategy-radar && python3 -m unittest test_strategy_radar.py
 
-lab-test: lab-l0-test lab-l1-test lab-l2-test lab-l3-test lab-l4-test lab-l5-test
+lab-l3-cdc:
+	cd labs/l3-cdc-replay && python3 replay_cdc.py data/events.jsonl.sample
+
+lab-l3-cdc-test: lab-l3-cdc
+	cd labs/l3-cdc-replay && python3 -m unittest test_replay_cdc.py
+
+lab-test: lab-l0-test lab-l1-test lab-l2-test lab-l3-test lab-l3-cdc-test lab-l4-test lab-l5-test

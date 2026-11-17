@@ -1,5 +1,7 @@
 # 大模型端侧部署（On-Device Deployment）技术全景
 
+> 2026-11-17 工程补充：[运行时与交付更新](runtime_update_2026-11.md) · [硬件路线图](hardware_roadmap.md) · [5.5 导出 / 运行时一致性](05_hardware_deployment/5.5_export_runtime_parity.ipynb)。版本、后端与测量条件以补充文档和目标环境核验为准。
+
 ## 目录
 
 - [总览](#总览)
@@ -555,12 +557,11 @@
   - 高通Hexagon：V68 ISA，4x128 INT8 MAC，4MB SRAM，75 TOPS (8 Elite)，原生INT4支持
   - 苹果Neural Engine：数据流架构，16x128 INT8 MAC，~8MB SRAM (M4)，38 TOPS，FP16优化最佳
   - 华为昇腾：达芬奇架构3D Cube，16x16x16 Cube，2-8MB SRAM，128 TOPS (310P)
-  - 联发科APU：Cadence DSP+自研加速，可配置MAC阵列，2-4MB SRAM，45 TOPS (9400)，天玑9500原生支持1.58-bit
-- **2026年2nm芯片世代更新**
-  - 骁龙8 Elite Gen 5（2025Q4）：3nm→2nm工艺，Hexagon V69，~60 TOPS (INT8)，原生INT4/1.58-bit加速
-  - Apple A20（2025Q4）：2nm工艺，ANE 35+ TOPS，统一内存带宽提升至120 GB/s
-  - 联发科天玑9500（2026Q1）：2nm工艺，~50 TOPS，首款原生支持BitNet 1.58-bit推理的移动芯片
-  - 华为昇腾910C（2025）：5nm工艺，256 TOPS (INT8)，面向端云协同场景
+  - 联发科 APU：DSP 与专用加速单元协同；精度、算子和内存支持需按目标 SoC 与 SDK 核对，不能据芯片世代推断原生 1.58-bit 支持
+- **硬件世代与低比特支持核验（2026-11）**
+  - 芯片工艺、TOPS、支持的精度与具体模型算子是不同维度，不能由工艺节点推断原生 1.58-bit / INT4 支持。
+  - 按目标芯片的 SDK、delegate / provider 支持和算子分区确认实际执行路径；参数量和峰值 TOPS 不能代替质量、内存、延迟与热稳态测量。
+  - 本课不再沿用没有官方型号资料与测量配置的世代参数表，实操路径见 [硬件路线图](hardware_roadmap.md)。
 - **NPU内存层次与数据流**
   - DRAM（4-16GB，30-120 GB/s）→ DMA异步传输 → SRAM（256KB-8MB，>1 TB/s）→ MAC寄存器（4-32KB，>10 TB/s）
   - 关键洞察：NPU性能瓶颈通常不在MAC阵列计算能力，而在DRAM→SRAM的数据搬运
@@ -723,8 +724,8 @@
 | **Qualcomm AI Hub** | 骁龙NPU | ★★★ | ★★★★★ | INT4/INT8 | 骁龙平台快速部署 |
 | **NCNN** | ARM CPU | ★★ | ★ | INT8 | CV模型, ARM极致优化 |
 | **MNN** | CPU/GPU/NPU | ★★★ | ★★★ | INT8/INT4 | 移动端多模态 |
-| **CoreAI** (2026) | Apple全栈 | ★★★★★ | ★★★★★ | INT4/INT8/FP16 | iOS/macOS, 替代Core ML, 比MLX快2.47x |
-| **LiteRT-LM** (2026) | Android CPU/NPU | ★★★★ | ★★★★ | INT4/INT8 | TFLite演进版, 内存降30%+ |
+| **Core AI** (WWDC26) | Apple 平台 | 按模型核验 | 按 SDK 核验 | 按模型 / 后端核验 | 新端侧框架；Python 工具 + Swift API，检查系统可用性 |
+| **LiteRT-LM** | 多平台 | 按模型核验 | 按后端核验 | 按模型 / 后端核验 | LiteRT 上的 LLM 编排层，检查设备、语言与加速路径 |
 | **Ollama** | CPU/GPU | ★★★★★ | ★ | Q4_K_M等 | 极简部署, 一行命令运行模型 |
 
 
@@ -1655,10 +1656,10 @@ $$T_{\text{fallback}} = T_{\text{NPU}\to\text{CPU}} + T_{\text{CPU}} + T_{\text{
 
 ### 14.4 部署工具生态（2026 更新）
 
-- **Ollama**：一行命令运行模型（`ollama run gemma4`），支持模型融合、GPU 内存共享，端侧原型开发首选
+- **Ollama**：本地模型运行入口；模型名、配置与资源选项以安装版本和实际模型为准
 - **LM Studio**：图形界面管理模型，支持 GGUF/MLX 多格式，适合非技术用户
-- **Apple CoreAI**（WWDC 2026）：替代 Core ML 的统一 AI 推理框架，比 MLX 快 2.47x，iOS/macOS 开发者首选
-- **Google LiteRT-LM**：TFLite 演进版，2026.03 更新降内存 30%+，Android 端 LLM 部署官方方案
+- **Apple Core AI**（WWDC26）：新端侧部署框架，按目标系统、模型和算子验证；不把演示速度外推到全部工作负载
+- **Google LiteRT-LM**：LiteRT 上的 LLM 编排层，覆盖多平台；具体语言、设备和后端支持见 [近期官方资料](runtime_update_2026-11.md)
 
 ---
 
@@ -1997,7 +1998,7 @@ RoPE、RMSNorm、SiLU/SwiGLU、INT4 GEMM 解包、KV cache update、采样（top
 │   └── Adapter / Prefix Tuning
 │
 ├── 硬件适配？ → 部署框架选择 (第5章)
-│   ├── iOS/macOS → CoreAI(2026, 推荐) / MLX / Core ML
+│   ├── iOS/macOS → Core AI / MLX / Core ML（按 OS、模型与后端验证）
 │   ├── Android (高通) → QNN / ExecuTorch / MNN / LiteRT-LM
 │   ├── Android (联发科) → NeuroPilot / MNN / LiteRT-LM
 │   ├── 国产NPU (第10章)
@@ -2115,6 +2116,7 @@ RoPE、RMSNorm、SiLU/SwiGLU、INT4 GEMM 解包、KV cache update、采样（top
 | 5.2 | 部署框架 | [05_hardware_deployment/5.2_deployment_frameworks.ipynb](05_hardware_deployment/5.2_deployment_frameworks.ipynb) |
 | 5.3 | 硬件感知优化 | [05_hardware_deployment/5.3_hardware_aware.ipynb](05_hardware_deployment/5.3_hardware_aware.ipynb) |
 | 5.4 | 硬件基准测试 | [05_hardware_deployment/5.4_hardware_benchmarking.ipynb](05_hardware_deployment/5.4_hardware_benchmarking.ipynb) |
+| 5.5 | 导出与运行时一致性 | [05_hardware_deployment/5.5_export_runtime_parity.ipynb](05_hardware_deployment/5.5_export_runtime_parity.ipynb) |
 | 6.0 | 模型格式 | [06_model_format/6.0_model_format.ipynb](06_model_format/6.0_model_format.ipynb) |
 | 6.1 | 模型版本管理 | [06_model_format/6.1_model_versioning.ipynb](06_model_format/6.1_model_versioning.ipynb) |
 | 7.1 | 端云协同推理 | [07_edge_cloud/7.1_edge_cloud_inference.ipynb](07_edge_cloud/7.1_edge_cloud_inference.ipynb) |

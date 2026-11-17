@@ -1,6 +1,15 @@
 # DeepSeek（深度求索）— 核心观点总结
 
-> 汇总自 [DeepSeek API 文档](https://api-docs.deepseek.com/)、[官网](https://www.deepseek.com/) 及公开报道，当前覆盖 2026 年 4 月至 10 月，共 9 篇（含 1 篇补录）。
+> 汇总自 [DeepSeek API 文档](https://api-docs.deepseek.com/)、[官网](https://www.deepseek.com/) 及公开报道，当前覆盖 2026 年 4 月至 11 月，共 11 篇（含 1 篇补录）。
+
+## 本次增量（2026-11-17）
+
+本轮补充 1017 后训练更新及应用 API，明确独立工具与服务端编排的边界，并补上 Search / Fetch 的正式公告证据。
+
+- [DeepSeek V4.1 Flash 1017：后训练更新与搜索 API 公告](news261017.md)（2026-10-17）。
+- [DeepSeek 应用 API：搜索、文件、链接与语音的组合](news261113.md)（2026-11-13）。
+
+当前独立摘要 11 篇；本轮新增 2 篇。具体检索范围与主题复核见 [同步报告](../../sync-report-2026-11-17.md)。
 
 ## 一、总体脉络
 
@@ -159,6 +168,8 @@ V4 优先适配华为昇腾等国产 AI 芯片，未向美国芯片供应商开�
 | 7 | 2026-08-21 | [V4-Flash-Vision-Exp 上线](deepseek-v4-flash-vision-exp.md) | 多模态 API / Files API / 三格式兼容 |
 | 8 | 2026-09-10 | [DeepSeek-V4.1-Flash 发布](deepseek-v4-1-flash.md) | 新架构家族 / 原生多模态 / KV Cache 437× / 超旗舰基准 |
 | 9 | 2026-10-16 | [Search & Fetch API 上线](deepseek-search-fetch-api.md) | 联网检索原语 / 按次计费 / Agent 基础设施 |
+| 10 | 2026-10-17 | [DeepSeek V4.1 Flash 1017：后训练更新与搜索 API 公告](news261017.md) | DeepSeek / Agent后训练 / 搜索工具 |
+| 11 | 2026-11-13 | [DeepSeek 应用 API：搜索、文件、链接与语音的组合](news261113.md) | 应用API / 工具调用 / 多模态 |
 
 > **补录说明**：#6 发布于上次同步锚点（2026-09-10）之前，此前同步未入库，于 2026-10-16 补录；#9 官方无独立新闻稿，发布日期为第三方首报日期（推定）。
 

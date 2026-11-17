@@ -1,6 +1,14 @@
 # Anthropic Research — 核心观点总结
 
-> 汇总自 [Anthropic Research](https://www.anthropic.com/research) 页面的 56 篇文章，涵盖 2026 年 5 月至 10 月。
+> 汇总自 [Anthropic Research](https://www.anthropic.com/research) 页面的 57 篇文章，涵盖 2026 年 5 月至 10 月。
+
+## 本次增量（2026-11-17）
+
+本轮补充专家判断实验，关注人类是否实际保留关键决策，而不只统计执行速度。
+
+- [AI 如何影响专家判断：执行辅助之外的决策偏向](agents-judgment-calls.md)（2026-10-27）。
+
+当前独立摘要 57 篇；本轮新增 1 篇。具体检索范围与主题复核见 [同步报告](../../sync-report-2026-11-17.md)。
 
 ## 一、总体脉络
 
@@ -260,5 +268,6 @@ Anthropic 的 Research 博客呈现九条主线：
 | 54 | 2026-10-14 | [Preparing for the 2026 US midterms](2026-us-midterms.md) | 选举安全 / 公正性 99% / 多步滥用检测 |
 | 55 | 2026-10-14 | [Singapore office and government MOU](singapore-office-opening.md) | 政府合作 / 亚太第五办公室 / 人均用量第 2 |
 | 56 | 2026-10-15 | [An update on independent evaluators](an-update-on-independent-evaluators.md) | 治理 / METR 类员工权限 / 三级架构 |
+| 57 | 2026-10-27 | [AI 如何影响专家判断：执行辅助之外的决策偏向](agents-judgment-calls.md) | 人机协作 / 实验设计 / 专家判断 |
 
 > *econ-scenarios 页面无发布日期，按最早媒体报道推定为 2026-09-09（美西），文件内已注明。

@@ -1,0 +1,10 @@
+{"partition":0,"offset":0,"key":"order-A","revision":1,"op":"upsert","value":{"status":"created"}}
+{"partition":0,"offset":1,"key":"order-A","revision":3,"op":"upsert","value":{"status":"paid"}}
+{"partition":0,"offset":2,"key":"order-A","revision":2,"op":"upsert","value":{"status":"pending"}}
+{"partition":0,"offset":3,"key":"order-B","revision":1,"op":"upsert","value":{"status":"created"}}
+{"partition":0,"offset":4,"key":"order-B","revision":3,"op":"delete","value":null}
+{"partition":0,"offset":5,"key":"order-B","revision":2,"op":"upsert","value":{"status":"pending"}}
+{"partition":0,"offset":1,"key":"order-A","revision":3,"op":"upsert","value":{"status":"paid"}}
+{"partition":1,"offset":0,"key":"order-C","revision":1,"op":"upsert","value":{"status":"created"}}
+{"partition":1,"offset":4,"key":"order-C","revision":2,"op":"upsert","value":{"status":"shipped"}}
+{"partition":0,"offset":4,"key":"order-B","revision":3,"op":"delete","value":null}

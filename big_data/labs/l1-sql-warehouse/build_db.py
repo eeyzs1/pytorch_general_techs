@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 
 SCHEMA = """
@@ -82,7 +83,7 @@ def build(output: Path) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     if output.exists():
         output.unlink()
-    with sqlite3.connect(output) as conn:
+    with closing(sqlite3.connect(output)) as conn:
         conn.executescript(SCHEMA)
         conn.executemany("INSERT INTO users VALUES (?, ?, ?)", USERS)
         conn.executemany("INSERT INTO products VALUES (?, ?, ?, ?)", PRODUCTS)

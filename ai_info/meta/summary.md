@@ -1,6 +1,15 @@
 # Meta AI — 核心观点总结
 
-> 汇总 Meta AI 近期重大动态，22 篇文章，涵盖 2025 年 4 月至 2026 年 10 月。
+> 汇总 Meta AI 近期重大动态，24 篇文章，涵盖 2025 年 4 月至 2026 年 11 月。
+
+## 本次增量（2026-11-17）
+
+本轮通过 research.meta.ai 的当前列表补充专门模型与 Muse Ember；旧 ai.meta.com/blog 列表不能代表新的研究发布。
+
+- [Meta 将专门模型与主动记忆带入 Muse 和 Meta AI](specialized-models-for-muse-and-metaai.md)（2026-11-06）。
+- [Muse Ember：面向重复 Agent 子任务的经济模型](muse-ember.md)（2026-11-09）。
+
+当前独立摘要 24 篇；本轮新增 2 篇。具体检索范围与主题复核见 [同步报告](../sync-report-2026-11-17.md)。
 
 ## 一、总体脉络
 
@@ -189,5 +198,7 @@ Llama 4 发布 → 刷榜丑闻 → 组织重组 → 闭源转向 → Muse Spark
 | 20 | 2026-10-07 | [Muse 登顶下载榜之后](meta-muse-personal-ai-agents-dazzle.md) | 采用数据 / 留存挑战 / 算力订阅 |
 | 21 | 2026-10-12 | [Muse Wonder](muse-wonder.md) | 前沿双型号 / Active Memory / Active Focus |
 | 22 | 2026-10-15 | [Muse Spark Open](muse-spark-open.md) | 开放权重 / 816B MoE / $20M 许可门槛 |
+| 23 | 2026-11-06 | [Meta 将专门模型与主动记忆带入 Muse 和 Meta AI](specialized-models-for-muse-and-metaai.md) | 模型专门化 / Agent记忆 / 任务恢复 |
+| 24 | 2026-11-09 | [Muse Ember：面向重复 Agent 子任务的经济模型](muse-ember.md) | 高效模型 / Agent子任务 / 评估口径 |
 
 > **说明**：ai.meta.com 与 research.meta.ai 在首轮检索环境不可达，9 月初四篇经 GIGAZINE 等二手信源与官方推文交叉验证入库；2026-09-09 经 VPN 复核 research.meta.ai 官方列表：08/21–08/31 窗口确认无遗漏，各条目官方 URL 已逐一验证有效，其中"How We Built Safety Into Muse"经官方全文抓取补录。2026-10-16 检索窗口（09-25 ~ 10-16）：官方域名仍不可达（解析到非公开 IP），10 月三篇经 Artificial Analysis、Forkast、GIGAZINE、CNBC、Engadget/Pakistan Post、搜狐多源交叉验证，官方 URL（research.meta.ai/blog/muse-wonder、/muse-spark-open）均已定位；Watermelon→Wonder 代号关联源自 The Information 报道（经 Forkast 转述）。

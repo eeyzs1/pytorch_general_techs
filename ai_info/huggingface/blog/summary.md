@@ -1,6 +1,16 @@
 # Hugging Face — 核心观点总结
 
-> 汇总自 [Hugging Face Blog](https://huggingface.co/blog)，当前收录 62 篇文章（2026 年 7 月至 10 月）。
+> 汇总自 [Hugging Face Blog](https://huggingface.co/blog)，当前收录 65 篇文章（2026 年 7 月至 11 月）。
+
+## 本次增量（2026-11-17）
+
+本轮从官方与作者团队原文补充 Agent 后训练课程、Decision Models 和 llama.cpp 库版本边界。
+
+- [Agent 后训练课程：从轨迹模仿到完整运行反馈](train-agents.md)（2026-10-20）。
+- [Decision Models：直接评估候选动作的结构化接口](decision.md)（2026-11-10）。
+- [llama.cpp 1.0：本地推理库的 API 与 ABI 边界](llama-cpp-v1.md)（2026-11-13）。
+
+当前独立摘要 65 篇；本轮新增 3 篇。具体检索范围与主题复核见 [同步报告](../../sync-report-2026-11-17.md)。
 
 ## 一、总体脉络
 
@@ -257,6 +267,9 @@ HF 的响应成为防御范式样板：用自有开源模型完成检测、遏�
 | 60 | 2026-10-15 | [Welcome Muse Spark Open](meta-muse-spark-open.md) | 816B-A42B MoE / 1M 上下文 / Meta |
 | 61 | 2026-10-15 | [Welcome FLUX.3 Image Klein in Diffusers](flux-3.md) | 文生图 / 布局控制 / 2 秒出图 |
 | 62 | 2026-10-16 | [Scaling Indic Pretraining](scaling-indic-pretraining.md) | 2.8T token 语料 / 22 语言 / 开放管线 |
+| 63 | 2026-10-20 | [Agent 后训练课程：从轨迹模仿到完整运行反馈](train-agents.md) | Agent后训练 / TRL / 强化学习 |
+| 64 | 2026-11-10 | [Decision Models：直接评估候选动作的结构化接口](decision.md) | 决策模型 / 结构化输出 / 推理效率 |
+| 65 | 2026-11-13 | [llama.cpp 1.0：本地推理库的 API 与 ABI 边界](llama-cpp-v1.md) | 本地推理 / llama.cpp / 版本兼容 |
 
 > **说明**：本次同步（2026-08-01）补齐 Hugging Face 博客常规列表中的 7 篇文章；2026-08-08 新增 3 篇共 11 篇；2026-08-21 新增 5 篇共 16 篇。2026-09-09 同步新增 16 篇（8/20–9/8）共 32 篇。本批 huggingface.co 官方域名直连失败，正文经 hf-mirror.com 镜像获取（内容与官方同步，仅域名不同），URL 已还原为官方域名。后续同步将继续追踪 HF 博客列表与社区动态。
 >

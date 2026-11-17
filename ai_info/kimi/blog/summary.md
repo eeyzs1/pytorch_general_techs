@@ -1,6 +1,14 @@
 # Kimi (Moonshot AI) — 核心观点总结
 
-> 汇总自 [Kimi Blog](https://www.kimi.com/blog/)、[Kimi News](https://www.kimi.com/news/)、[Kimi Code 文档 changelog](https://www.kimi.com/code/docs/kimi-code/whats-new.html) 和 [Moonshot AI 开放平台](https://platform.moonshot.cn/blog) 的 12 篇文章，涵盖 2026 年 4 月至 10 月。注意：官方"研究博客"渠道（kimi.com/blog）自 2026-07-16 后停更，新动态迁移至 kimi.com/news/ 新闻频道与 Kimi Code 文档 changelog。
+> 汇总自 [Kimi Blog](https://www.kimi.com/blog/)、[Kimi News](https://www.kimi.com/news/)、[Kimi Code 文档 changelog](https://www.kimi.com/code/docs/kimi-code/whats-new.html) 和 [Moonshot AI 开放平台](https://platform.moonshot.cn/blog) 的 13 篇文章，涵盖 2026 年 4 月至 10 月。研究博客已于 2026-10-24 发布 K3.1 Pro；平台博客、新闻与 Code changelog 继续分别检查。
+
+## 本次增量（2026-11-17）
+
+K3.1 Pro 技术博客已正式发布，不能沿用上次同步的“尚未发布”判断；本轮同时核对官方权重页与许可证。
+
+- [Kimi K3.1 Pro：扩大后训练与长程任务能力](kimi-k3-1-pro.md)（2026-10-24）。
+
+当前独立摘要 13 篇；本轮新增 1 篇。具体检索范围与主题复核见 [同步报告](../../sync-report-2026-11-17.md)。
 
 ## 一、总体脉络
 
@@ -113,3 +121,4 @@ Kimi K3 以 2.8T 参数成为全球首个开源 3T 级模型，Kimi K2.6 在编�
 | 10 | 2026-09-21 | [Kimi Code Desktop](kimi-code-desktop.md) | 桌面客户端 / 四任务模式 |
 | 11 | 2026-09-23 | [Kimi Code CLI v2.1.0](kimi-code-cli-v2-1-0.md) | 全屏 TUI / 工作区安全加固与回摆 |
 | 12 | 2026-10-14 | [Kimi Code Desktop v1.1.0](kimi-code-desktop-v1-1-0.md) | Linux 版 / 远程控制 / 进展更新 |
+| 13 | 2026-10-24 | [Kimi K3.1 Pro：扩大后训练与长程任务能力](kimi-k3-1-pro.md) | Kimi / 长程任务 / 开放权重 |

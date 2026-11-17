@@ -70,6 +70,12 @@
 - [ChatGPT Ads 新视觉格式与度量](../openai/research/new-chatgpt-ads-format-and-measurement.md)：广告从试水进入规模化建设——原生视觉格式 + 度量工具 + 第三方归因 + 品牌适宜性四件套六周一连击（$1B ARR → 东南亚扩张 → 格式重构），广告主侧的入场清单首次齐备。
 - [Gemini 4 Argon 全面开放](../google/deepmind/introducing-gemini-4-argon.md)：引入期定价的新玩法——$2/$10 + 缓存 95% 折扣至 11-30、此后翻倍至 $4/$20，Batch/Flex 半价；订阅（AI Pro/Ultra）与 Stable API 双通道放量，"先低价抢采用、后提价"把价格锚的时效性本身做成营销事件。
 
+## 2026-11 成果成本与判断权
+
+- [Hydrogen](../google/deepmind/introducing-gemini-4-hydrogen.md) 与 [Muse Ember](../meta/muse-ember.md)：按规划、执行、验证的任务成本与成功率评估分工。
+- [Decision Models](../huggingface/blog/decision.md)：固定候选决策可评估不同计算接口，不能只压缩 prompt 或更换便宜生成模型。
+- [专家判断实验](../anthropic/research/agents-judgment-calls.md)：工具采用率之外还要判断关键决策由谁实际形成。
+
 ## 关键结论
 
 - 衡量 AI 价值的基本经济问题：AI 完成工作的价值增长是否快于其生产成本——token 只是中间产物，"成功成果的成本"才是正确度量。

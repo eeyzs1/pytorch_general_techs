@@ -8,6 +8,8 @@
 
 ## 核心观点
 
+> 2026-11-17 复核补记：官方已在 [2026-10-17 公告](news261017.md) 确认 Search / Fetch 开放，并公布当时的工具收费安排。本文的 2026-10-16 保留为最初文档观察的历史日期，不能继续将“官方没有公告”当作当前状态；11 月的能力扩展见 [应用 API 公告](news261113.md)。
+
 DeepSeek 在 API 文档站上线两个独立原语 API：**Search**（`POST /v1/tools/search`，结构化网页搜索）与 **Fetch**（`POST /v1/tools/fetch`，抓取单页并转 Markdown），官方定位是"给 Agent 与 RAG 应用提供实时网页内容"。二者与模型 API 同一 Bearer 认证、同一 base URL，均为原生 JSON API——开发者不再需要外接 Tavily/Serper 等第三方搜索服务即可在 DeepSeek 应用内闭环完成"检索—抓取—推理"。
 
 计费采用**按成功请求**而非按 token：Search 与 Fetch 各 $0.75/千次成功请求，失败请求、空结果、超时一律不计费，`count` 只控制返回条数不影响单价；限流为账户级各 5 QPS、互不占用配额。Claude Code 内置 Web Search 工具与 Codex `web_search` 特性经 DeepSeek 发起的搜索请求，上线首两周免费（计费起始日另行公告）——延续"零改造接入 Claude Code/Codex 生态"策略。

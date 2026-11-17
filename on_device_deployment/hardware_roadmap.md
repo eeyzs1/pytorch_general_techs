@@ -1,566 +1,126 @@
 # 硬件实操路线图
 
-> 本文档提供从零到真实硬件部署的渐进式实操路径。所有路径都从纯软件模拟起步，逐步过渡到真实设备，适合自学和教学场景。
+> 更新与官方资料检索：2026-11-17。目标是用已有设备建立正确性与测量闭环，再进入专用硬件部署。
+> 近期版本、官方来源及验证范围见 [端侧运行时与交付更新](runtime_update_2026-11.md)。
 
----
+## 先选路径，再选模型
 
-## 先读这个：你的硬件选择决策树
+| 已有环境 | 起步路径 | 应先验证 |
+|---|---|---|
+| 普通 PC / 无独显 | C：CPU | 导出、数值、输入契约与内存预算 |
+| Apple Silicon Mac | M：Apple | CPU / GPU / Apple 专用框架的适用版本与算子支持 |
+| NVIDIA GPU PC | G：CUDA | 驱动、模型格式、后端与显存预算；服务框架的操作系统支持 |
+| Android 手机 | A：Android | 目标 SoC、系统版本、后端、算子分区及持续功耗 |
+| 浏览器 | B：WebGPU / WASM | 浏览器支持、模型下载、Tab 内存与计算后端 |
+| MCU / 传感器板 | E：TinyML | SRAM、静态内存规划、唤醒或传感任务 |
+| 已有嵌入式开发板 | D：开发板 | SDK / 板卡版本、交叉编译、供电散热与实际运行记录 |
 
-```
-你的设备情况？
-│
-├── 你有一台 MacBook (Apple Silicon, M1/M2/M3/M4)
-│   └── → 路径 M：最省钱的起步方案（零额外开销）
-│       核心优势：ANE 推理（Core ML）、GPU 推理（MLC-LLM）、CPU 推理（llama.cpp）全支持
-│
-├── 你有一台 Windows/Linux 笔记本 + NVIDIA GPU (RTX 2060 或更好)
-│   └── → 路径 G：GPU 推理的最佳实践
-│       核心优势：TensorRT-LLM、vLLM、AWQ/GPTQ 全工具链
-│
-├── 你有一台 Android 手机（骁龙 8 系列，近 2 年内的旗舰）
-│   └── → 路径 A：最贴近真实端侧部署场景
-│       核心优势：直接在目标设备上开发测试，NPU 实战
-│
-├── 你只有一台普通笔记本（无 GPU / 集成显卡）
-│   └── → 路径 C：零门槛起步
-│       核心优势：llama.cpp CPU 推理即可跑通大部分课程内容
-│       实际部署体验依赖路径 A 或 M
-│
-├── 你想先做网页试用 / 零安装演示
-│   └── → 路径 B：浏览器端（WebGPU / WASM）
-│       核心优势：无需装 App；配合 §7.6 与 browser_demo
-│
-├── 你有 MCU / 传感器板（Cortex-M / Ethos-U / Arduino 级）
-│   └── → 路径 E：TinyML 唤醒词与传感
-│       核心优势：理解“始终在线”极低功耗层，衔接语音全链路
-│
-└── 你有预算（¥2000-5000）可以购买开发板
-    └── → 路径 D：开发板方案（见后文推荐）
-        核心优势：完整的嵌入式部署体验，IoT/车载/机器人场景
-```
+优先使用手边设备。芯片 TOPS、工艺节点与参数量不能直接换算成 tok/s，也不能证明支持某个模型的全部算子。
 
----
+## 路径 C：纯 CPU 先跑通交付
 
-## 2025-2026 硬件世代更新（2nm 工艺时代）
+1. 完成 [5.5 导出与运行时一致性](05_hardware_deployment/5.5_export_runtime_parity.ipynb)。
+2. 完成 [6.0 模型格式](06_model_format/6.0_model_format.ipynb) 与 [6.1 版本管理](06_model_format/6.1_model_versioning.ipynb)。
+3. 选择实际模型后，估算权重、KV、运行时工作区与进程峰值；不要只算量化权重大小。
+4. 再使用 llama.cpp 或 ONNX Runtime 的 CPU 路径测量实际输入分布。
 
-> 2025 年起，主流移动芯片进入 2nm 工艺世代，NPU 算力大幅提升并原生支持低比特（INT4/1.58-bit）推理，端侧 LLM 部署能力迈上新台阶。
+从课程目录运行新增实验：
 
-| 芯片 | 发布时间 | 工艺 | NPU 算力 | 关键特性 |
-|------|---------|------|---------|---------|
-| 骁龙 8 Elite Gen 5 | 2025 Q4 | 2nm | ~60 TOPS (INT8) | Hexagon V69，原生 INT4/1.58-bit 加速 |
-| Apple A20 | 2025 Q4 | 2nm | 35+ TOPS (ANE) | 统一内存带宽 120 GB/s |
-| 联发科天玑 9500 | 2026 Q1 | 2nm | ~50 TOPS | 首款原生支持 BitNet 1.58-bit 推理的移动芯片 |
-| 华为昇腾 910C | 2025 | 5nm | 256 TOPS (INT8) | 面向端云协同 |
-
-> **选型提示**：2nm 世代芯片普遍支持原生 INT4/1.58-bit 加速，配合 BitNet 等低比特模型可显著降低内存占用与功耗，是端侧大模型部署的关键拐点。学习时可优先在路径 A（骁龙/天玑）或路径 M（A20）上体验低比特推理的收益。
-
----
-
-## 新一代部署框架（2025-2026）
-
-随着端侧 LLM 生态成熟，2025-2026 年涌现出一批新的部署框架与工具，覆盖不同平台与使用场景：
-
-| 框架/工具 | 平台 | 发布/更新 | 关键特性 | 适用场景 |
-|----------|------|----------|---------|---------|
-| **Apple CoreAI** | iOS / macOS | WWDC 2026 | 替代 Core ML 的统一 AI 推理框架，比 MLX 快 2.47x，支持 INT4/INT8/FP16 | iOS/macOS 开发者首选 |
-| **Google LiteRT-LM** | Android | 2026.03 | TFLite 演进版，降内存 30%+ | Android 端 LLM 部署官方方案 |
-| **Ollama** | 跨平台 | 持续更新 | 极简部署，一行命令运行模型（`ollama run gemma4`），支持模型融合、GPU 内存共享 | 快速原型、本地体验 |
-| **LM Studio** | 跨平台 | 持续更新 | 图形界面管理模型，支持 GGUF/MLX 多格式 | 非命令行用户、模型管理 |
-
-**快速上手示例（Ollama）**：
 ```bash
-# 一行命令运行模型
-ollama run gemma4
-
-# 模型融合与 GPU 内存共享
-ollama run gemma4 --gpu-memory-fraction 0.8
+jupyter notebook 05_hardware_deployment/5.5_export_runtime_parity.ipynb
 ```
 
-> **建议**：初学者可用 Ollama / LM Studio 快速体验模型效果，再深入 CoreAI / LiteRT-LM 做生产部署。CoreAI 适合 Apple 生态深度集成，LiteRT-LM 是 Android 端官方推荐路径。
+完成标准：多个有效形状与 Eager 参考对齐，非法输入被拒绝，能说明模型文件、图格式与运行时的区别。CPU 实验验证机制；不以它推算 NPU 加速比。
 
----
+## 路径 M：Apple Silicon
 
----
+| 目标 | 可评估路线 | 兼容性重点 |
+|---|---|---|
+| 本地研究与模型试验 | MLX / MLX-LM、llama.cpp Metal | 芯片、内存、模型架构与量化实现 |
+| App 中部署自有模型 | Core AI、Core ML、ExecuTorch 相应后端 | OS / SDK 可用性、转换工具、精度与算子支持 |
+| 使用系统提供的模型 | Apple 系统模型接口 | 设备与地区可用性、任务边界，不等同于加载任意自有模型 |
+
+Core AI 是 WWDC26 官方介绍的端侧模型部署框架，包含 Python 工具与 Swift API；Core ML 的既有模型与兼容路线仍需按项目维护。不要把“支持 Apple Silicon”自动理解为模型在 ANE 上完整运行。[Apple Core AI](https://developer.apple.com/videos/play/wwdc2026/324/)、[Core ML](https://developer.apple.com/documentation/coreml)
+
+先做 CPU / GPU 正确性对照，再用目标平台工具观察后端分区、加载时间、内存与持续功耗。对于统一内存设备，还要给系统与其他应用预留空间，不使用“某内存容量必定能跑某参数量”的固定表格。
+
+## 路径 G：Windows / Linux 与 NVIDIA GPU
+
+本地单用户可评估 llama.cpp CUDA；研究试验可使用 PyTorch；服务压测可按框架官方支持环境使用 vLLM 或 TensorRT-LLM。Windows、WSL2、Linux 的安装与后端支持分别核对。
+
+先运行 PyTorch 的 SDPA / compile / export [基础实验](../ml_train/09_inference_optimization/13_modern_pytorch_inference.ipynb)，再按 [推理服务与调度](../llm_techs/03-推理服务与调度.md) 建立服务基线。
+
+```text
+权重与模型配置 → 确认格式 / 量化配方 → 兼容运行时 → 质量回归 → 服务负载测试
+```
+
+AWQ 模型需要相应量化权重与配置；不能对普通 BF16 checkpoint 只加一个 `--quantization awq` 就当作完成量化。选择量化工具时检查当前维护情况和框架版本，不混装不兼容的包。
+
+测量时固定输入 / 输出长度、并发、dtype 与预热。报告 TTFT、TPOT / ITL 和峰值显存，不能用无来源的速度区间作为验收标准。
+
+## 路径 A：Android 手机
+
+两类路线需要区分：
+
+- **应用模型部署**：LiteRT / LiteRT-LM、ExecuTorch、QNN 或其他目标运行时，携带自有模型与应用配置。
+- **系统 AI 能力**：使用系统提供的模型和服务，受设备、系统与接口权限约束，不等于任意模型直接访问 NPU。
+
+当前 [LiteRT-LM](https://developers.google.com/edge/litert-lm) 覆盖多平台和多种语言入口；具体设备能否走 GPU / NPU，仍需按所用版本、模型和后端检查。ExecuTorch 的 Qualcomm 等 delegate 也要对齐 SDK 与目标设备。
+
+建议步骤：
+
+1. 记录设备 SoC、Android 版本、内存与目标应用 SDK。
+2. 从对应框架的官方示例开始，确认模型转换和加载。
+3. 检查实际委托的算子、CPU fallback 与输入限制。
+4. 比较短输入、长输入和持续运行后的生成质量、内存与温升。
+5. 再接入 [模型 OTA](19_model_ota/19.1_model_ota.ipynb) 与 [端侧 MLOps](24_edge_mlops/24.1_edge_mlops.ipynb)。
+
+Qualcomm AI Hub 的编译 / profile 作业与“把应用安装到自己的手机”是不同步骤；云端设备结果需连同设备与 SDK 信息保留，不能写成已经在用户真机运行。
 
 ## 路径 B：浏览器端（WebGPU / WASM）
 
-> 适合：快速做「打开网页就能聊」的演示；不替代原生 NPU 路径。
+从 [7.6 浏览器实验](07_edge_cloud/7.6_browser_wasm.ipynb) 和 `07_edge_cloud/browser_demo/index.html` 开始。
 
-### 建议步骤
+确认浏览器 API、实际计算后端、模型下载体积、缓存与 Tab 内存预算。WebGPU 的存在不代表任意模型都支持，也不等于原生 NPU delegate。
 
-1. 阅读 §7.6 与 `07_edge_cloud/7.6_browser_wasm.ipynb`，先算清 Tab 内存预算  
-2. 用本地静态服务器打开 `07_edge_cloud/browser_demo/index.html`  
-3. 进阶：按 demo 中的 WebLLM / Transformers.js 伪代码接入 1B 级量化模型  
-4. 对比同模型在路径 C（llama.cpp CPU）的 tok/s 与首包体验  
-
-### 检查清单
-
-- [ ] 说清 WebGPU vs WASM 的选型理由  
-- [ ] 模型体积 + KV + 运行时 < 浏览器可用内存  
-- [ ] 有 Service Worker / 缓存策略说明（可只写设计）  
-
----
+完成标准：能说明不支持 WebGPU 时的行为，区分冷下载、冷加载与预热后前向，在刷新页面和资源不足时有明确处理。
 
 ## 路径 E：MCU / TinyML
 
-> 适合：耳机/手表/IoT；目标不是跑 7B，而是 **唤醒与传感**。
+目标是始终在线的唤醒、分类与传感，不以完整大语言模型为起点。
 
-### 建议步骤
+先运行 [15.1 MCU / TinyML](15_mcu_tinyml/15.1_mcu_tinyml.ipynb)，再根据板卡选择对应的 MCU 后端与官方示例。记录权重、激活 arena、栈与外设缓冲的总 SRAM 占用；把需要大模型的任务交给上级设备或端云路径。
 
-1. 完成 `15_mcu_tinyml/15.1_mcu_tinyml.ipynb`，掌握 INT8 体积与静态内存规划  
-2. 若有板子：Arduino/Cortex-M 上跑 TFLM 或 ExecuTorch Ethos-U 官方 sample  
-3. 与路径 A/M 衔接：画出 `KWS(MCU) → ASR+LLM(AP/NPU)` 状态机（§7.7）  
+## 路径 D：嵌入式开发板
 
-### 检查清单
+板卡按已有环境与目标任务选择；Jetson、Arm MCU、Android / Linux NPU 板卡使用不同工具链，不能只按 TOPS 横向排序。
 
-- [ ] 能估算模型+arena 是否装进 SRAM  
-- [ ] 理解为何 LLM 不该常驻 MCU  
-- [ ] 有一份与手机 SoC 的职责划分图  
+逐项确认：
 
----
+1. 硬件型号、内存、供电、散热、系统镜像和 SDK。
+2. 编译器、目标架构与运行时后端是否匹配。
+3. 实际模型是否有可用转换路径与参考实现。
+4. 是否能取得质量、内存、延迟与持续功耗的可重复记录。
 
-## 路径 M：MacBook (Apple Silicon) 方案
+同一模型在不同板卡上比较时，保留量化方法、上下文、batch、生成长度及温度条件。源码按选定 release / commit 固定，不能把某张 JetPack 或 SDK 配置表直接用于另一代硬件。
 
-### 可用技术栈
-| 推理后端 | 框架 | 量化支持 | 适用模型大小 |
-|---------|------|---------|------------|
-| CPU (Apple Silicon) | llama.cpp | Q2-Q8 K-Quant | 最高 7B (16GB RAM) |
-| GPU (Metal) | **MLX** / MLC-LLM / llama.cpp Metal | INT2-INT8/FP16/BF16 | 最高 70B (96GB统一内存) |
-| ANE (Neural Engine) | Core ML | FP16/INT8 | 最高 3-4B |
+## 通用验收清单
 
-> **MLX 推荐**：Apple Silicon 用户首选 MLX 框架（`pip install mlx-lm`），统一内存架构下性能最优，M4 Max 运行 Llama-3-8B INT4 可达 40-50 tokens/s。详见主文档 5.2.15 节。
+| 关卡 | 必须能提供的证据 |
+|---|---|
+| 可加载 | 运行时、版本与目标设备初始化记录 |
+| 可运行 | 所需算子与动态输入范围的成功 / 失败样例 |
+| 数值一致 | 与参考实现的多输入比较及容差 |
+| 质量合格 | 真实任务回归；量化、长上下文、结构化输出分别检查 |
+| 指标达标 | 预热、并发、内存、功耗与热稳态的测量配置 |
+| 可交付 | 权重、图、tokenizer、配置、输入契约、指纹与回退版本 |
 
-### 阶段一：CPU 推理入门（0 成本，跟随课程即可）
-```bash
-# 安装 llama.cpp Python 绑定
-pip install llama-cpp-python
+“导出成功”“CPU 运行一致”“NPU 全图委托”“业务质量合格”应分别验收。
 
-# 下载一个小模型（Qwen2.5-0.5B GGUF）
-# 从 HuggingFace 搜索 "Qwen2.5-0.5B-Instruct-GGUF"
+## 近期官方入口
 
-# 在 Python 中加载并推理
-python -c "
-from llama_cpp import Llama
-llm = Llama(model_path='qwen2.5-0.5b-q4_k_m.gguf', n_ctx=2048)
-output = llm('你好，请介绍一下自己', max_tokens=100)
-print(output['choices'][0]['text'])
-"
-```
-
-学习目标：
-- [ ] 理解 GGUF 格式和 K-Quant 量化
-- [ ] 会用 llama-cpp-python 加载和推理
-- [ ] 会测试不同量化格式（Q4_K_M vs Q5_K_M vs Q8_0）的精度和速度差异
-
-### 阶段二：GPU (Metal) 推理加速
-
-**方案一：MLX（推荐，Apple Silicon 原生框架）**
-```bash
-# 安装 MLX
-pip install mlx-lm
-
-# 直接加载并推理（MLX 自动利用 Metal GPU）
-python -c "
-from mlx_lm import load, generate
-model, tokenizer = load('mlx-community/Qwen2.5-1.5B-Instruct-4bit')
-response = generate(model, tokenizer, prompt='你好，请介绍一下自己', max_tokens=100)
-print(response)
-"
-```
-
-**方案二：MLC-LLM**
-```bash
-# 安装 MLC-LLM
-pip install mlc-llm
-
-# 使用 MLC 的预编译模型
-mlc_llm chat HF://mlc-ai/Qwen2.5-1.5B-Instruct-q4f16_1-MLC \
-    --device metal
-```
-
-学习目标：
-- [ ] 理解 AOT 编译 vs JIT 解释执行的区别
-- [ ] 对比 Metal GPU 和 CPU 的推理速度差异（应该有 3-5x）
-- [ ] 用课程 5.3 的 Roofline 工具分析 M4 芯片的内存层次
-
-### 阶段三：ANE (Neural Engine) 部署
-```bash
-# 安装 coremltools
-pip install coremltools
-
-# Python 中转换 PyTorch 模型到 Core ML
-python -c "
-import coremltools as ct
-import torch
-
-# 加载模型（需要先转换为 TorchScript 或 traced 模型）
-# 参考：https://apple.github.io/coremltools/docs-guides/
-"
-```
-
-学习目标：
-- [ ] 了解 Core ML 的模型转换流程
-- [ ] 理解 ANE 对 FP16 比 INT8 效率更高（与 GPU/NPU 不同！）
-- [ ] 对比 ANE vs GPU vs CPU 的推理功耗（使用 macOS 的 powermetrics 工具）
-- [ ] 用 Instruments (Xcode) 做 ANE 利用率分析
-
-### 硬件观察工具
-```bash
-# CPU/GPU 功耗和频率监控
-sudo powermetrics --samplers cpu_power,gpu_power -i 1000 -n 60
-
-# 内存监控
-vm_stat 1
-
-# 模型加载时的内存变化
-sudo memory_pressure
-```
-
----
-
-## 路径 G：Windows/Linux + NVIDIA GPU 方案
-
-### 可用技术栈
-| 推理后端 | 框架 | 量化支持 | 适用场景 |
-|---------|------|---------|---------|
-| CUDA GPU | vLLM / TensorRT-LLM | AWQ/GPTQ/FP8 | 高性能推理，服务化部署 |
-| CUDA GPU | llama.cpp CUDA | Q2-Q8 K-Quant | 快速原型，单用户推理 |
-| CUDA GPU | PyTorch + bitsandbytes | NF4/INT8 | 研究实验，量化探索 |
-
-### 阶段一：GPU 推理基础（有 GPU 的最快起步）
-```bash
-# 安装 vLLM
-pip install vllm
-
-# 启动一个 1.5B 模型的推理服务
-python -m vllm.entrypoints.openai.api_server \
-    --model Qwen/Qwen2.5-1.5B-Instruct \
-    --quantization awq \
-    --max-model-len 4096
-```
-
-学习目标：
-- [ ] 理解 vLLM 的 PagedAttention 和连续批处理
-- [ ] 对比 batch_size=1 和 batch_size=8 的吞吐差异
-- [ ] 用 nvidia-smi 监控 GPU 利用率和显存
-
-### 阶段二：AWQ/GPTQ 量化实战
-```bash
-# 安装 autoawq
-pip install autoawq
-
-# 量化一个模型（1.5B 约需 3-5 分钟，8GB 显存）
-python -c "
-from awq import AutoAWQForCausalLM
-from transformers import AutoTokenizer
-
-model_path = 'Qwen/Qwen2.5-1.5B-Instruct'
-quant_path = 'qwen2.5-1.5b-awq'
-
-model = AutoAWQForCausalLM.from_pretrained(model_path)
-tokenizer = AutoTokenizer.from_pretrained(model_path)
-
-model.quantize(tokenizer, quant_config={
-    'zero_point': True,
-    'q_group_size': 128,
-    'w_bit': 4,
-    'version': 'GEMM'
-})
-model.save_quantized(quant_path)
-"
-```
-
-学习目标：
-- [ ] 独立完成一次 AWQ 量化
-- [ ] 对比量化前后模型的 PPL 和推理速度
-- [ ] 理解 group_size 和 zero_point 对精度-速度的影响
-
-### 阶段三：TensorRT-LLM 部署（加分项）
-```bash
-# TensorRT-LLM 是 NVIDIA 官方推理引擎
-# 流程：HF Model → TensorRT-LLM checkpoint → build engine → run
-# 注意：安装和配置相对复杂，建议在有经验后尝试
-```
-
-### GPU 监控工具
-```bash
-# GPU 利用率、显存、温度
-nvidia-smi -l 1
-
-# PyTorch 模型的内存分析
-python -c "
-import torch
-print(f'Allocated: {torch.cuda.memory_allocated()/1024**3:.2f} GB')
-print(f'Cached:    {torch.cuda.memory_reserved()/1024**3:.2f} GB')
-"
-```
-
----
-
-## 路径 A：Android 手机方案
-
-### 前置条件
-- 一台 2023 年后发布的旗舰 Android 手机（推荐骁龙 8 Gen2/Gen3/Elite）
-- 开发者模式已开启 + USB 调试
-- ADB 已安装
-
-### 阶段一：在 Android 上运行 llama.cpp
-```bash
-# 方法1：通过 Termux（Android 终端模拟器）
-# 在手机上安装 Termux，然后：
-pkg install cmake
-git clone https://github.com/ggerganov/llama.cpp
-cd llama.cpp
-cmake -B build
-cmake --build build --config Release -j4
-
-# 将 GGUF 模型推送到手机
-adb push model-q4_k_m.gguf /sdcard/models/
-
-# 运行推理
-./build/bin/llama-cli \
-    -m /sdcard/models/model-q4_k_m.gguf \
-    -p "你好" \
-    -n 50
-```
-
-学习目标：
-- [ ] 在手机上成功运行 llama.cpp 推理
-- [ ] 测量手机 CPU 推理的 tok/s
-- [ ] 对比手机和 PC/Mac 的 CPU 推理性能差距
-
-### 阶段二：高通 QNN SDK 入门（如果手机是高通芯片）
-
-**方案一：Qualcomm AI Hub（推荐入门，简化 QNN 使用）**
-```bash
-# 安装 Qualcomm AI Hub CLI
-pip install qai-hub
-
-# 浏览预优化模型库
-qai-hub list-models
-
-# 一键编译并部署到手机（云端编译 + 设备推送）
-qai-hub submit-model --model qwen2.5-1.5b \
-    --device "Samsung Galaxy S24" \
-    --inference
-```
-
-> **AI Hub 优势**：无需手动安装 QNN SDK，云端自动编译优化，直接推送到设备运行。详见主文档 5.2.16 节。
-
-**方案二：QNN SDK 手动部署（进阶）**
-```bash
-# 下载 Qualcomm AI Engine Direct SDK
-# https://developer.qualcomm.com/software/qualcomm-ai-engine-direct-sdk
-
-# 流程：
-# 1. PyTorch 模型 → ONNX
-# 2. ONNX → QNN 量化工具 → QNN 模型
-# 3. QNN 模型 → QNN 编译器 → Context Binary
-# 4. 在手机上用 QNN Runtime 加载运行
-```
-
-> **注意**：QNN SDK 的安装和配置有一定门槛（需要注册高通开发者账号，SDK 体积大），但这正是真实的 NPU 部署体验。初学者建议先用 AI Hub 入门。
-
-### 阶段三：MNN / NCNN 轻量级推理
-```bash
-# MNN 是阿里的移动端推理框架，对 CPU/NPU 都支持
-# 比直接使用 QNN 更容易上手
-
-# 安装 MNN Python 工具
-pip install MNN
-
-# 转换模型
-python -c "
-import MNN
-# PyTorch → MNN 格式转换
-# 参考：https://github.com/alibaba/MNN
-"
-```
-
-### Android 调试工具
-```bash
-# ADB 基础命令
-adb devices                         # 查看连接的设备
-adb shell                           # 进入手机 shell
-adb push local_file /sdcard/       # 推送文件
-adb pull /sdcard/remote_file .     # 拉取文件
-
-# 手机性能监控
-adb shell top -n 1                  # 进程 CPU/内存
-adb shell dumpsys battery           # 电池状态
-adb shell dumpsys cpuinfo           # CPU 信息
-
-# 实时监控内存
-adb shell dumpsys meminfo | grep -E "Native|Graphics|TOTAL"
-```
-
----
-
-## 路径 C：纯 CPU 方案（零额外成本）
-
-对于没有 GPU、没有高端手机的学习者，这条路径让你依然可以学到 80% 的内容。
-
-### 核心工具链
-```bash
-# 1. llama.cpp（CPU 推理的事实标准）
-pip install llama-cpp-python
-
-# 2. ONNX Runtime CPU
-pip install onnxruntime
-
-# 3. PyTorch CPU（课程所有 notebook 都在 CPU 可跑）
-pip install torch --index-url https://download.pytorch.org/whl/cpu
-```
-
-### 学习路线
-1. **跟随课程 notebook**：所有代码都在 CPU 上可运行，完整覆盖第 1-4 章和 6-9 章
-2. **量化实验**：课程 1.1 和 9.1 的量化代码在 CPU 上完整可跑
-3. **llama.cpp 体验**：下载 GGUF 量化模型，在 CPU 上体验不同量化格式
-4. **性能分析**：用课程 5.3 的 Roofline 工具分析 CPU 上的瓶颈
-
-### 局限和弥补方案
-| 课程内容 | CPU 上能做吗 | 如何弥补 |
-|---------|:----------:|---------|
-| NPU 适配（5.1） | ❌ | 阅读 QNN/ANE 文档 + 看公开 benchmark |
-| GPU 推理加速 | ❌ | 使用课程模拟代码理解原理 |
-| Roofline 实战 | ⚠️ 可模拟 | 用课程代码做模拟分析 |
-| 量化推理加速 | ⚠️ 无加速 | CPU 上量化后用 FP32 反量化计算，不加速但可以验证精度 |
-| 硬件基准测试 | ⚠️ 可模拟 | 用课程 5.4 的框架做模拟分析 |
-| 端侧训练 | ⚠️ 慢 | 用极小模型（<100M 参数）体验流程 |
-
----
-
-## 路径 D：开发板方案（¥2000-5000 预算）
-
-### 推荐开发板
-
-| 开发板 | 核心芯片 | NPU 算力 | 价格（约） | 适用场景 |
-|--------|---------|---------|:-----:|---------|
-| **Jetson Orin Nano (8GB)** | NVIDIA Orin | 40 TOPS | ¥3500 | GPU 推理 + CUDA 生态，最适合学习 LLM 端侧部署 |
-| **树莓派 5** | BCM2712 | 无 NPU | ¥500 | 极低成本体验 CPU 推理，0.5B 模型可跑 |
-| **瑞芯微 RK3588 开发板** | RK3588 | 6 TOPS | ¥800-1500 | NPU 部署实战（IoT 场景） |
-| **高通 RB5 开发套件** | QRB5165 | 15 TOPS | ¥4000+ | 高通 QNN 实战，最贴近手机场景 |
-| **地平线 RDK X5** | Sunrise 5 | 10 TOPS | ¥2000 | 国产 NPU 实战 |
-
-### 推荐：Jetson Orin Nano 起步
-
-这是最佳的学习型开发板，理由：
-- NVIDIA 生态（CUDA/TensorRT/Triton），与云端 GPU 同源
-- 40 TOPS 算力可跑 3B-7B 量化模型
-- 社区成熟，教程丰富
-- 支持 vLLM、llama.cpp、TensorRT-LLM
-
-```bash
-# Jetson Orin Nano 设置 (Ubuntu + JetPack 6.0+)
-# 1. 刷写 JetPack 系统（NVIDIA SDK Manager）
-# 2. 安装依赖
-sudo apt update
-sudo apt install python3-pip cmake
-
-# 3. 编译 llama.cpp（启用 CUDA）
-git clone https://github.com/ggerganov/llama.cpp
-cd llama.cpp
-cmake -B build -DGGML_CUDA=ON
-cmake --build build --config Release -j4
-
-# 4. 运行 7B 模型
-./build/bin/llama-cli -m qwen2.5-3b-q4_k_m.gguf -p "Hello" -n 50 -ngl 99
-```
-
-### Jetson 监控工具
-```bash
-# 类似 nvidia-smi 的工具
-sudo tegrastats                    # GPU/CPU/内存/温度全维度监控
-sudo jtop                          # 更好的可视化工具（需安装 pip install jetson-stats）
-```
-
----
-
-## 推荐的渐进式实操顺序
-
-不管你从哪条路径开始，推荐按以下顺序逐步接触真实硬件：
-
-```
-第 1 个月：纯 CPU 模拟（跟随课程）
-  └── 完成所有 notebook，初步建立知识体系
-  └── 输出：能在 CPU 上独立量化模型、验证精度、做 Roofline 分析
-
-第 2 个月：第一个真实推理框架
-  └── 在 Mac 的 Metal / Windows 的 GPU / Android 的 llama.cpp 中选择一个
-  └── 实现：量化 → GGUF/ONNX → 框架推理 → 基准测试
-  └── 输出：一份真实的部署方案文档
-
-第 3 个月：接触 NPU 或进阶 Topic
-  └── 选项1：如果有 Jetson Orin — 跑 TensorRT-LLM 或 vLLM
-  └── 选项2：如果预算有限 — 用瑞芯微 RK3588 体验 NPU 部署
-  └── 选项3：如果是 Mac 用户 — 用 Core ML + ANE 做真实 NPU 部署
-  └── 输出：对比 CPU/GPU/NPU 三者的性能差异
-
-第 4 个月：综合实战
-  └── 选择项目二或项目五（综合实战项目），独立完成
-  └── 输出：完整项目代码 + 部署报告
-```
-
----
-
-## 常见硬件问题的预期表现
-
-以下数据来自课程第 5 章和社区 benchmark，帮助你建立合理的预期：
-
-| 硬件 | 模型 | 预期 tok/s | 模型加载方式 |
-|------|------|:----------:|------------|
-| MacBook M1 (16GB) | Qwen2.5-1.5B Q4_K_M | 40-50 | llama.cpp Metal |
-| MacBook M1 (16GB) | Qwen2.5-7B Q4_K_M | 12-18 | llama.cpp Metal |
-| RTX 4060 Laptop (8GB) | Qwen2.5-7B AWQ | 50-70 | vLLM |
-| 骁龙 8 Gen3 手机 | Qwen2.5-1.5B Q4_K_M | 20-30 | llama.cpp CPU |
-| Jetson Orin Nano (8GB) | Qwen2.5-3B Q4_K_M | 25-35 | llama.cpp CUDA |
-| 树莓派 5 | Qwen2.5-0.5B Q4_K_M | 3-5 | llama.cpp CPU |
-
-### 2026 年端侧推理性能基准
-
-> 以下数据基于 2nm 世代芯片与新框架实测，反映最新端侧部署能力。对比上表可见，新硬件 + 低比特量化使端侧运行 3-4B 模型成为常态：
-
-| 模型 | 量化 | 平台 | Decode (tok/s) | 内存占用 |
-|------|------|------|:--------------:|:--------:|
-| Gemma 4 E2B | INT4 QAT | 骁龙 8 Elite Gen 5 | 40-55 | ~1.2GB |
-| Qwen3-4B | INT4 | 骁龙 8 Elite Gen 5 | 25-35 | ~2.3GB |
-| HY-1.8B-2Bit | 2-bit | 天玑 9500 | 50-70 | ~0.6GB |
-| Gemma 4 E4B | INT4 | Apple A20 | 30-40 | ~2.2GB |
-| Llama 3.2 3B | Q4_K_M | Ollama (CPU) | 15-25 | ~1.7GB |
-
-> **观察**：天玑 9500 配合 2-bit 模型（HY-1.8B-2Bit）以 ~0.6GB 内存实现 50-70 tok/s，验证了原生 1.58-bit 加速的价值；骁龙 8 Elite Gen 5 在 INT4 下可流畅运行 4B 级模型，已逼近入门级笔记本 GPU 的体验。
-
----
-
-## 常见踩坑和解决
-
-### 坑 1：GGUF 模型下载慢
-```bash
-# 使用 HuggingFace 镜像站
-export HF_ENDPOINT=https://hf-mirror.com
-huggingface-cli download model-name --local-dir ./models
-```
-
-### 坑 2：Mac M1 上 llama-cpp-python 安装 Metal 后端失败
-```bash
-# 确保设置正确的编译参数
-CMAKE_ARGS="-DGGML_METAL=on" pip install llama-cpp-python --force-reinstall --no-cache-dir
-```
-
-### 坑 3：QNN SDK 安装庞大（15GB+）
-```bash
-# 如果只是学习，用 QNN 的文档 + 课程代码理解就够了
-# 真正需要 QNN SDK 的场景：你要发布使用了高通 NPU 的商业 App
-```
-
-### 坑 4：Jetson 上 CUDA 版本混乱
-```bash
-# JetPack 系统自带 CUDA，不要额外安装
-# 用 nvcc --version 确认版本
-# 编译代码时指定正确的 CUDA 架构
-cmake -DCMAKE_CUDA_ARCHITECTURES=87 ..  # Orin 是 sm_87
-```
-
----
-
-> **核心建议**：不要等有了"完美硬件"才开始。第一天就能在 CPU 上跑课程代码。硬件是放大器，不是前提条件。
+- [ExecuTorch 1.6.0 发布记录](https://github.com/pytorch/executorch/releases/tag/v1.6.0)
+- [llama.cpp / ggml 1.0.0 版本边界](https://huggingface.co/blog/ggml-org/llama-cpp-v1)
+- [Google LiteRT-LM](https://developers.google.com/edge/litert-lm)
+- [Apple Core AI](https://developer.apple.com/videos/play/wwdc2026/324/)
+- [ONNX Runtime 执行提供程序](https://onnxruntime.ai/docs/execution-providers/)

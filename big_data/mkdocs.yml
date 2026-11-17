@@ -17,6 +17,7 @@ nav:
       - 结构化评估: assessments/README.md
   - 总览:
       - 技术全景图: big_data_technology_overview.md
+      - 2026-11 湖仓与流处理: 2026-11_湖仓与流处理工程更新.md
       - 课程总课件: big_data_courseware.md
       - 贯穿项目: 贯穿项目_电商数据平台演进/电商数据平台全周期演进指南.md
       - 学习进度追踪: 学习进度追踪体系.md
@@ -43,6 +44,7 @@ nav:
       - L1 SQL 数仓实验: labs/l1-sql-warehouse/README.md
       - L2 实时窗口实验: labs/l2-streaming-window/README.md
       - L3 数据倾斜调优实验: labs/l3-skew-tuning/README.md
+      - L3 CDC 重放实验: labs/l3-cdc-replay/README.md
       - L4 架构评分卡实验: labs/l4-architecture-scorecard/README.md
       - L5 技术雷达实验: labs/l5-strategy-radar/README.md
       - 编程挑战集: 交互式学习_编程挑战集.md

@@ -1,6 +1,15 @@
 # Anthropic Engineering Blog — 核心观点总结
 
-> 汇总自 [Anthropic Engineering](https://www.anthropic.com/engineering)、[claude.com/blog](https://claude.com/blog) 与 [claude.dev](https://claude.dev/blog/) 的 72 篇文章，涵盖 2024 年 9 月至 2026 年 10 月（含 5 篇 2026-09-22/28 上次同步遗漏的补录）。
+> 汇总自 [Anthropic Engineering](https://www.anthropic.com/engineering)、[claude.com/blog](https://claude.com/blog) 与 [claude.dev](https://claude.dev/blog/) 的 74 篇文章，涵盖 2024 年 9 月至 2026 年 11 月（含 5 篇 2026-09-22/28 上次同步遗漏的补录）。
+
+## 本次增量（2026-11-17）
+
+本轮补充记忆组织与安全评测方法，连接跨会话经验、可验证规则和多轮行为验收。
+
+- [Agent 记忆组件：从记录到经过验证的经验](components-of-agent-memory.md)（2026-11-06）。
+- [构建可信安全评估：设计、运行与报告](building-strong-safety-evaluations.md)（2026-11-13）。
+
+当前独立摘要 74 篇；本轮新增 2 篇。具体检索范围与主题复核见 [同步报告](../../sync-report-2026-11-17.md)。
 
 ## 一、总体脉络
 
@@ -213,3 +222,5 @@ Anthropic 的工程博客呈现了一条清晰的技术演进路径：
 | 70 | 2026-10-08 | [Dashboards and Motion](dashboards-and-motion.md) | 产品发布 / 实时仪表盘 / Artifacts 转正 |
 | 71 | 2026-10-13 | [Redesigning Source Control at Anthropic](redesigning-source-control.md) | Scion / agent 尺度基建 / 7 人 5 个月 |
 | 72 | 2026-10-15 | [How the Claude Code Team Does Code Review](solving-code-review-at-anthropic.md) | 六层评审防线 / 风险分级 / 零人合并 |
+| 73 | 2026-11-06 | [Agent 记忆组件：从记录到经过验证的经验](components-of-agent-memory.md) | Agent记忆 / 上下文工程 / 评估 |
+| 74 | 2026-11-13 | [构建可信安全评估：设计、运行与报告](building-strong-safety-evaluations.md) | 安全评估 / 方法论 / 多轮评估 |

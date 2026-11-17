@@ -1,6 +1,12 @@
 # GLM (智谱 AI) — 核心观点总结
 
-> 汇总自 [智谱大模型开放平台](https://www.bigmodel.cn/)、[zhipuai.cn/zh/research 官方研究列表](https://www.zhipuai.cn/zh/research/) 及权威媒体报道，当前覆盖 2025 年 12 月至 2026 年 10 月，共 28 篇。
+> 汇总自 [智谱大模型开放平台](https://www.bigmodel.cn/)、[zhipuai.cn/zh/research 官方研究列表](https://www.zhipuai.cn/zh/research/) 及权威媒体报道，当前覆盖 2025 年 12 月至 2026 年 10 月，共 27 篇独立摘要。
+
+## 本次增量（2026-11-17）
+
+本轮已复核主站、GLM-4 仓库、官方研究列表和发布日志；后两者最新可见模型条目仍为 2026-08-26，未找到满足本轮技术摘要条件的新文章。
+
+当前独立摘要 27 篇；本轮新增 0 篇。具体检索范围与主题复核见 [同步报告](../../sync-report-2026-11-17.md)。
 
 ## 一、总体脉络
 
@@ -169,33 +175,34 @@ GLM-4 系列在 GitHub 开源（Apache-2.0 许可证），包括：
 
 | # | 日期 | 文章 | 主题 |
 |---|------|------|------|
-| 1 | 2025-07-04 | [GLM-4.1V Update](https://github.com/THUDM/GLM-4) | 视觉模型更新 |
-| 2 | 2025-12-09 | [GLM-ASR-Nano](glm-asr-nano.md) | 高鲁棒 ASR / 方言噪声 / 开源（补录） |
-| 3 | 2025-12-10 | [GLM-TTS](glm-tts.md) | 多奖励 RL 语音合成 / CER 0.89%（补录） |
-| 4 | 2026-01-13 | [GLM-Image × 华为](glm-image-huawei.md) | 昇腾全程训练 / 文字渲染 SOTA（补录） |
-| 5 | 2026-01-19 | [GLM-4.7-Flash](glm-4-7-flash.md) | 30B/3B 免费开源（补录） |
-| 6 | 2026-02-02 | [GLM-OCR](glm-ocr.md) | 0.9B 文档解析 SOTA（补录） |
-| 7 | 2026-02-11 | [GLM-5 开源](glm-5-open-source.md) | Agentic Engineering / 开源 SOTA（补录） |
-| 8 | 2026-02-21 | [GLM-5 技术报告](glm-5-technical-report.md) | 744B / DSA / 异步 RL（补录） |
-| 9 | 2026-03-15 | [GLM-5-Turbo](glm-5-turbo.md) | 龙虾增强 / ZClawBench（补录） |
-| 10 | 2026-04-01 | [GLM-5V-Turbo](glm-5v-turbo.md) | 多模态 Coding 基座（补录） |
-| 11 | 2026-04-07 | [GLM-5.1](glm-5-1.md) | 8 小时长程 / SWE-bench Pro 全球最佳（补录） |
-| 12 | 2026-04-29 | [Scaling Pain](glm-scaling-pain.md) | 推理异常治理 / 竞态修复（补录） |
-| 13 | 2026-05-20 | [ZCube](glm-zcube.md) | 推理网络架构 / capex -33%（补录） |
-| 14 | 2026-06-16 | [GLM-5.2](glm-5-2.md) | 旗舰模型 / 1M 无损上下文 / 长程任务 |
-| 15 | 2026-07-30 | [GLM Coding Plan 套餐改版](glm-coding-plan-pricing-revision.md) | 计费改版 / 积分制 / 峰谷定价 |
-| 16 | 2026-08-19 | [GLM-5.3](glm-5-3.md) | 基座模型 / 编程 50% / 网络安全 / 暂缓开源 |
-| 17 | 2026-08-27 | [GLM-5.3-Flash](glm-5-3-flash.md) | 开源多模态 / Ox Alpha 匿名登顶 / 国产芯片 |
-| 18 | 2026-09-03 | [智谱 2026 半年度业绩会](zhipu-h1-2026-earnings-glm-6.md) | 业绩披露 / GLM-6.0 方向 / 后训练迭代 |
-| 19 | 2026-09-04 | [GLM Coding Plan "Flash × ZCode" 夜间畅用](glm-flash-zcode-night-free.md) | 夜间免费 / 峰谷调度 / 自有渠道导流 |
-| 20 | 2026-09-16 | [50 亿美元再融资与 ARR 指引](zhipu-5b-refinancing-arr-guidance.md) | 小股大债 / ARR 18 亿→指引 30 亿 |
-| 21 | 2026-09-17 | [RSI Infra Agent](glm-rsi-infra-agent.md) | AI 自我改进上生产 / 两周提速 3 倍 |
-| 22 | 2026-09-18 | [GLM-5.3-FlashX](glm-5-3-flashx.md) | 200 tokens/s / 定价 2.5 倍 |
-| 23 | 2026-09-28 | [ZCode 代码上传争议](glm-zcode-data-upload-incident.md) | 数据主权事件 / 开源+双审计+补偿 |
-| 24 | 2026-09-30 | [Anthropic 报告评估 GLM-5.3 网络安全能力](glm-5-3-anthropic-cyber-report.md) | ExploitBench 50/410 / 防护绕过 64-100% |
-| 25 | 2026-10-02 | [ZCode 争议后续：媒体深度复盘](zcode-followup.md) | 信任重建 / 行业横向对照 / 监管背景 |
-| 26 | 2026-10-05 | [Cursor 上线 GLM-5.3](glm-5-3-cursor-cursorbench.md) | CursorBench 4.0 开放权重最高分 / 主权 AI 采用 |
-| 27 | 2026-10-06 | [GLM-5.3 接入 Amazon Bedrock](glm-5-3-amazon-bedrock.md) | 海外收入分成 / 云分发第二曲线 |
-| 28 | 2026-10-15 | [古河加盟智谱](zhipu-guhe-cyber-talent.md) | 顶级白帽入基座组 / 网安订单超 10 亿 |
+| 1 | 2025-12-09 | [GLM-ASR-Nano](glm-asr-nano.md) | 高鲁棒 ASR / 方言噪声 / 开源（补录） |
+| 2 | 2025-12-10 | [GLM-TTS](glm-tts.md) | 多奖励 RL 语音合成 / CER 0.89%（补录） |
+| 3 | 2026-01-13 | [GLM-Image × 华为](glm-image-huawei.md) | 昇腾全程训练 / 文字渲染 SOTA（补录） |
+| 4 | 2026-01-19 | [GLM-4.7-Flash](glm-4-7-flash.md) | 30B/3B 免费开源（补录） |
+| 5 | 2026-02-02 | [GLM-OCR](glm-ocr.md) | 0.9B 文档解析 SOTA（补录） |
+| 6 | 2026-02-11 | [GLM-5 开源](glm-5-open-source.md) | Agentic Engineering / 开源 SOTA（补录） |
+| 7 | 2026-02-21 | [GLM-5 技术报告](glm-5-technical-report.md) | 744B / DSA / 异步 RL（补录） |
+| 8 | 2026-03-15 | [GLM-5-Turbo](glm-5-turbo.md) | 龙虾增强 / ZClawBench（补录） |
+| 9 | 2026-04-01 | [GLM-5V-Turbo](glm-5v-turbo.md) | 多模态 Coding 基座（补录） |
+| 10 | 2026-04-07 | [GLM-5.1](glm-5-1.md) | 8 小时长程 / SWE-bench Pro 全球最佳（补录） |
+| 11 | 2026-04-29 | [Scaling Pain](glm-scaling-pain.md) | 推理异常治理 / 竞态修复（补录） |
+| 12 | 2026-05-20 | [ZCube](glm-zcube.md) | 推理网络架构 / capex -33%（补录） |
+| 13 | 2026-06-16 | [GLM-5.2](glm-5-2.md) | 旗舰模型 / 1M 无损上下文 / 长程任务 |
+| 14 | 2026-07-30 | [GLM Coding Plan 套餐改版](glm-coding-plan-pricing-revision.md) | 计费改版 / 积分制 / 峰谷定价 |
+| 15 | 2026-08-19 | [GLM-5.3](glm-5-3.md) | 基座模型 / 编程 50% / 网络安全 / 暂缓开源 |
+| 16 | 2026-08-27 | [GLM-5.3-Flash](glm-5-3-flash.md) | 开源多模态 / Ox Alpha 匿名登顶 / 国产芯片 |
+| 17 | 2026-09-03 | [智谱 2026 半年度业绩会](zhipu-h1-2026-earnings-glm-6.md) | 业绩披露 / GLM-6.0 方向 / 后训练迭代 |
+| 18 | 2026-09-04 | [GLM Coding Plan "Flash × ZCode" 夜间畅用](glm-flash-zcode-night-free.md) | 夜间免费 / 峰谷调度 / 自有渠道导流 |
+| 19 | 2026-09-16 | [50 亿美元再融资与 ARR 指引](zhipu-5b-refinancing-arr-guidance.md) | 小股大债 / ARR 18 亿→指引 30 亿 |
+| 20 | 2026-09-17 | [RSI Infra Agent](glm-rsi-infra-agent.md) | AI 自我改进上生产 / 两周提速 3 倍 |
+| 21 | 2026-09-18 | [GLM-5.3-FlashX](glm-5-3-flashx.md) | 200 tokens/s / 定价 2.5 倍 |
+| 22 | 2026-09-28 | [ZCode 代码上传争议](glm-zcode-data-upload-incident.md) | 数据主权事件 / 开源+双审计+补偿 |
+| 23 | 2026-09-30 | [Anthropic 报告评估 GLM-5.3 网络安全能力](glm-5-3-anthropic-cyber-report.md) | ExploitBench 50/410 / 防护绕过 64-100% |
+| 24 | 2026-10-02 | [ZCode 争议后续：媒体深度复盘](zcode-followup.md) | 信任重建 / 行业横向对照 / 监管背景 |
+| 25 | 2026-10-05 | [Cursor 上线 GLM-5.3](glm-5-3-cursor-cursorbench.md) | CursorBench 4.0 开放权重最高分 / 主权 AI 采用 |
+| 26 | 2026-10-06 | [GLM-5.3 接入 Amazon Bedrock](glm-5-3-amazon-bedrock.md) | 海外收入分成 / 云分发第二曲线 |
+| 27 | 2026-10-15 | [古河加盟智谱](zhipu-guhe-cyber-talent.md) | 顶级白帽入基座组 / 网安订单超 10 亿 |
 
 > **说明**：GLM 官方信源渠道已确认可用：[zhipuai.cn/zh/research](https://www.zhipuai.cn/zh/research/)（官方结构化研究列表）与 [docs.bigmodel.cn](https://docs.bigmodel.cn/)（开放平台文档）。bigmodel.cn 主站为 SPA 需浏览器渲染；平台运营类动态（FlashX/再融资/ZCode 事件等）与业绩披露以证券时报/上海证券报/TechWeb/IT之家等权威媒体交叉验证入库。上次同步遗留的 12 条历史条目（ZCube、Scaling Pain、GLM-5.1、GLM-5V-Turbo、GLM-5-Turbo、GLM-5 技术报告与开源、GLM-OCR、GLM-4.7-Flash、华为 GLM-Image、GLM-TTS、GLM-ASR-Nano）已于 2026-09-29 全部补录完成（AGENTS.md 已知问题 #5 关闭）。**2026-10-16 同步备注**：docs.bigmodel.cn 更新日志已迁移至 [/cn/update/new-releases](https://docs.bigmodel.cn/cn/update/new-releases)（旧路径 /cn/guide/start/explore-updates 返回 404），最新条目仍为 2026-08-26（GLM-5.3-Flash），zhipuai.cn/zh/research 官方研究列表最新亦为 2026-08-26——检索窗口（09-29 至 10-16）内无官方模型/研究发布，新增 5 篇均基于权威媒体交叉验证。原 "Z Managed Agents (Beta)" 栏目已更名为 "Managed Agents (Beta)" 并升为文档站一级导航，概述页声明"API 与控制台均已全量开放"（9 月底同步时为 API 内测），文档树扩至 25+ 页（Agent/Environment/Session/Events、MCP、Skills、Multi-Agent、沙箱环境、记忆、定时任务、聊天渠道接入等）；但更新日志仍无对应条目、无发布日期可考，继续列为待核查项。GLM-6 截至 2026-10-16 未发布（官方渠道无条目，网传 6.0 Leak 仍为第三方推测）。10 月未入库：10-10 智谱联合杭州国资成立 10 亿元创投合伙企业（仅工商信息、单源、无技术/产品内容）、南向资金与港股行情类纯市场报道。
+
+历史外部资源：[GLM-4.1V 项目更新](https://github.com/THUDM/GLM-4)（2025-07-04）。该项不是本库独立摘要，不计入 27 篇文章。

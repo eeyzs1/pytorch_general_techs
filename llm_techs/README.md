@@ -9,6 +9,8 @@
 2. 再按「主线」深潜，不要按名词表背。当前已完成：
    - [`01-缓存与上下文复用.md`](01-缓存与上下文复用.md) — 缓存六层模型、命中率工程 12 条、反模式清单
    - [`02-高命中率实战.md`](02-高命中率实战.md) — 命中率的四个乘数、PIC/EPIC、分层与池化、落地顺序
+   - [`03-推理服务与调度.md`](03-推理服务与调度.md) — 连续批处理、分块 Prefill、PD 分离、投机解码与 goodput
+   - [`04-PyTorch2.15与大模型工程.md`](04-PyTorch2.15与大模型工程.md) — 2026-11 官方资料更新、SDPA / compile / export / torchao 与配套实验
 3. 名词卡住时查 [`99-术语表.md`](99-术语表.md)。
 
 ## 目录结构
@@ -19,8 +21,14 @@ llm_techs/
 ├─ 00-技术地图.md                    ← 总索引：6 层结构 + 10 个类别
 ├─ 01-缓存与上下文复用.md            ← 深潜：从 KV cache 到语义缓存
 ├─ 02-高命中率实战.md                ← 深潜：四个乘数 + 2026 新技术 + 落地顺序
+├─ 03-推理服务与调度.md              ← 深潜：调度原理、压测命令、延迟与 goodput
+├─ 04-PyTorch2.15与大模型工程.md     ← 发布要点、工具链与可运行实验
 └─ 99-术语表.md                     ← 中英对照 + 一句话定义
 ```
+
+## 2026-11-17 更新
+
+新增两篇工程深潜及 [现代 PyTorch 推理 Notebook](../ml_train/09_inference_optimization/13_modern_pytorch_inference.ipynb)。资料附官方来源和检索日期，区分版本新增功能、基础 API 与实验性路径；配套实验无需下载模型。
 
 ## 文档约定
 
@@ -52,13 +60,14 @@ llm_techs/
 
 ## 待写清单（按优先级）
 
-- [ ] `03-推理服务与调度.md` — continuous batching、chunked prefill、PD 分离、投机解码、KV 感知路由
-- [ ] `03-量化与压缩.md` — GPTQ/AWQ/FP8/INT4、KV cache 量化、蒸馏与路由
-- [ ] `04-检索增强RAG.md` — 切块、混合检索、rerank、GraphRAG、评测
-- [ ] `05-Agent与MCP.md` — 工具调用、约束解码、MCP 三个时代（有状态 → 无状态 → 扩展）
-- [ ] `06-上下文工程.md` — compaction、tool-result clearing、子 agent、记忆
-- [ ] `07-评测与可观测.md` — LLM-as-judge、OTel gen_ai、回归集设计
-- [ ] `08-网关与成本治理.md` — 路由策略、语义缓存、配额
+- [x] [03-推理服务与调度.md](03-推理服务与调度.md) — continuous batching、chunked prefill、PD 分离、投机解码、KV 感知路由
+- [x] [04-PyTorch2.15与大模型工程.md](04-PyTorch2.15与大模型工程.md) — 发布要点、编译、导出、SDPA 与量化工作流
+- [ ] `05-量化与压缩.md` — GPTQ/AWQ/FP8/INT4、KV cache 量化、蒸馏与路由
+- [ ] `06-检索增强RAG.md` — 切块、混合检索、rerank、GraphRAG、评测
+- [ ] `07-Agent与MCP.md` — 工具调用、约束解码、MCP 协议演进
+- [ ] `08-上下文工程.md` — compaction、tool-result clearing、子 agent、记忆
+- [ ] `09-评测与可观测.md` — LLM-as-judge、OTel gen_ai、回归集设计
+- [ ] `10-网关与成本治理.md` — 路由策略、语义缓存、配额
 
 ## 一条自我检验标准
 

@@ -2,6 +2,12 @@
 
 面向 **模型压缩 → 推理/硬件 → 系统运营 → Agent/语音/车载/MCU** 的端侧部署全栈教材：理论文档 + 可运行 Jupyter 笔记本（多数可在 CPU 上仿真跑通）。
 
+## 2026-11-17 更新
+
+- [运行时与交付更新](runtime_update_2026-11.md)：ExecuTorch 1.6、llama.cpp 库版本 1.0、LiteRT-LM 与 Core AI 的官方资料及适用边界。
+- [5.5 导出与运行时一致性实验](05_hardware_deployment/5.5_export_runtime_parity.ipynb)：现代 ONNX 导出、CPU 后端、多形状数值回归、输入契约与产物指纹，无需模型下载。
+- [硬件路线图](hardware_roadmap.md)：修订设备路径、后端与验收方式，移除缺乏测量来源的固定性能承诺。
+
 ## 先读哪两份总览？
 
 仓库入口就两份「全景文档」（已与旧版合并定稿），职责不同：
@@ -66,5 +72,7 @@ jupyter notebook
 
 - 核心：`torch`、`transformers`、`onnx`、`peft` 等（见 `requirements.txt`）
 - 可选：`torchao`、`autoawq`、`llama-cpp-python`、`mlx`、Qualcomm AI Hub（按需取消注释）
+
+2026-11-17 工具链补充：[PyTorch 2.15 与大模型工程](../llm_techs/04-PyTorch2.15与大模型工程.md) 说明近期发布变化、torchao 硬件适用范围与动态导出；[配套实验](../ml_train/09_inference_optimization/13_modern_pytorch_inference.ipynb) 无需下载模型，可先在 CPU 上验证导出约束与注意力掩码。
 
 没有 NPU/手机真机时，笔记本会走 **仿真路径**，重点学原理与流水线，不要求专用 SDK。

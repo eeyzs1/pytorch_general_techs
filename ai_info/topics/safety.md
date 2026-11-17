@@ -109,6 +109,13 @@
 - [SentinelOne 把恶意软件分析从数周压到数小时](../openai/research/sentinelone.md)：Daybreak 一周双案例——恶意软件逆向从周级到小时级，释放产能投向更多威胁调查；与 Sophos（调查侧 + 分析侧）共同标志 Daybreak 从漏洞发现修复工具箱扩展为安全行业基础生产力组件。
 - [Towards safety cases for frontier AI training](../openai/research/towards-safety-cases-for-frontier-ai-training.md)（历史补录）：训练前置的安全案例制度——借鉴航空/核电，开展前沿 RL 前提交结构化安全论证，多名高管各有否决权、高优先级警报超时训练自动暂停、监控与暂停机制故障关闭防人为绕过；把 DNS 逃逸后的"暂停 → 评估 → 加固"处置决策制度化。
 
+## 2026-11 检测、处置与独立监督
+
+- [分层失准监控](../openai/research/how-we-detect-frontier-model-misalignment.md) 与 [Control Room](../openai/research/control-room.md)：检测和停止执行分别提供证据，研究任务进程存活与模型输出停止也需区分。
+- [安全评估方法](../anthropic/engineering/building-strong-safety-evaluations.md) 与 [嵌入式评估协议](../openai/research/our-first-phase-of-embedded-assessments.md)：内部度量和外部访问互补。
+- [GPT-6 Cyber](../openai/research/introducing-gpt-6-cyber.md) 与 [Carbon](../google/deepmind/introducing-gemini-4-carbon.md)：安全领域能力与范围遵守是不同测量对象。
+- [Kimi K3.1 Pro](../kimi/blog/kimi-k3-1-pro.md)：权重可取得、许可证和风险评估应分别核对。
+
 ## 关键结论
 
 - Agent 自主性越高，越需要默认隔离、最小权限和可审计执行。

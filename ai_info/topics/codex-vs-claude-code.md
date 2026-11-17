@@ -70,6 +70,12 @@
 
 - [A Global Workspace in Language Models](../anthropic/research/global-workspace.md)：J-space / J-lens 让"读取模型内心独白"变为"可读出 + 可编辑 + 可干预"——为 Codex / Claude Code 的内部调试与对齐审计提供新工具。
 
+## 2026-11 架构参考
+
+- OpenAI 侧新增 [失准监控](../openai/research/how-we-detect-frontier-model-misalignment.md)、[Control Room](../openai/research/control-room.md) 与 [嵌入式评估](../openai/research/our-first-phase-of-embedded-assessments.md)，分别说明研究运行的检测、控制与证据访问。
+- Anthropic 侧新增 [记忆组件](../anthropic/engineering/components-of-agent-memory.md) 和 [安全评估方法](../anthropic/engineering/building-strong-safety-evaluations.md)，提供记忆组织和验收方法。
+- 上述是研究与工程架构资料；不能直接推断 Codex 或 Claude Code 某个客户端版本已经提供全部相同功能或保证。
+
 ## 对比维度
 
 - 产品形态：Codex 覆盖 Web、CLI、IDE、App、移动端、插件、Remote SSH 和自动化；Claude Code 更强调开发者终端工作流与 MCP 生态。

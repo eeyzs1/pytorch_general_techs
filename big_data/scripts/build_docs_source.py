@@ -16,7 +16,10 @@ STATIC_SUFFIXES = {".csv", ".json", ".sample", ".yaml", ".yml"}
 
 def should_copy(path: Path) -> bool:
     rel_parts = path.relative_to(ROOT).parts
-    if any(part in EXCLUDE_DIRS for part in rel_parts):
+    if any(
+        part in EXCLUDE_DIRS or part.startswith(".venv") or part in {"venv", "__pycache__"}
+        for part in rel_parts[:-1]
+    ):
         return False
     return path.suffix == ".md" or path.suffix in STATIC_SUFFIXES
 

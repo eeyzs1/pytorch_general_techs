@@ -1,6 +1,16 @@
 # Google DeepMind — 核心观点总结
 
-> 汇总自 [Google DeepMind Blog](https://deepmind.google/blog/) 与 [DeepMind Institute](https://institute.deepmind.com/) 的 57 篇文章，涵盖 2026 年 3 月至 10 月。
+> 汇总自 [Google DeepMind Blog](https://deepmind.google/blog/) 与 [DeepMind Institute](https://institute.deepmind.com/) 的 60 篇文章，涵盖 2026 年 3 月至 11 月。
+
+## 本次增量（2026-11-17）
+
+本轮补充 Carbon、Hydrogen 与 AlphaProof Code，分别覆盖前沿任务、高效执行和可检查的形式化证明。
+
+- [Gemini 4 Carbon：长任务能力与网络防御评估](introducing-gemini-4-carbon.md)（2026-10-28）。
+- [AlphaProof Code：将形式化验证推进到真实实现](introducing-alphaproof-code.md)（2026-11-10）。
+- [Gemini 4 Hydrogen：多模型工作流中的高效执行](introducing-gemini-4-hydrogen.md)（2026-11-12）。
+
+当前独立摘要 60 篇；本轮新增 3 篇。具体检索范围与主题复核见 [同步报告](../../sync-report-2026-11-17.md)。
 
 ## 一、总体脉络
 
@@ -279,3 +289,6 @@ Gemini 3.5 + Omni 构建前沿模型矩阵，Antigravity 2.0 打造 Agent 开发
 | 55 | 2026-10-14 | [On-Device AI Scam Detection with Singapore](on-device-ai-scam-detection-mddi.md) | 端侧反诈 / Gemma 微调 / 国家合作 |
 | 56 | 2026-10-14 | [Powering European Scientific Discovery (RAISE)](were-powering-european-scientific-discovery-with-advanced-ai-compute-and-frontier-models.md) | 欧洲算力 / 200 研究者 / 五大模型 |
 | 57 | 2026-10-15 | [Accelerating Antimicrobial Peptide Search with Antigravity](accelerating-antimicrobial-discovery.md) | 智能体科学 / 抗菌肽 / 湿验证中 |
+| 58 | 2026-10-28 | [Gemini 4 Carbon：长任务能力与网络防御评估](introducing-gemini-4-carbon.md) | Gemini / 长程任务 / 网络能力 |
+| 59 | 2026-11-10 | [AlphaProof Code：将形式化验证推进到真实实现](introducing-alphaproof-code.md) | 形式化验证 / 多智能体 / 软件可靠性 |
+| 60 | 2026-11-12 | [Gemini 4 Hydrogen：多模型工作流中的高效执行](introducing-gemini-4-hydrogen.md) | Gemini / 多模型路由 / Agent效率 |

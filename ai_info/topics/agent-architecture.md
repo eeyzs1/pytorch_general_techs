@@ -110,6 +110,14 @@
 - [Natural Language Autoencoders](../anthropic/research/natural-language-autoencoders.md)：NLA 把 Agent 内部激活翻译成自然语言——可用于审计 Agent 是否私下注意到自己被测试、是否捏造数据、是否追求隐藏目标。
 - [Studying metagaming latents](../openai/research/metagaming-latents.md)：SAE 潜在表征可监控并转向"元博弈"行为——四个 latents 对应任务分析、评估意识、规格律师式推理与规范合规四种模式，其中 3 个跨任务检测 AUC > 0.5；元博弈影响力随 RL 训练增强，且能在不写入思维链的情况下影响答案——CoT 监控的盲区补丁。
 
+## 2026-11 工程增量
+
+- [Agent 记忆组件](../anthropic/engineering/components-of-agent-memory.md)：从轨迹到可验证经验；与 [Meta 主动记忆与任务恢复](../meta/specialized-models-for-muse-and-metaai.md) 对照。
+- [Hydrogen 多模型执行](../google/deepmind/introducing-gemini-4-hydrogen.md) 与 [Muse Ember](../meta/muse-ember.md)：把复杂判断和大量重复子任务分别评估。
+- [Agent 后训练课程](../huggingface/blog/train-agents.md)：训练资产从答案扩展到多轮轨迹、环境与 harness。
+- [DeepSeek 应用 API](../deepseek/news/news261113.md)：区分平台内置工具编排与开发者直接组合原语。
+- [Kimi K3.1 Pro](../kimi/blog/kimi-k3-1-pro.md)：扩大后训练与环境工程；许可和基准配置需要一并核对。
+
 ## 关键结论
 
 - 简单、可组合的架构优先于复杂框架。

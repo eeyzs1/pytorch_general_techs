@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 from typing import Any
 
@@ -20,7 +21,7 @@ def rows(conn: sqlite3.Connection, sql: str) -> list[dict[str, Any]]:
 
 
 def analyze(db_path: Path) -> dict[str, Any]:
-    with sqlite3.connect(db_path) as conn:
+    with closing(sqlite3.connect(db_path)) as conn:
         gmv = scalar(
             conn,
             """

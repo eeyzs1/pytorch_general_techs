@@ -2,6 +2,12 @@
 
 这个目录收集 AI Agent、Codex、Claude Code、评估、安全、工具使用等方向的官方技术文章摘要。目标不是简单搬运博客，而是沉淀一个可校验、可检索、可持续更新的知识库。
 
+## 2026-11-17 技术增量
+
+新增 18 篇摘要，目录由 544 篇增至 562 篇，重点是 Agent 记忆、评估与运行控制、模型后训练和高效执行。指定厂商信源均已检查，9 份厂商 / 分类总结及实际存在的 11 份主题文件均已复核。GLM 本轮未新增，具体来源状态、覆盖范围和待补项见 [同步报告](sync-report-2026-11-17.md)。
+
+推荐从 [记忆组件](anthropic/engineering/components-of-agent-memory.md)、[运行控制](openai/research/control-room.md)、[本地推理库版本边界](huggingface/blog/llama-cpp-v1.md) 开始。
+
 ## 目录结构
 
 ```text

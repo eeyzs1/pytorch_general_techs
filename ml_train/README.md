@@ -1,6 +1,8 @@
 # 大模型机器学习产业级技术全景
 
-本项目系统性地覆盖了大语言模型（LLM）从数据到部署的全生命周期技术栈，包含 20 个技术模块、125 个可运行的 Jupyter Notebook 代码示例。
+本项目系统性地覆盖了大语言模型（LLM）从数据到部署的全生命周期技术栈，包含 21 个技术模块、126 个 Jupyter Notebook 代码示例。
+
+**2026-11-17 更新**：新增 [现代 PyTorch 推理实验](09_inference_optimization/13_modern_pytorch_inference.ipynb)，覆盖 SDPA 掩码、编译一致性与计时、动态形状导出；配套阅读 [PyTorch 2.15 工程要点](../llm_techs/04-PyTorch2.15与大模型工程.md) 和 [推理服务调度](../llm_techs/03-推理服务与调度.md)。新实验无需下载模型。
 
 📖 **文档导航**：
 - [大模型机器学习技术全景.md](大模型机器学习技术全景.md) — 技术参考文档（适合有技术背景的读者）
@@ -19,7 +21,7 @@ ml_train/
 ├── 06_fine_tuning/             # 微调（全参数/PEFT/指令微调）
 ├── 07_alignment_training/      # 对齐（…/过程监督/奖励黑客深挖）
 ├── 08_model_compression/       # 模型压缩（量化/剪枝/蒸馏/低秩）
-├── 09_inference_optimization/  # 推理（…/硬件内核/Serving引擎内部）
+├── 09_inference_optimization/  # 推理（…/硬件内核/Serving引擎/现代PyTorch实验）
 ├── 10_long_context/            # 长上下文处理（PI/NTK/YaRN/ALiBi）
 ├── 11_rag/                     # 检索增强生成（RAG/Embedding训练）
 ├── 12_agent/                   # 智能体（…/深度研究/工具调用RL）
@@ -37,6 +39,8 @@ ml_train/
 ## 快速开始
 
 ### 环境配置
+
+在 `ml_train` 目录执行以下命令。基础环境使用 Python 3.10+、PyTorch 2.6+；如选用 PyTorch 2.15，则需 Python 3.11+（见 [官方发布说明](https://pytorch.org/blog/pytorch-2-15-release-blog/)）。GPU 版 PyTorch 按平台选择安装包。
 
 ```bash
 python3 -m venv .venv
@@ -73,6 +77,14 @@ python3 scripts/validate_notebooks.py
 ```bash
 python3 scripts/validate_notebooks.py --execute
 ```
+
+只执行这次新增的离线实验：
+
+```bash
+python scripts/validate_notebooks.py 09_inference_optimization/13_modern_pytorch_inference.ipynb --execute
+```
+
+该实验支持 CPU / CUDA，默认使用 `aot_eager` 验证图捕获，具备相应工具链时可通过 `PYTORCH_TUTORIAL_BACKEND=inductor` 切换；实际后端会在输出中显示。
 
 ### 推荐学习路径
 
